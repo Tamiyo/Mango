@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Matt/Documents/clionlang/lex/mglex.h
+iostream
+-
+cstring
+-
+
+C:/Users/Matt/Documents/clionlang/main.cpp
+iostream
+-
+lex/mglex.h
+C:/Users/Matt/Documents/clionlang/lex/mglex.h
+
