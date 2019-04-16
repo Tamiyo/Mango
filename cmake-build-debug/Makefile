@@ -47,10 +47,10 @@ RM = "C:\Program Files\JetBrains\CLion 2019.1\bin\cmake\win\bin\cmake.exe" -E re
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\Matt\Documents\clionlang
+CMAKE_SOURCE_DIR = D:\Documents\Mango
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\Matt\Documents\clionlang\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Documents\Mango\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -79,9 +79,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Matt\Documents\clionlang\cmake-build-debug\CMakeFiles C:\Users\Matt\Documents\clionlang\cmake-build-debug\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\Mango\cmake-build-debug\CMakeFiles D:\Documents\Mango\cmake-build-debug\CMakeFiles\progress.marks
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Matt\Documents\clionlang\cmake-build-debug\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\Mango\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -176,6 +176,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles\clionlang.dir\build.make CMakeFiles/clionlang.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+sys/keywords.obj: sys/keywords.cpp.obj
+
+.PHONY : sys/keywords.obj
+
+# target to build an object file
+sys/keywords.cpp.obj:
+	$(MAKE) -f CMakeFiles\clionlang.dir\build.make CMakeFiles/clionlang.dir/sys/keywords.cpp.obj
+.PHONY : sys/keywords.cpp.obj
+
+sys/keywords.i: sys/keywords.cpp.i
+
+.PHONY : sys/keywords.i
+
+# target to preprocess a source file
+sys/keywords.cpp.i:
+	$(MAKE) -f CMakeFiles\clionlang.dir\build.make CMakeFiles/clionlang.dir/sys/keywords.cpp.i
+.PHONY : sys/keywords.cpp.i
+
+sys/keywords.s: sys/keywords.cpp.s
+
+.PHONY : sys/keywords.s
+
+# target to generate assembly for a file
+sys/keywords.cpp.s:
+	$(MAKE) -f CMakeFiles\clionlang.dir\build.make CMakeFiles/clionlang.dir/sys/keywords.cpp.s
+.PHONY : sys/keywords.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -191,6 +218,9 @@ help:
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
+	@echo ... sys/keywords.obj
+	@echo ... sys/keywords.i
+	@echo ... sys/keywords.s
 .PHONY : help
 
 

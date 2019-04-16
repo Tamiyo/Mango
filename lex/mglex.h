@@ -6,22 +6,31 @@
 #define CLIONLANG_LEX_H
 
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <cstring>
+#include "../sys/keywords.h"
 
 using std::cout;
 using std::endl;
 
 class mglex {
 public:
-    mglex();
+    explicit mglex(const char *);
 
-    void lltoken(const char *);
+    char *lltoken();
 
 private:
     const static int BUFFER_SIZE = 4096;
     char BUFFER[BUFFER_SIZE]{};
+
     char *lexemeBegin{};
     char *forward{};
+
+    const char* endOfFile = "\\eof";
+    keywords* keys;
+
+    char* charSlice(char*, char*, int);
 };
 
 

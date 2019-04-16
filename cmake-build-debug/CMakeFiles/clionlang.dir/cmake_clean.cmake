@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/clionlang.dir/main.cpp.obj"
   "CMakeFiles/clionlang.dir/lex/mglex.cpp.obj"
+  "CMakeFiles/clionlang.dir/sys/keywords.cpp.obj"
   "clionlang.pdb"
   "clionlang.exe"
   "clionlang.exe.manifest"

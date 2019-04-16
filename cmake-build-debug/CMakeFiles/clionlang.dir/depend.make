@@ -3,7 +3,12 @@
 
 CMakeFiles/clionlang.dir/lex/mglex.cpp.obj: ../lex/mglex.cpp
 CMakeFiles/clionlang.dir/lex/mglex.cpp.obj: ../lex/mglex.h
+CMakeFiles/clionlang.dir/lex/mglex.cpp.obj: ../sys/keywords.h
 
 CMakeFiles/clionlang.dir/main.cpp.obj: ../lex/mglex.h
 CMakeFiles/clionlang.dir/main.cpp.obj: ../main.cpp
+CMakeFiles/clionlang.dir/main.cpp.obj: ../sys/keywords.h
+
+CMakeFiles/clionlang.dir/sys/keywords.cpp.obj: ../sys/keywords.cpp
+CMakeFiles/clionlang.dir/sys/keywords.cpp.obj: ../sys/keywords.h
 
