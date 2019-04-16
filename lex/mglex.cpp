@@ -81,7 +81,6 @@ char *mglex::charSlice(char *lb, char *lf, int TYPE) {
     }
 
     printf("%s\n", lexeme);
-
     return lexeme;
 }
 
