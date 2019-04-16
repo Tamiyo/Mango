@@ -6,11 +6,7 @@
 
 #IncludeRegexTransform: 
 
-D:/Documents/Mango/lex/mglex.cpp
-mglex.h
-D:/Documents/Mango/lex/mglex.h
-
-D:/Documents/Mango/lex/mglex.h
+C:/Users/Matt/Documents/Mango/lex/mglex.h
 iostream
 -
 stdio.h
@@ -20,9 +16,17 @@ stdlib.h
 cstring
 -
 ../sys/keywords.h
-D:/Documents/Mango/sys/keywords.h
+C:/Users/Matt/Documents/Mango/sys/keywords.h
 
-D:/Documents/Mango/sys/keywords.h
+C:/Users/Matt/Documents/Mango/main.cpp
+iostream
+-
+stdio.h
+-
+lex/mglex.h
+C:/Users/Matt/Documents/Mango/lex/mglex.h
+
+C:/Users/Matt/Documents/Mango/sys/keywords.h
 map
 -
 string

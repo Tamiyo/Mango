@@ -14,8 +14,9 @@ using std::string;
 class keywords {
 public:
     keywords();
-    map<int, const char*> TYPES;
-    map<const char*, int> KEYWORDS;
+
+    map<int, const char *> TYPES;
+    map<string, int> KEYWORDS;
 };
 
 

@@ -4,9 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/Documents/Mango/lex/mglex.cpp" "D:/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/lex/mglex.cpp.obj"
-  "D:/Documents/Mango/main.cpp" "D:/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/main.cpp.obj"
-  "D:/Documents/Mango/sys/keywords.cpp" "D:/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/sys/keywords.cpp.obj"
+  "C:/Users/Matt/Documents/Mango/lex/mglex.cpp" "C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/lex/mglex.cpp.obj"
+  "C:/Users/Matt/Documents/Mango/main.cpp" "C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/main.cpp.obj"
+  "C:/Users/Matt/Documents/Mango/parser/parser.cpp" "C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/parser/parser.cpp.obj"
+  "C:/Users/Matt/Documents/Mango/sys/keywords.cpp" "C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir/sys/keywords.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

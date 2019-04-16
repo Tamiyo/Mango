@@ -12,11 +12,9 @@ char *mglex::lltoken() {
         if (*forward == '\n') {
             const char *newline = "NEWLINE DELIMINATOR";
             lexemeBegin++;
-            printf("\n");
             return const_cast<char *>(newline);
 
         } else if (*forward == '\"' && *(forward + 1) != '\n') {
-            printf("String\t\t| ");
             lexemeBegin++;
             forward++;
             while (*forward != '"') {
@@ -30,11 +28,10 @@ char *mglex::lltoken() {
                 }
             }
             return charSlice(lexemeBegin, forward, 3);
-        } else if (isalpha(*forward)) {
-            printf("Identifier\t| ");
+        } else if ((isalpha(*forward) || ispunct(*forward)) && !isspace(*forward)) {
             while (*forward) {
                 // This lexeme is apart of the IDENTIFIER, and we keep moving.
-                if (isalnum(*forward)) {
+                if ((isalpha(*forward) || ispunct(*forward)) && !isspace(*forward)) {
                     forward++;
                 }
                     // This lexeme is NOT apart of the IDENTIFIER, end analysis.
@@ -44,7 +41,6 @@ char *mglex::lltoken() {
             }
             return charSlice(lexemeBegin, forward, 0);
         } else if (isdigit(*forward)) {
-            printf("Number\t\t| ");
             bool canBeFloat = true;
             while (*forward) {
                 // This lexeme is apart of the NUMBER, and we keep moving.
@@ -73,7 +69,19 @@ char *mglex::charSlice(char *lb, char *lf, int TYPE) {
     char *lexeme = new char[LEXEME_SIZE];
     snprintf(lexeme, LEXEME_SIZE, "%s", lb);
     lexemeBegin = lf;
-    printf("lexeme: %s\n", lexeme);
+
+    if (TYPE == 0) {
+        if (keys->KEYWORDS.count(lexeme)) {
+            printf("keyword\t\t| ");
+        } else {
+            printf("identifier\t| ");
+        }
+    } else {
+        printf("%s\t\t| ", keys->TYPES[TYPE]);
+    }
+
+    printf("%s\n", lexeme);
+
     return lexeme;
 }
 

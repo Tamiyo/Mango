@@ -27,10 +27,10 @@ private:
     char *lexemeBegin{};
     char *forward{};
 
-    const char* endOfFile = "\\eof";
-    keywords* keys;
+    const char *endOfFile = "\\eof";
+    keywords *keys;
 
-    char* charSlice(char*, char*, int);
+    char *charSlice(char *, char *, int);
 };
 
 
