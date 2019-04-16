@@ -9,19 +9,42 @@ char *mglex::lltoken() {
     if (!*forward) {
         return nullptr;
     } else {
-        if (isalpha(*forward)) {
-            while (*forward) {
+        if (*forward == '\n') {
+            const char *newline = "NEWLINE DELIMINATOR";
+            lexemeBegin++;
+            printf("\n");
+            return const_cast<char *>(newline);
+
+        } else if (*forward == '\"' && *(forward + 1) != '\n') {
+            printf("String\t\t| ");
+            lexemeBegin++;
+            forward++;
+            while (*forward != '"') {
                 // This lexeme is apart of the STRING, and we keep moving.
                 if (isalnum(*forward)) {
                     forward++;
                 }
                     // This lexeme is NOT apart of the STRING, end analysis.
                 else {
+                    return charSlice(lexemeBegin, forward, 3);
+                }
+            }
+            return charSlice(lexemeBegin, forward, 3);
+        } else if (isalpha(*forward)) {
+            printf("Identifier\t| ");
+            while (*forward) {
+                // This lexeme is apart of the IDENTIFIER, and we keep moving.
+                if (isalnum(*forward)) {
+                    forward++;
+                }
+                    // This lexeme is NOT apart of the IDENTIFIER, end analysis.
+                else {
                     return charSlice(lexemeBegin, forward, 0);
                 }
             }
             return charSlice(lexemeBegin, forward, 0);
         } else if (isdigit(*forward)) {
+            printf("Number\t\t| ");
             bool canBeFloat = true;
             while (*forward) {
                 // This lexeme is apart of the NUMBER, and we keep moving.
@@ -49,9 +72,8 @@ char *mglex::charSlice(char *lb, char *lf, int TYPE) {
     int LEXEME_SIZE = (lf - lb + 1) * sizeof(*lb);
     char *lexeme = new char[LEXEME_SIZE];
     snprintf(lexeme, LEXEME_SIZE, "%s", lb);
-    lexeme[(lf - lb) * sizeof(*lb)] = '\0';
     lexemeBegin = lf;
-    printf("lexeme: %s ; %s\n", lexeme, keys->TYPES[TYPE]);
+    printf("lexeme: %s\n", lexeme);
     return lexeme;
 }
 
