@@ -4,6 +4,7 @@
 
 #include "mglex.h"
 
+/// TODO Can probably get rid of the pair and keep just the keywords::Symbols
 pair<const char *, keywords::Symbols> mglex::lltoken() {
     forward = lexemeBegin;
     if (!*forward) {

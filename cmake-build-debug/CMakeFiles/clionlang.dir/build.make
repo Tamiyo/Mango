@@ -42,10 +42,10 @@ RM = "C:\Program Files\JetBrains\CLion 2019.1\bin\cmake\win\bin\cmake.exe" -E re
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Documents\Mango
+CMAKE_SOURCE_DIR = C:\Users\Matt\Documents\Mango
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Documents\Mango\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Users\Matt\Documents\Mango\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/clionlang.dir/depend.make
@@ -58,55 +58,55 @@ include CMakeFiles/clionlang.dir/flags.make
 
 CMakeFiles/clionlang.dir/main.cpp.obj: CMakeFiles/clionlang.dir/flags.make
 CMakeFiles/clionlang.dir/main.cpp.obj: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/clionlang.dir/main.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\main.cpp.obj -c D:\Documents\Mango\main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Matt\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/clionlang.dir/main.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\main.cpp.obj -c C:\Users\Matt\Documents\Mango\main.cpp
 
 CMakeFiles/clionlang.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clionlang.dir/main.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\Mango\main.cpp > CMakeFiles\clionlang.dir\main.cpp.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Matt\Documents\Mango\main.cpp > CMakeFiles\clionlang.dir\main.cpp.i
 
 CMakeFiles/clionlang.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clionlang.dir/main.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\Mango\main.cpp -o CMakeFiles\clionlang.dir\main.cpp.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Matt\Documents\Mango\main.cpp -o CMakeFiles\clionlang.dir\main.cpp.s
 
 CMakeFiles/clionlang.dir/lex/mglex.cpp.obj: CMakeFiles/clionlang.dir/flags.make
 CMakeFiles/clionlang.dir/lex/mglex.cpp.obj: ../lex/mglex.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/clionlang.dir/lex/mglex.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\lex\mglex.cpp.obj -c D:\Documents\Mango\lex\mglex.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Matt\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/clionlang.dir/lex/mglex.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\lex\mglex.cpp.obj -c C:\Users\Matt\Documents\Mango\lex\mglex.cpp
 
 CMakeFiles/clionlang.dir/lex/mglex.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clionlang.dir/lex/mglex.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\Mango\lex\mglex.cpp > CMakeFiles\clionlang.dir\lex\mglex.cpp.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Matt\Documents\Mango\lex\mglex.cpp > CMakeFiles\clionlang.dir\lex\mglex.cpp.i
 
 CMakeFiles/clionlang.dir/lex/mglex.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clionlang.dir/lex/mglex.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\Mango\lex\mglex.cpp -o CMakeFiles\clionlang.dir\lex\mglex.cpp.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Matt\Documents\Mango\lex\mglex.cpp -o CMakeFiles\clionlang.dir\lex\mglex.cpp.s
 
 CMakeFiles/clionlang.dir/sys/keywords.cpp.obj: CMakeFiles/clionlang.dir/flags.make
 CMakeFiles/clionlang.dir/sys/keywords.cpp.obj: ../sys/keywords.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/clionlang.dir/sys/keywords.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\sys\keywords.cpp.obj -c D:\Documents\Mango\sys\keywords.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Matt\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/clionlang.dir/sys/keywords.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\sys\keywords.cpp.obj -c C:\Users\Matt\Documents\Mango\sys\keywords.cpp
 
 CMakeFiles/clionlang.dir/sys/keywords.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clionlang.dir/sys/keywords.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\Mango\sys\keywords.cpp > CMakeFiles\clionlang.dir\sys\keywords.cpp.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Matt\Documents\Mango\sys\keywords.cpp > CMakeFiles\clionlang.dir\sys\keywords.cpp.i
 
 CMakeFiles/clionlang.dir/sys/keywords.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clionlang.dir/sys/keywords.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\Mango\sys\keywords.cpp -o CMakeFiles\clionlang.dir\sys\keywords.cpp.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Matt\Documents\Mango\sys\keywords.cpp -o CMakeFiles\clionlang.dir\sys\keywords.cpp.s
 
 CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj: CMakeFiles/clionlang.dir/flags.make
 CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj: ../parser/mgparser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\parser\mgparser.cpp.obj -c D:\Documents\Mango\parser\mgparser.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Matt\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\clionlang.dir\parser\mgparser.cpp.obj -c C:\Users\Matt\Documents\Mango\parser\mgparser.cpp
 
 CMakeFiles/clionlang.dir/parser/mgparser.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clionlang.dir/parser/mgparser.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\Mango\parser\mgparser.cpp > CMakeFiles\clionlang.dir\parser\mgparser.cpp.i
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Matt\Documents\Mango\parser\mgparser.cpp > CMakeFiles\clionlang.dir\parser\mgparser.cpp.i
 
 CMakeFiles/clionlang.dir/parser/mgparser.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clionlang.dir/parser/mgparser.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\Mango\parser\mgparser.cpp -o CMakeFiles\clionlang.dir\parser\mgparser.cpp.s
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Matt\Documents\Mango\parser\mgparser.cpp -o CMakeFiles\clionlang.dir\parser\mgparser.cpp.s
 
 # Object files for target clionlang
 clionlang_OBJECTS = \
@@ -126,7 +126,7 @@ clionlang.exe: CMakeFiles/clionlang.dir/build.make
 clionlang.exe: CMakeFiles/clionlang.dir/linklibs.rsp
 clionlang.exe: CMakeFiles/clionlang.dir/objects1.rsp
 clionlang.exe: CMakeFiles/clionlang.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable clionlang.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\Matt\Documents\Mango\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable clionlang.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\clionlang.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -139,6 +139,6 @@ CMakeFiles/clionlang.dir/clean:
 .PHONY : CMakeFiles/clionlang.dir/clean
 
 CMakeFiles/clionlang.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" D:\Documents\Mango D:\Documents\Mango D:\Documents\Mango\cmake-build-debug D:\Documents\Mango\cmake-build-debug D:\Documents\Mango\cmake-build-debug\CMakeFiles\clionlang.dir\DependInfo.cmake --color=$(COLOR)
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\Matt\Documents\Mango C:\Users\Matt\Documents\Mango C:\Users\Matt\Documents\Mango\cmake-build-debug C:\Users\Matt\Documents\Mango\cmake-build-debug C:\Users\Matt\Documents\Mango\cmake-build-debug\CMakeFiles\clionlang.dir\DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/clionlang.dir/depend
 
