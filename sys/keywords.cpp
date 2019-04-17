@@ -6,26 +6,22 @@
 
 keywords::keywords() {
     KEYWORDS = {
-            {"\n",    20},
-            {"=",     61},
-            {"+",     43},
-            {"-",     42},
-            {"*",     45},
-            {"/",     47},
-            {"<",     48},
-            {">",     49},
-            {">=",    50},
-            {"<=",    51},
-            {"=",     52},
-            {"if",    101},
-            {"while", 102}
+            {"\n", TS_ENDL},
+            {"=",  TS_EQU},
+            {"+",  TS_PLUS},
+            {"-",  TS_MINUS},
+            {"*",  TS_MUL},
+            {"/",  TS_DIV},
+            {"<",  TS_LT},
+            {">",  TS_GT},
+            {">=", TS_GTE},
+            {"<=", TS_LTE},
     };
 
     TYPES = {
-            {-1, "keyword"},
-            {0,  "identifier"},
-            {1,  "integer"},
-            {2,  "float"},
-            {3,  "string"},
+            {0, TS_IDENT},
+            {1, TS_INT},
+            {2, TS_FLOAT},
+            {3, TS_STRING},
     };
 }

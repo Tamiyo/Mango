@@ -4,15 +4,14 @@
 
 #include "mglex.h"
 
-char *mglex::lltoken() {
+pair<const char *, keywords::Symbols> mglex::lltoken() {
     forward = lexemeBegin;
     if (!*forward) {
-        return nullptr;
+        return {"\\eof", keywords::TS_EOF};
     } else {
         if (*forward == '\n') {
-            const char *newline = "NEWLINE DELIMINATOR";
             lexemeBegin++;
-            return const_cast<char *>(newline);
+            return {"\n", keywords::TS_ENDL};
 
         } else if (*forward == '\"' && *(forward + 1) != '\n') {
             lexemeBegin++;
@@ -64,7 +63,7 @@ char *mglex::lltoken() {
     }
 }
 
-char *mglex::charSlice(char *lb, char *lf, int TYPE) {
+pair<const char *, keywords::Symbols> mglex::charSlice(char *lb, char *lf, int TYPE) {
     int LEXEME_SIZE = (lf - lb + 1) * sizeof(*lb);
     char *lexeme = new char[LEXEME_SIZE];
     snprintf(lexeme, LEXEME_SIZE, "%s", lb);
@@ -72,16 +71,13 @@ char *mglex::charSlice(char *lb, char *lf, int TYPE) {
 
     if (TYPE == 0) {
         if (keys->KEYWORDS.count(lexeme)) {
-            printf("keyword\t\t| ");
+            return {lexeme, keys->KEYWORDS[lexeme]};
         } else {
-            printf("identifier\t| ");
+            return {lexeme, keywords::TS_IDENT};
         }
     } else {
-        printf("%s\t\t| ", keys->TYPES[TYPE]);
+        return {lexeme, keys->TYPES[TYPE]};
     }
-
-    printf("%s\n", lexeme);
-    return lexeme;
 }
 
 mglex::mglex(const char *body) {

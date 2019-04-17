@@ -13,13 +13,9 @@
 
 using std::cout;
 using std::endl;
+using std::pair;
 
 class mglex {
-public:
-    explicit mglex(const char *);
-
-    char *lltoken();
-
 private:
     const static int BUFFER_SIZE = 4096;
     char BUFFER[BUFFER_SIZE]{};
@@ -27,10 +23,14 @@ private:
     char *lexemeBegin{};
     char *forward{};
 
-    const char *endOfFile = "\\eof";
     keywords *keys;
 
-    char *charSlice(char *, char *, int);
+    pair<const char *, keywords::Symbols> charSlice(char *, char *, int);
+
+public:
+    explicit mglex(const char *);
+
+    pair<const char *, keywords::Symbols> lltoken();
 };
 
 

@@ -7,7 +7,13 @@ CMakeFiles/clionlang.dir/lex/mglex.cpp.obj: ../sys/keywords.h
 
 CMakeFiles/clionlang.dir/main.cpp.obj: ../lex/mglex.h
 CMakeFiles/clionlang.dir/main.cpp.obj: ../main.cpp
+CMakeFiles/clionlang.dir/main.cpp.obj: ../parser/mgparser.h
 CMakeFiles/clionlang.dir/main.cpp.obj: ../sys/keywords.h
+
+CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj: ../lex/mglex.h
+CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj: ../parser/mgparser.cpp
+CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj: ../parser/mgparser.h
+CMakeFiles/clionlang.dir/parser/mgparser.cpp.obj: ../sys/keywords.h
 
 CMakeFiles/clionlang.dir/sys/keywords.cpp.obj: ../sys/keywords.cpp
 CMakeFiles/clionlang.dir/sys/keywords.cpp.obj: ../sys/keywords.h
