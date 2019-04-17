@@ -17,30 +17,60 @@ public:
 
     enum Symbols {
         // Terminal Symbols
+
+        // "Types", denoted as TS_VARIABLE for now in grammer.mg
         TS_STRING,
         TS_IDENT,
         TS_FLOAT,
         TS_INT,
+        TS_VARIABLE,
 
+        // Control Symbols
+        TS_IF,
+        TS_ELSEIF,
+        TS_ELSE,
+
+        // Conditional Symbols
+        TS_LCB,
+        TS_RCB,
+        TS_LPAREN
+        TS_RPAREN,
+
+        // Operator Symbols
+        TS_EQUALS,
         TS_PLUS,
         TS_MINUS,
         TS_MUL,
         TS_DIV,
-        TS_EQU,
-        TS_GT,
-        TS_GTE,
+        TS_EXP,
+
+        // Comparison Symbols
         TS_LT,
         TS_LTE,
-        TS_ENDL,
-        TS_EOF,
+        TS_GT,
+        TS_GTE,
+        TS_EQUIV,
+        TS_TEQUIV,
+
+        // Other Symbols
         TS_SPACE,
+        TS_NEWLINE,
 
         // Non-Terminal Symbols
         NTS_MANGO,
         NTS_STMTS,
         NTS_STMT,
         NTS_ASSIGN,
-        NTS_EXPR
+        NTS_EXPR,
+        NTS_EXPR*,
+        NTS_CTRL,
+        NTS_CTRL_IF,
+        NTS_CTRL_ELSEIF,
+        NTS_CTRL_ELSE,
+        NTS_COND,
+        NTS_OPERATOR,
+        NTS_COND_OPERATOR,
+        NTS_COND_S_OPERATOR
     };
 
     map<string, Symbols> KEYWORDS;

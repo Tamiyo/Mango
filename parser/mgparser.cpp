@@ -20,32 +20,7 @@ mgparser::mgparser(const char *body) {
     ss.push(keywords::TS_EOF);
     ss.push(keywords::NTS_MANGO);
 
-    // Create the LL parsing table
-    table[keywords::NTS_MANGO][keywords::TS_IDENT] = 1;
-    table[keywords::NTS_MANGO][keywords::TS_PLUS] = 1;
-    table[keywords::NTS_MANGO][keywords::TS_MINUS] = 1;
-    table[keywords::NTS_MANGO][keywords::TS_MUL] = 1;
-    table[keywords::NTS_MANGO][keywords::TS_DIV] = 1;
-
-    table[keywords::NTS_STMTS][keywords::TS_IDENT] = 2;
-    table[keywords::NTS_STMTS][keywords::TS_PLUS] = 2;
-    table[keywords::NTS_STMTS][keywords::TS_MINUS] = 2;
-    table[keywords::NTS_STMTS][keywords::TS_MUL] = 2;
-    table[keywords::NTS_STMTS][keywords::TS_DIV] = 2;
-
-    table[keywords::NTS_STMT][keywords::TS_IDENT] = 3;
-    table[keywords::NTS_STMT][keywords::TS_PLUS] = 4;
-    table[keywords::NTS_STMT][keywords::TS_MINUS] = 4;
-    table[keywords::NTS_STMT][keywords::TS_MUL] = 4;
-    table[keywords::NTS_STMT][keywords::TS_DIV] = 4;
-
-    table[keywords::NTS_ASSIGN][keywords::TS_IDENT] = 5;
-
-    table[keywords::NTS_EXPR][keywords::TS_IDENT] = 6;
-    table[keywords::NTS_EXPR][keywords::TS_PLUS] = 7;
-    table[keywords::NTS_EXPR][keywords::TS_MINUS] = 8;
-    table[keywords::NTS_EXPR][keywords::TS_MUL] = 9;
-    table[keywords::NTS_EXPR][keywords::TS_DIV] = 10;
+    // Create the LR parsing table
 
 }
 

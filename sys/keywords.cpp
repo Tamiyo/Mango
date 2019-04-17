@@ -6,16 +6,31 @@
 
 keywords::keywords() {
     KEYWORDS = {
-            {"\n", TS_ENDL},
-            {"=",  TS_EQU},
-            {"+",  TS_PLUS},
-            {"-",  TS_MINUS},
-            {"*",  TS_MUL},
-            {"/",  TS_DIV},
-            {"<",  TS_LT},
-            {">",  TS_GT},
+            {"if", TS_IF},
+            {"elif", TS_ELSEIF},
+            {"else", TS_ELSE},
+
+            {"{", TS_LCB},
+            {"}", TS_RCB},
+            {"(", TS_RPAREN},
+            {")", TS_LPAREN},
+
+            {"=", TS_EQUALS},
+            {"+", TS_PLUS},
+            {"-", TS_MINUS},
+            {"*", TS_MUL},
+            {"/", TS_DIV},
+            {"^", TS_EXP}
+
+            {"<", TS_LT},
+            {">", TS_GT},
             {">=", TS_GTE},
             {"<=", TS_LTE},
+            {"==", TS_EQUIV},
+            {"===", TS_TEQUIV},
+
+            {" ", TS_SPACE},
+            {"\n", TS_NEWLINE},
     };
 
     TYPES = {
