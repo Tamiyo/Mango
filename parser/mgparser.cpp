@@ -7,6 +7,12 @@
 /// TODO Convert Grammar to LL Grammar by removing left-recursion
 /// http://www.montefiore.ulg.ac.be/~geurts/Cours/compil/2012/03-syntaxanalysis-2-2012-2013.pdf
 
+/// TODO Improve grammar and convert to LR parsing table (LALR soon)
+/// http://jsmachines.sourceforge.net/machines/lr1.html
+
+/// TODO Remove left-recursion
+/// https://lab.brainonfire.net/CFG/remove-left-recursion.html
+
 mgparser::mgparser(const char *body) {
     lexer = new mglex(body);
 
