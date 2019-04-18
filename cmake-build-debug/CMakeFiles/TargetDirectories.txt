@@ -1,3 +1,0 @@
-C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/clionlang.dir
-C:/Users/Matt/Documents/Mango/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -8,27 +8,31 @@
 #include "../lex/mglex.h"
 #include <stack>
 #include <map>
-#include <string>
+#include <string.h>
+#include <regex>
 
 using std::stack;
 using std::string;
 using std::map;
+using std::regex;
+using std::regex_match;
 
 class mgparser {
 public:
-    explicit mgparser(const char *);
+	explicit mgparser(const char *);
 
-    void ppeval();
+	void ppeval();
 
 private:
-    // The Lexer
-    mglex *lexer;
+	// The Lexer
+	mglex *lexer;
 
-    // The Stack for our LL parser
-    stack<keywords::Symbols> ss;
+	// The Stack for our LL parser
+	stack<keywords::Symbols> ss;
 
-    // The LL parsing table
-    map<keywords::Symbols, map<keywords::Symbols, int>> table;
+	// The LL parsing table
+	map<keywords::Symbols, map<keywords::Symbols, int>> table;
+
 };
 
 

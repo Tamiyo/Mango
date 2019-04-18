@@ -13,68 +13,73 @@ using std::string;
 
 class keywords {
 public:
-    keywords();
+	keywords();
 
-    enum Symbols {
-        // Terminal Symbols
+	enum Symbols {
+		// Terminal Symbols
 
-        // "Types", denoted as TS_VARIABLE for now in grammer.mg
-        TS_STRING,
-        TS_IDENT,
-        TS_FLOAT,
-        TS_INT,
-        TS_VARIABLE,
+		// "Types", denoted as TS_VARIABLE for now in grammer.mg
+		TS_STRING,
+		TS_IDENT,
+		TS_FLOAT,
+		TS_INT,
 
-        // Control Symbols
-        TS_IF,
-        TS_ELSEIF,
-        TS_ELSE,
+		// Control Symbols
+		TS_IF,
+		TS_ELSEIF,
+		TS_ELSE,
 
-        // Conditional Symbols
-        TS_LCB,
-        TS_RCB,
-        TS_LPAREN
-        TS_RPAREN,
+		// Grouping Symbols
+		TS_LCB,
+		TS_RCB,
+		TS_LPAREN,
+		TS_RPAREN,
 
-        // Operator Symbols
-        TS_EQUALS,
-        TS_PLUS,
-        TS_MINUS,
-        TS_MUL,
-        TS_DIV,
-        TS_EXP,
+		// Operator Symbols
+		TS_EQUALS,
+		TS_PLUS,
+		TS_MINUS,
+		TS_MUL,
+		TS_DIV,
+		TS_EXP,
 
-        // Comparison Symbols
-        TS_LT,
-        TS_LTE,
-        TS_GT,
-        TS_GTE,
-        TS_EQUIV,
-        TS_TEQUIV,
+		// Comparison Symbols
+		TS_LT,
+		TS_LTE,
+		TS_GT,
+		TS_GTE,
+		TS_EQUIV,
+		TS_TEQUIV,
 
-        // Other Symbols
-        TS_SPACE,
-        TS_NEWLINE,
+		// Single Comparison Symbols
+		TS_NEG,
+		TS_NOTNULL,
 
-        // Non-Terminal Symbols
-        NTS_MANGO,
-        NTS_STMTS,
-        NTS_STMT,
-        NTS_ASSIGN,
-        NTS_EXPR,
-        NTS_EXPR*,
-        NTS_CTRL,
-        NTS_CTRL_IF,
-        NTS_CTRL_ELSEIF,
-        NTS_CTRL_ELSE,
-        NTS_COND,
-        NTS_OPERATOR,
-        NTS_COND_OPERATOR,
-        NTS_COND_S_OPERATOR
-    };
+		// Other Symbols
+		TS_SPACE,
+		TS_NEWLINE,
+		TS_EOF,
 
-    map<string, Symbols> KEYWORDS;
-    map<int, Symbols> TYPES;
+		// Non-Terminal Symbols
+		NTS_MANGO,
+		NTS_STMTS,
+		NTS_STMT,
+		NTS_ASSIGN,
+		NTS_EXPR,
+		NTS_EXPR_A,
+		NTS_CTRL,
+		NTS_CTRL_IF,
+		NTS_CTRL_ELSEIF,
+		NTS_CTRL_ELSE,
+		NTS_COND,
+		NTS_OPERATOR,
+		NTS_COND_OPERATOR,
+		NTS_COND_S_OPERATOR,
+		NTS_VARIABLE,
+	};
+
+	map<string, Symbols> KEYWORDS;
+	map<int, Symbols> TYPES;
 
 };
 
