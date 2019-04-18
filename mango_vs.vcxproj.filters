@@ -27,6 +27,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grammar_cpp_gen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lex\mglex.h">
@@ -38,8 +41,22 @@
     <ClInclude Include="sys\keywords.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="grammar_cpp_gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sys\grammar.mg" />
+    <None Include="sys\grammar.mg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="myFile.mango">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="grammar_extra.mg">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
