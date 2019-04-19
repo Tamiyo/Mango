@@ -69,57 +69,63 @@ void grammar_cpp_gen::gen() {
 		}
 		it++;
 	}
-	 
+
 	/// Generate FOLLOW()
 	std::cout << std::endl << "Starting FOLLOW()" << std::endl;
 
-	struct CompareFirst
-	{
-		CompareFirst(std::string val) : val_(val) {}
-		bool operator()(const std::pair<std::string, int>& elem) const {
-			return val_ == elem.first;
-		}
-	private:
-		std::string val_;
-	};
-
-	follow["NTS_MANGO"].push_back("$");
-	rules_copy = rules;
-	
 	bool has_changed = true;
+
 	while (has_changed) {
 		has_changed = false;
-		for (auto rule : rules) {
-			for (auto procedure : rule.second) {
-				std::vector<std::string> tokens = split_string(procedure);
-				std::vector<std::string>::iterator t_it = tokens.begin();
-				while (t_it != tokens.end) {
-					if ((*t_it).substr(0, 2) != "TS") {
-						if ((*(t_it + 1)).substr(0, 2) == "TS") {
-							follow[*t_it].push_back((*(t_it + 1)));
-							has_changed = true;
+		for (auto non_terminal : non_terminals) {
+			std::cout << non_terminal << std::endl;
+			for (auto rule : rules) {
+				for (auto procedure : rule.second) {
+					std::vector<std::string> tokens = split_string(procedure);
+					std::vector<std::string>::iterator t_it = tokens.begin();
+
+					while (t_it != tokens.end()) {
+						// If the current string is the non-terminal
+						if (*t_it == non_terminal) {
+							std::cout << "\t" << non_terminal << " in: " << rule.first << " -> " << procedure << std::endl;
+							// If the next string is the end, 
+							if ((t_it + 1) == tokens.end()) {
+								std::cout << "\t\t - Changed : No more symbols, FOLLOW() Caller" << std::endl;
+								for (auto f : follow[rule.first]) {
+									if (std::find(follow[non_terminal].begin(), follow[non_terminal].end(), f) == follow[non_terminal].end()) {
+										follow[non_terminal].push_back(f);
+										std::cout << "\t\t" << "Added " << f << " to " << non_terminal << std::endl;
+										has_changed = true;
+									}
+								}
+							}
+							else if ((*(t_it + 1)).substr(0, 2) == "NT") {
+								std::cout << "\t\t - Changed : NTS Detected, Getting FIRST()" << std::endl;
+								for (auto f : first[(*(t_it + 1))]) {
+									if (std::find(follow[non_terminal].begin(), follow[non_terminal].end(), f.first) == follow[non_terminal].end()) {
+										follow[non_terminal].push_back(f.first);
+										std::cout << "\t\t" << "Added " << f.first << " to " << non_terminal << std::endl;
+										has_changed = true;
+									}
+								}
+							}
+							else if ((*(t_it + 1)).substr(0, 2) == "TS" && std::find(follow[non_terminal].begin(), follow[non_terminal].end(), *(t_it + 1)) == follow[non_terminal].end()) {
+								std::cout << "\t\t - Changed : Terminal Symbol Detected" << std::endl;
+								follow[non_terminal].push_back((*(t_it + 1)));
+								std::cout << "\t\t" << "Added " << (*(t_it + 1)) << " to " << non_terminal << std::endl;	
+								has_changed = true;
+							}
 						}
+						t_it++;
 					}
-					else if (std::find(first[(*(t_it + 1))].begin(), first[(*(t_it + 1))].end(), CompareFirst("TS_EMPTY")) != first[(*(t_it + 1))].end()) {
-						for (auto A : follow[*t_it]) {
-							follow[(*(t_it + 1))].push_back(A);
-						}
-					}
-					else if ((t_it+1) == tokens.end()) {
-						for (auto A : follow[*t_it]) {
-							follow[(*(t_it + 1))].push_back(A);
-						}
-					}
-					t_it++;
 				}
-			} 
+			}
 		}
 	}
-	
 
 	for (auto pair : follow) {
 		for (auto s : pair.second) {
-			std::cout << pair.first << ", " << s << std::endl;
+			std::cout << "follow(" << pair.first << ") = " << s << std::endl;
 		}
 	}
 }
