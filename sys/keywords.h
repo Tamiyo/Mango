@@ -58,6 +58,7 @@ public:
 		// Other Symbols
 		TS_SPACE,
 		TS_NEWLINE,
+		TS_EMPTY,
 		TS_EOF,
 
 		// Non-Terminal Symbols

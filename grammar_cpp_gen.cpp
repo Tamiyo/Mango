@@ -14,6 +14,7 @@ grammar_cpp_gen::~grammar_cpp_gen()
 
 void grammar_cpp_gen::gen() {
 
+	split_string("Hello World Good Day");
 
 	/// Generate the LL(1) Parse Table
 	std::string rule;
@@ -21,6 +22,7 @@ void grammar_cpp_gen::gen() {
 	std::vector<std::string> non_terminals;
 	std::map<std::string, std::vector<std::string>> rules;
 	std::map<std::string, std::vector<std::pair<std::string, int>>> first;
+	std::map<std::string, std::vector<std::string>> follow;
 
 	std::ifstream grammarFile("grammar.mg");
 	if (grammarFile.is_open()) {
@@ -41,26 +43,95 @@ void grammar_cpp_gen::gen() {
 		std::cout << "Unable to open file" << std::endl;
 	}
 
+	std::cout << "Number of Non-Terminals: " << non_terminals.size() << std::endl;
+
 	/// Generate FIRST()
-	for (auto rule : rules) {
-		std::string rhs = rule.second.at(0);
-		for (auto production : rule.second) {
-			std::string first_production = production.substr(0, production.find(" "));
-			printf("rhs: %s\nprod: %s\nfirst_prod: %s\n\n",rhs, production, first_production);
+
+	std::cout << "Starting FIRST()" << std::endl;
+
+	std::map<std::string, std::vector<std::string>> rules_copy = rules;
+	std::map<std::string, std::vector<std::string>>::iterator it = rules_copy.begin();
+	while (it != rules_copy.end()) {
+		std::vector<std::string> rhs = it->second;
+		std::cout << "\nProcessing LHS: " << it->first << std::endl;
+		while (!rhs.empty()) {
+			std::string first_production = rhs.back().substr(0, rhs.back().find(" "));
+			rhs.pop_back();
 			if (first_production.substr(0, 2) == "TS") {
-				first[rule.first].push_back({ first_production , std::distance(non_terminals.begin(), std::find(non_terminals.begin(), non_terminals.end(), rule.first)) + 1 });
+				std::cout << "first(" << it->first << ") = " << first_production << std::endl;
+				first[it->first].push_back({ first_production, std::distance(non_terminals.begin(), std::find(non_terminals.begin(), non_terminals.end(), first_production)) });
 			}
 			else {
-				while (true) {
-					std::string prev_production = first_production;
-					first_production = rules[prev_production].at(0);
-					if (first_production.substr(0, 2) == "TS") {
-						first[rule.first].push_back({ first_production , std::distance(non_terminals.begin(), std::find(non_terminals.begin(), non_terminals.end(), prev_production)) + 1 });
-						break;
-					}
+				for (auto additions : rules[first_production]) {
+					rhs.push_back(additions);
 				}
 			}
-			printf("first(%s) = %s\n", rule.first, first[rule.first]);
 		}
+		it++;
+	}
+	 
+	/// Generate FOLLOW()
+	std::cout << std::endl << "Starting FOLLOW()" << std::endl;
+
+	struct CompareFirst
+	{
+		CompareFirst(std::string val) : val_(val) {}
+		bool operator()(const std::pair<std::string, int>& elem) const {
+			return val_ == elem.first;
 		}
+	private:
+		std::string val_;
+	};
+
+	follow["NTS_MANGO"].push_back("$");
+	rules_copy = rules;
+	
+	bool has_changed = true;
+	while (has_changed) {
+		has_changed = false;
+		for (auto rule : rules) {
+			for (auto procedure : rule.second) {
+				std::vector<std::string> tokens = split_string(procedure);
+				std::vector<std::string>::iterator t_it = tokens.begin();
+				while (t_it != tokens.end) {
+					if ((*t_it).substr(0, 2) != "TS") {
+						if ((*(t_it + 1)).substr(0, 2) == "TS") {
+							follow[*t_it].push_back((*(t_it + 1)));
+							has_changed = true;
+						}
+					}
+					else if (std::find(first[(*(t_it + 1))].begin(), first[(*(t_it + 1))].end(), CompareFirst("TS_EMPTY")) != first[(*(t_it + 1))].end()) {
+						for (auto A : follow[*t_it]) {
+							follow[(*(t_it + 1))].push_back(A);
+						}
+					}
+					else if ((t_it+1) == tokens.end()) {
+						for (auto A : follow[*t_it]) {
+							follow[(*(t_it + 1))].push_back(A);
+						}
+					}
+					t_it++;
+				}
+			} 
+		}
+	}
+	
+
+	for (auto pair : follow) {
+		for (auto s : pair.second) {
+			std::cout << pair.first << ", " << s << std::endl;
+		}
+	}
+}
+
+std::vector<std::string> grammar_cpp_gen::split_string(std::string str) {
+	std::vector<std::string> out;
+
+	while (str.find(" ") != -1) {
+		out.push_back(str.substr(0, str.find(" ")));
+		str = str.substr(str.find(" ") + 1);
+	}
+	out.push_back(str);
+	return out;
+
 }

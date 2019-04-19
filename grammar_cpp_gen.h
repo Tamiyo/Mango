@@ -18,5 +18,6 @@ public:
 
 private:
 	keywords::Symbols** create_grammar_map();
+	std::vector<std::string> split_string(std::string);
 };
 

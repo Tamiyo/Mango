@@ -46,13 +46,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sys\grammar.mg">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="README.md">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="myFile.mango">
+    <None Include="sys\grammar.mg" />
+    <None Include="grammar.mg">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="grammar_extra.mg">
