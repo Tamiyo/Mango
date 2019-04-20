@@ -1,0 +1,8 @@
+NTS_E -> NTS_T NTS_E'
+NTS_E' -> TS_+ NTS_T NTS_E'
+NTS_E' -> TS_EMPTY
+NTS_T -> NTS_F NTS_T'
+NTS_T' -> TS_* NTS_F NTS_T'
+NTS_T' -> TS_EMPTY
+NTS_F -> TS_( NTS_E TS_)
+NTS_F -> TS_INT

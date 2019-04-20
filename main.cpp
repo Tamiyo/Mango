@@ -9,12 +9,12 @@ using std::endl;
 using std::pair;
 
 int main() {
-//	const char *body = "8^9";
-	//auto *parser = new mgparser(body);
-	//parser->ppeval();
-	
-	
 	auto* gen = new grammar_cpp_gen();
-	gen->gen();	
+	gen->gen_parse_table();
+
+	const char *body = "8^9";
+	auto *parser = new mgparser(body);
+	parser->ppeval();
+
 	system("pause");
 }

@@ -53,5 +53,16 @@
     <None Include="grammar_extra.mg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="test_grammar.mg">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="enums.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="test_enums.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
