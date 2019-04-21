@@ -12,9 +12,9 @@ int main() {
 	auto* gen = new grammar_cpp_gen();
 	gen->gen_parse_table();
 
-	const char *body = "8^9";
-	auto *parser = new mgparser(body);
-	parser->ppeval();
+	//const char *body = "8^9\n";
+	//auto *parser = new mgparser(body);
+	//parser->ppeval();
 
 	system("pause");
 }

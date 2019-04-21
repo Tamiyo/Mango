@@ -59,15 +59,17 @@ mgparser::mgparser(const char* body) {
 
 
 void mgparser::ppeval() {
+std::pair<const char*, keywords::Symbols> token = lexer->lltoken();
 	while(ss.size() > 0) {
-		keywords::Symbols token = lexer->lltoken().second;
-		if(token == ss.top()) {
-			cout << "Matched symbols : " << token << endl;
+		cout << "Found a: " << token.first << endl;
+		if(token.second == ss.top()) {
+		token = lexer->lltoken();
+			cout << "Matched symbols : " << token.first << endl;
 			ss.pop();
 		}
 		else {
-			cout << "Rule " << table[ss.top()][token] << endl;
-			switch(table[ss.top()][token]) {
+			cout << "Rule " << table[ss.top()][token.second] << endl;
+			switch(table[ss.top()][token.second]) {
 				case 5:
 					ss.pop();
 					ss.push(keywords::TS_IDENT);

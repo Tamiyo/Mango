@@ -102,7 +102,6 @@ void grammar_cpp_gen::gen_parse_table() {
 
 			rhs.pop_back();
 			if (first_production.substr(0, 2) == "TS") {
-				std::cout << "first(" << it->first.first << ") = " << first_production << " @ Production #: " << it->first.second << std::endl;
 				first[it->first.first].push_back({ first_production, it->first.second});
 			}
 			else {
@@ -112,6 +111,41 @@ void grammar_cpp_gen::gen_parse_table() {
 			}
 		}
 		it++;
+	}
+
+	/// Print out FIRST for debugging
+	for (auto NTS_F : first) {
+		std::cout << "first(" << NTS_F.first << ") = { ";
+		for (auto p : NTS_F.second) {
+			std::cout << p.first << ", ";
+		}
+		std::cout << "}" << std::endl;
+	}
+
+	/// Warnings for FIRST/FIRST conflicts
+	for (auto rule : rules) {
+		std::vector<std::string> productions = rule.second;
+		if (productions.size() > 1) {
+			std::vector<std::string> v;
+			for (auto prod : productions) {
+				v.push_back(split_string(prod).at(0));
+			}
+			std::vector<std::string>::iterator it = v.begin();
+			while ((it+1) != v.end()) {
+				std::vector<std::pair<std::string, int>> item1 = first[*it];
+				std::vector<std::pair<std::string, int>> item2 = first[*(it+1)];
+
+				for (auto pair1 : item1) {
+					for (auto pair2 : item2) {
+						if (pair1.first == pair2.first) {
+							std::cout << "Warning: " << *it << " & " << *(it + 1) << " FIRST/FIRST conflict" << std::endl;
+						}
+					}
+				}
+				it++;
+			}
+			
+		}
 	}
 
 	/// Generate FOLLOW() transitions
@@ -168,7 +202,7 @@ void grammar_cpp_gen::gen_parse_table() {
 		}
 	}
 
-	/// Create the LL(1) Parse Table
+	/// Create the LL(1) Parse Table File
 	std::cout << std::endl;
 	
 	std::string cpp = "#include \"mgparser.h\"\n\nmgparser::mgparser(const char* body) {\n\tlexer = new mglex(body);\n\tss.push(keywords::TS_EOF);\n\tss.push(keywords::NTS_MANGO);\n";
@@ -206,7 +240,7 @@ void grammar_cpp_gen::gen_parse_table() {
 		}
 	}
 
-	cpp.append("\tss.push(keywords::TS_EOF);\n\tss.push(keywords::NTS_MANGO);\n}\n\n\nvoid mgparser::ppeval() {\n\twhile(ss.size() > 0) {\n\t\tkeywords::Symbols token = lexer->lltoken().second;\n\t\tif(token == ss.top()) {\n\t\t\tcout << \"Matched symbols : \" << token << endl;\n\t\t\tss.pop();\n\t\t}\n\t\telse {\n\t\t\tcout << \"Rule \" << table[ss.top()][token] << endl;\n\t\t\tswitch(table[ss.top()][token]) {\n");
+	cpp.append("\tss.push(keywords::TS_EOF);\n\tss.push(keywords::NTS_MANGO);\n}\n\n\nvoid mgparser::ppeval() {\n\std::pair<const char*, keywords::Symbols> token = lexer->lltoken();\n\twhile(ss.size() > 0) {\n\t\tcout << \"Found a: \" << token.first << endl;\n\t\tif(token.second == ss.top()) {\n\t\ttoken = lexer->lltoken();\n\t\t\tcout << \"Matched symbols : \" << token.first << endl;\n\t\t\tss.pop();\n\t\t}\n\t\telse {\n\t\t\tcout << \"Rule \" << table[ss.top()][token.second] << endl;\n\t\t\tswitch(table[ss.top()][token.second]) {\n");
 
 	for (auto rule : rules_numbered) {
 		for (auto production : rule.second) {
@@ -228,7 +262,8 @@ void grammar_cpp_gen::gen_parse_table() {
 
 	/// Print the parse table for debugging
 	std::cout << cpp << std::endl;
-
+	
+	/// Write to the parsing file
 	std::ofstream myfile;
 	myfile.open("parser/mgparser.cpp");
 	myfile.clear();
