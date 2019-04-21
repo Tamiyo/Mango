@@ -8,7 +8,7 @@
 pair<const char *, keywords::Symbols> mglex::lltoken() {
 	forward = lexemeBegin;
 	if (!*forward) {
-		return { "\\eof", keywords::TS_EOF };
+		return { "$", keywords::TS_EOF };
 	}
 	else {
 		if (*forward == '\n') {

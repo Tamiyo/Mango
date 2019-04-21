@@ -31,7 +31,7 @@ keywords::keywords() {
 
 		{" ", TS_SPACE},
 		{"\n", TS_NEWLINE},
-		{"\\eof", TS_EOF},
+		{"$", TS_EOF},
 	};
 
 	TYPES = {
