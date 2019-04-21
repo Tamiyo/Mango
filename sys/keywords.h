@@ -23,6 +23,8 @@ public:
 		TS_IDENT,
 		TS_FLOAT,
 		TS_INT,
+		TS_VARIABLE,
+
 
 		// Control Symbols
 		TS_IF,
@@ -76,7 +78,6 @@ public:
 		NTS_OPERATOR,
 		NTS_COND_OPERATOR,
 		NTS_COND_S_OPERATOR,
-		NTS_VARIABLE,
 
 		// Personal Iterative Symbol
 		TS_$,
@@ -126,7 +127,7 @@ public:
 		{"NTS_OPERATOR",NTS_OPERATOR},
 		{"NTS_COND_OPERATOR",NTS_COND_OPERATOR},
 		{"NTS_COND_S_OPERATOR",NTS_COND_S_OPERATOR},
-		{"NTS_VARIABLE",NTS_VARIABLE},
+		{"TS_VARIABLE",TS_VARIABLE},
 		{"ENUM_TYPE_END",TS_$},
 	};
 

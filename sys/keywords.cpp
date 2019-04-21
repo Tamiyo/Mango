@@ -36,9 +36,9 @@ keywords::keywords() {
 
 	TYPES = {
 		{0, TS_IDENT},
-		{1, TS_INT},
-		{2, TS_FLOAT},
-		{3, TS_STRING},
+		{1, TS_VARIABLE},
+		{2, TS_VARIABLE},
+		{3, TS_VARIABLE},
 		{4, NTS_OPERATOR}
 	};
 

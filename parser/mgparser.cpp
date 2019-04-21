@@ -15,26 +15,15 @@ mgparser::mgparser(const char* body) {
 	table[keywords::NTS_COND_OPERATOR][keywords::TS_TEQUIV] = 19;
 	table[keywords::NTS_COND_S_OPERATOR][keywords::TS_NEG] = 20;
 	table[keywords::NTS_COND_S_OPERATOR][keywords::TS_NOTNULL] = 21;
-	table[keywords::NTS_EXPR][keywords::TS_IDENT] = 6;
-	table[keywords::NTS_EXPR][keywords::TS_FLOAT] = 6;
-	table[keywords::NTS_EXPR][keywords::TS_INT] = 6;
-	table[keywords::NTS_EXPR][keywords::TS_STRING] = 6;
-	table[keywords::NTS_EXPR_A][keywords::TS_EXP] = 7;
-	table[keywords::NTS_EXPR_A][keywords::TS_DIV] = 7;
-	table[keywords::NTS_EXPR_A][keywords::TS_MUL] = 7;
-	table[keywords::NTS_EXPR_A][keywords::TS_MINUS] = 7;
-	table[keywords::NTS_EXPR_A][keywords::TS_PLUS] = 7;
-	table[keywords::NTS_EXPR_A][keywords::TS_NEWLINE] = 8;
+	table[keywords::NTS_EXPR][keywords::TS_VARIABLE] = 6;
+	table[keywords::NTS_EXPR][keywords::TS_VARIABLE] = 7;
 	table[keywords::NTS_EXPR_A][keywords::TS_EXP] = 8;
 	table[keywords::NTS_EXPR_A][keywords::TS_DIV] = 8;
 	table[keywords::NTS_EXPR_A][keywords::TS_MUL] = 8;
 	table[keywords::NTS_EXPR_A][keywords::TS_MINUS] = 8;
 	table[keywords::NTS_EXPR_A][keywords::TS_PLUS] = 8;
-	table[keywords::NTS_EXPR_A][keywords::TS_EMPTY] = 8;
-	table[keywords::NTS_MANGO][keywords::TS_IDENT] = 1;
-	table[keywords::NTS_MANGO][keywords::TS_FLOAT] = 1;
-	table[keywords::NTS_MANGO][keywords::TS_INT] = 1;
-	table[keywords::NTS_MANGO][keywords::TS_STRING] = 1;
+	table[keywords::NTS_MANGO][keywords::TS_VARIABLE] = 1;
+	table[keywords::NTS_MANGO][keywords::TS_VARIABLE] = 1;
 	table[keywords::NTS_MANGO][keywords::TS_IDENT] = 1;
 	table[keywords::NTS_OPERATOR][keywords::TS_PLUS] = 9;
 	table[keywords::NTS_OPERATOR][keywords::TS_MINUS] = 10;
@@ -42,19 +31,11 @@ mgparser::mgparser(const char* body) {
 	table[keywords::NTS_OPERATOR][keywords::TS_DIV] = 12;
 	table[keywords::NTS_OPERATOR][keywords::TS_EXP] = 13;
 	table[keywords::NTS_STMT][keywords::TS_IDENT] = 3;
-	table[keywords::NTS_STMT][keywords::TS_IDENT] = 4;
-	table[keywords::NTS_STMT][keywords::TS_FLOAT] = 4;
-	table[keywords::NTS_STMT][keywords::TS_INT] = 4;
-	table[keywords::NTS_STMT][keywords::TS_STRING] = 4;
+	table[keywords::NTS_STMT][keywords::TS_VARIABLE] = 4;
+	table[keywords::NTS_STMT][keywords::TS_VARIABLE] = 4;
+	table[keywords::NTS_STMTS][keywords::TS_VARIABLE] = 2;
+	table[keywords::NTS_STMTS][keywords::TS_VARIABLE] = 2;
 	table[keywords::NTS_STMTS][keywords::TS_IDENT] = 2;
-	table[keywords::NTS_STMTS][keywords::TS_FLOAT] = 2;
-	table[keywords::NTS_STMTS][keywords::TS_INT] = 2;
-	table[keywords::NTS_STMTS][keywords::TS_STRING] = 2;
-	table[keywords::NTS_STMTS][keywords::TS_IDENT] = 2;
-	table[keywords::NTS_VARIABLE][keywords::TS_STRING] = 22;
-	table[keywords::NTS_VARIABLE][keywords::TS_INT] = 23;
-	table[keywords::NTS_VARIABLE][keywords::TS_FLOAT] = 24;
-	table[keywords::NTS_VARIABLE][keywords::TS_IDENT] = 25;
 	ss.push(keywords::TS_EOF);
 	ss.push(keywords::NTS_MANGO);
 }
@@ -112,18 +93,17 @@ std::pair<const char*, keywords::Symbols> token = lexer->lltoken();
 					break;
 				case 6:
 					ss.pop();
-					ss.push(keywords::NTS_VARIABLE);
+					ss.push(keywords::TS_VARIABLE);
 					ss.push(keywords::NTS_EXPR_A);
 					break;
 				case 7:
 					ss.pop();
-					ss.push(keywords::NTS_OPERATOR);
-					ss.push(keywords::NTS_EXPR);
-					ss.push(keywords::NTS_EXPR_A);
+					ss.push(keywords::TS_VARIABLE);
 					break;
 				case 8:
 					ss.pop();
-					ss.push(keywords::TS_EMPTY);
+					ss.push(keywords::NTS_OPERATOR);
+					ss.push(keywords::NTS_EXPR);
 					break;
 				case 1:
 					ss.pop();
@@ -161,22 +141,6 @@ std::pair<const char*, keywords::Symbols> token = lexer->lltoken();
 					ss.pop();
 					ss.push(keywords::NTS_STMT);
 					ss.push(keywords::TS_NEWLINE);
-					break;
-				case 22:
-					ss.pop();
-					ss.push(keywords::TS_STRING);
-					break;
-				case 23:
-					ss.pop();
-					ss.push(keywords::TS_INT);
-					break;
-				case 24:
-					ss.pop();
-					ss.push(keywords::TS_FLOAT);
-					break;
-				case 25:
-					ss.pop();
-					ss.push(keywords::TS_IDENT);
 					break;
 				default:
 					cout << "parsing table defaulted" << endl;
