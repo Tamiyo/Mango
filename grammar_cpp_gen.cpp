@@ -195,7 +195,7 @@ void grammar_cpp_gen::gen_parse_table() {
 				for (auto pair1 : item1) {
 					for (auto pair2 : item2) {
 						if (pair1.first == pair2.first) {
-							std::cout << "Warning: " << *it << " & " << *(it + 1) << "\t\t\tFIRST/FIRST conflict" << std::endl;
+							std::cout << "ERROR: " << *it << " & " << *(it + 1) << "\t\t\tFIRST/FIRST conflict" << std::endl;
 						}
 					}
 				}
@@ -224,7 +224,7 @@ void grammar_cpp_gen::gen_parse_table() {
 						for (auto pair3 : prodvec) {
 							for (auto pair2 : item2) {
 								if (pair3 == pair2.first) {
-									std::cout << "Warning: " << *it << " & " << *(it + 1) << "\t\t\tFIRST/FIRST conflict" << std::endl;
+									std::cout << "ERROR: " << *it << " & " << *(it + 1) << "\t\t\tFIRST/FOLLOW conflict" << std::endl;
 								}
 							}
 						}
@@ -244,7 +244,7 @@ void grammar_cpp_gen::gen_parse_table() {
 		for (auto pair1 : NTS_FI) {
 			for (auto pair2 : NTS_FO) {
 				if (pair1.first == pair2) {
-					std::cout << "Warning: " << NTS << "\t\t\t\tFIRST/FOLLOW conflict" << std::endl;
+					std::cout << "Warning: " << NTS << "\t\t\t\tPossible FIRST/FOLLOW conflict" << std::endl;
 					goto WARNING_DONE;
 				}
 			}
