@@ -205,6 +205,7 @@ void grammar_cpp_gen::gen_parse_table() {
 		}
 	}
 
+	/// Warnings for FIRST/FOLLOW conflicts
 	std::cout << std::endl;
 	for (auto rule : rules) {
 		std::vector<std::string> productions = rule.second;
@@ -234,22 +235,6 @@ void grammar_cpp_gen::gen_parse_table() {
 			}
 
 		}
-	}
-
-	/// Warnings for FIRST/FOLLOW conflicts
-	for (auto NTS : non_terminals) {
-		std::vector<std::pair<std::string, int>> NTS_FI = first[NTS];
-		std::vector<std::string> NTS_FO = follow[NTS];
-
-		for (auto pair1 : NTS_FI) {
-			for (auto pair2 : NTS_FO) {
-				if (pair1.first == pair2) {
-					std::cout << "Warning: " << NTS << "\t\t\t\tPossible FIRST/FOLLOW conflict" << std::endl;
-					goto WARNING_DONE;
-				}
-			}
-		}
-	WARNING_DONE:;
 	}
 
 	/// Create the LL(1) Parse Table File
