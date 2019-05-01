@@ -1,15 +1,16 @@
 //
-// Created by Matt on 4/16/2019.
+// Created by Matt on 4/25/2019.
 //
 
-#ifndef CLIONLANG_PARSER_H
-#define CLIONLANG_PARSER_H
+#ifndef MANGO_CL_MGPARSER_H
+#define MANGO_CL_MGPARSER_H
 
-#include "../lex/mglex.h"
+
 #include <stack>
 #include <map>
 #include <string.h>
 #include <regex>
+#include "../lexer/mglexer.h"
 
 using std::stack;
 using std::string;
@@ -19,21 +20,21 @@ using std::regex_match;
 
 class mgparser {
 public:
-	explicit mgparser(const char *);
+    explicit mgparser(const char *);
 
-	void ppeval();
+    void ppeval();
 
 private:
-	// The Lexer
-	mglex *lexer;
+    // The Lexer
+    mglexer *lexer;
 
-	// The Stack for our LL parser
-	stack<keywords::Symbols> ss;
+    // The Stack for our LL parser
+    stack<tokens::Symbols> ss;
 
-	// The LL parsing table
-	map<keywords::Symbols, map<keywords::Symbols, int>> table;
+    // The LL parsing table
+    map<tokens::Symbols, map<tokens::Symbols, int>> table;
 
 };
 
 
-#endif //CLIONLANG_PARSER_H
+#endif //MANGO_CL_MGPARSER_H

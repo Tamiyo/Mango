@@ -1,20 +1,16 @@
 #include <iostream>
 #include <stdio.h>
-#include "lex/mglex.h"
-#include "parser/mgparser.h"
-#include "grammar_cpp_gen.h"
+#include "generator/generator_parser.h"
 
 using std::cout;
 using std::endl;
 using std::pair;
 
 int main() {
-	/*auto* gen = new grammar_cpp_gen();
-	gen->gen_parse_table()*/;
+    auto* gen = new generator_parser();
+    gen->gen_parse_table();
 
-	const char *body = "70 + 20\n";
-	auto *parser = new mgparser(body);
-	parser->ppeval();
-
-	system("pause");
+    // const char *body = "70 + 20\n";
+    // auto *parser = new mgparser(body);
+    // parser->ppeval();
 }

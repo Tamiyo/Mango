@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/Documents/mango_cl/generator/generator_parser.cpp
+utility
+-
+utility
+-
+generator_parser.h
+D:/Documents/mango_cl/generator/generator_parser.h
+
+D:/Documents/mango_cl/generator/generator_parser.h
+fstream
+-
+iostream
+-
+string
+-
+vector
+-
+stack
+-
+algorithm
+-
+../tokens/tokens.h
+D:/Documents/mango_cl/tokens/tokens.h
+
+D:/Documents/mango_cl/tokens/tokens.h
+map
+-
+string
+-
+

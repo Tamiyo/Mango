@@ -1,0 +1,3 @@
+D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir
+D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/rebuild_cache.dir
