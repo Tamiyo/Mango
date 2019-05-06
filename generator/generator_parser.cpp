@@ -250,6 +250,7 @@ void generator_parser::CHECK_WARNINGS() {
 
 
 void generator_parser::ITEMS() {
+
     vector<vector<generator_parser::item *>> C;
 
     C.emplace_back(vector<generator_parser::item *>());
@@ -268,6 +269,18 @@ void generator_parser::ITEMS() {
         for (const auto &I : C) {
             for (const auto &X : grammar_symbols) {
                 auto G = GOTO(I, X);
+                cout << "Comparing" << endl;
+                for (const auto &ti : G) {
+                    cout << "\t" << ti->toStringSimple() << endl;
+                }
+                cout << "to" << endl;
+                for (const auto &ti : I) {
+                    cout << "\t" << ti->toStringSimple() << endl;
+                }
+
+                if (!G.empty() && deepVectorCheck(C, G)) {
+                    C.emplace_back(G);
+                }
             }
         }
     }
@@ -295,8 +308,11 @@ vector<generator_parser::item *> generator_parser::GOTO(const vector<generator_p
             generator_parser::item *tItem = new generator_parser::item{item->A, item->a + X,
                                                                        item->b.substr(0, item->b.find(' ')), _b,
                                                                        item->t};
-            cout << "GOTO ADDED: " << tItem->toStringSimple() << endl;
-            J.emplace_back(tItem);
+
+            if(find(J.begin(), J.end(), tItem) == J.end()) {
+                cout << "GOTO ADDED: " << tItem->toStringSimple() << ", " << X << endl;
+                J.emplace_back(tItem);
+            }
         }
     }
 
@@ -311,13 +327,14 @@ vector<generator_parser::item *> generator_parser::CLOSURE(const vector<generato
 
     stack<generator_parser::item *> stack;
     for (const auto &item : itemset) {
+        out_itemset.push_back(item);
         stack.push(item);
     }
 
     while (!stack.empty()) {
         auto item = stack.top();
         stack.pop();
-        cout << "Closing:: " << item->toStringSimple() << endl;
+//        cout << "Closing:: " << item->toStringSimple() << endl;
 
         vector<string> first_prod;
         vector<string> rhs = augmented_grammar[item->b];
@@ -358,11 +375,30 @@ vector<generator_parser::item *> generator_parser::CLOSURE(const vector<generato
                 }
                 auto testItem = new generator_parser::item{item->B, "", production.substr(0, production.find(' ')),
                                                            _b, terminal,};
-                cout << "\t Added to close: " << testItem->toStringSimple() << endl;
+//                cout << "\t Added to close: " << testItem->toStringSimple() << endl;
                 out_itemset.push_back(testItem);
                 stack.push(testItem);
             }
         }
     }
     return out_itemset;
+}
+
+bool generator_parser::deepVectorCheck(vector<vector<generator_parser::item *>> a, vector<generator_parser::item *> b) {
+
+    for (const auto &subvector : a) {
+        int check = 0;
+        for (const auto &elem : subvector) {
+            for (const auto &elem2 : b) {
+                if (elem == elem2) {
+                    check++;
+                    break;
+                }
+            }
+        }
+        if (subvector.size() - 1 == check) {
+            return true;
+        }
+    }
+    return false;
 }

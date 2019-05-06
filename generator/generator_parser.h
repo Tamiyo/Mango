@@ -68,11 +68,13 @@ private:
 
     vector<string> split_string(string);
 
-    void FIRST();
+   void FIRST();
 
     void FOLLOW();
 
     void CHECK_WARNINGS();
+
+    bool deepVectorCheck( vector<vector<generator_parser::item *>>,vector<generator_parser::item *>);
 
     vector<generator_parser::item *> CLOSURE(const vector<generator_parser::item *> &);
 
