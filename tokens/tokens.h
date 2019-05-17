@@ -53,11 +53,11 @@ public:
 
 		NTS_OPERATOR,
 		// Non-Terminal Symbols (Generated)
-		NTS_SP,
-		NTS_S,
-		NTS_C,
-		TS_C,
-		TS_D,
+		NTS_MANGO,
+		NTS_STMTS,
+		NTS_STMT,
+		NTS_ASSIGN,
+		NTS_EXPR,
 	};
 	std::map<std::string, Symbols> TOKENS;
 	std::map<int, Symbols> TYPES;

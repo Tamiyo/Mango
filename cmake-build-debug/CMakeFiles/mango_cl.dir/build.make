@@ -69,22 +69,9 @@ CMakeFiles/mango_cl.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_cl.dir/main.cpp.s"
 	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\mango_cl\main.cpp -o CMakeFiles\mango_cl.dir\main.cpp.s
 
-CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.obj: CMakeFiles/mango_cl.dir/flags.make
-CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.obj: ../generator/generator_parser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_cl.dir\generator\generator_parser.cpp.obj -c D:\Documents\mango_cl\generator\generator_parser.cpp
-
-CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\mango_cl\generator\generator_parser.cpp > CMakeFiles\mango_cl.dir\generator\generator_parser.cpp.i
-
-CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\mango_cl\generator\generator_parser.cpp -o CMakeFiles\mango_cl.dir\generator\generator_parser.cpp.s
-
 CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj: CMakeFiles/mango_cl.dir/flags.make
 CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj: ../tokens/tokens.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj"
 	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_cl.dir\tokens\tokens.cpp.obj -c D:\Documents\mango_cl\tokens\tokens.cpp
 
 CMakeFiles/mango_cl.dir/tokens/tokens.cpp.i: cmake_force
@@ -97,7 +84,7 @@ CMakeFiles/mango_cl.dir/tokens/tokens.cpp.s: cmake_force
 
 CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj: CMakeFiles/mango_cl.dir/flags.make
 CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj: ../lexer/mglexer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj"
 	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_cl.dir\lexer\mglexer.cpp.obj -c D:\Documents\mango_cl\lexer\mglexer.cpp
 
 CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.i: cmake_force
@@ -110,7 +97,7 @@ CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.s: cmake_force
 
 CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj: CMakeFiles/mango_cl.dir/flags.make
 CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj: ../parser/mgparser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj"
 	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_cl.dir\parser\mgparser.cpp.obj -c D:\Documents\mango_cl\parser\mgparser.cpp
 
 CMakeFiles/mango_cl.dir/parser/mgparser.cpp.i: cmake_force
@@ -123,7 +110,7 @@ CMakeFiles/mango_cl.dir/parser/mgparser.cpp.s: cmake_force
 
 CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.obj: CMakeFiles/mango_cl.dir/flags.make
 CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.obj: ../parse_tree/expr.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.obj"
 	C:\PROGRA~2\MINGW-~1\I686-7~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_cl.dir\parse_tree\expr.cpp.obj -c D:\Documents\mango_cl\parse_tree\expr.cpp
 
 CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.i: cmake_force
@@ -137,7 +124,6 @@ CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.s: cmake_force
 # Object files for target mango_cl
 mango_cl_OBJECTS = \
 "CMakeFiles/mango_cl.dir/main.cpp.obj" \
-"CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.obj" \
 "CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj" \
 "CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj" \
 "CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj" \
@@ -147,7 +133,6 @@ mango_cl_OBJECTS = \
 mango_cl_EXTERNAL_OBJECTS =
 
 mango_cl.exe: CMakeFiles/mango_cl.dir/main.cpp.obj
-mango_cl.exe: CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.obj
 mango_cl.exe: CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj
 mango_cl.exe: CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj
 mango_cl.exe: CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj
@@ -156,7 +141,7 @@ mango_cl.exe: CMakeFiles/mango_cl.dir/build.make
 mango_cl.exe: CMakeFiles/mango_cl.dir/linklibs.rsp
 mango_cl.exe: CMakeFiles/mango_cl.dir/objects1.rsp
 mango_cl.exe: CMakeFiles/mango_cl.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable mango_cl.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable mango_cl.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\mango_cl.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

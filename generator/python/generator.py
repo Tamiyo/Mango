@@ -286,69 +286,106 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
         f.write(out)
         f.close()
 
-        out2 = '#ifndef MANGO_CL_TOKENS_H\n' \
-               '#define MANGO_CL_TOKENS_H\n' \
-               '#include<map>\n' \
-               '#include<string>\n\n' \
-               'class tokens {\n' \
-               'public:\n' \
-               '\t\ttokens();\n\n' \
-               '\t\tenum Symbols {\n' \
-               '\t\t// Terminal Symbols\n' \
-               '\t\tTS_STRING,\n' \
-               '\t\tTS_IDENT,\n' \
-               '\t\tTS_FLOAT,\n' \
-               '\t\tTS_INT,\n' \
-               '\t\tTS_VARIABLE,\n\n' \
-               '\t\t// Control Symbols\n' \
-               '\t\tTS_IF,\n' \
-               '\t\tTS_ELSEIF,\n' \
-               '\t\tTS_ELSE,\n\n' \
-               '\t\t// Grouping Symbols\n' \
-               '\t\tTS_LCB,\n' \
-               '\t\tTS_RCB,\n' \
-               '\t\tTS_LPAREN,\n' \
-               '\t\tTS_RPAREN,\n\n' \
-               '\t\t// Operator Symbols,\n' \
-               '\t\tTS_EQUALS,\n' \
-               '\t\tTS_PLUS,\n' \
-               '\t\tTS_MINUS,\n' \
-               '\t\tTS_MUL,\n' \
-               '\t\tTS_DIV,\n' \
-               '\t\tTS_EXP,\n\n' \
-               '\t\t// Comparison Symbols\n' \
-               '\t\tTS_LT,\n' \
-               '\t\tTS_LTE,\n' \
-               '\t\tTS_GT,\n' \
-               '\t\tTS_GTE,\n' \
-               '\t\tTS_EQUIV,\n' \
-               '\t\tTS_TEQUIV,\n\n' \
-               '\t\t// Single Comparison Symbols\n' \
-               '\t\tTS_NEG,\n' \
-               '\t\tTS_NOTNULL,\n' \
-               '\t\t// Other Symbols\n' \
-               '\t\tTS_SPACE,\n' \
-               '\t\tTS_NEWLINE,\n' \
-               '\t\tTS_EMPTY,\n' \
-               '\t\tTS_EOF,\n\n' \
-               '\t\tNTS_OPERATOR,\n' \
-               '\t\t// Non-Terminal Symbols (Generated)\n'
-        for SYMBOL in GRAMMAR_SYMBOLS:
-            out2 += '\t\t{},\n'.format(SYMBOL)
-        out2 += '\t};\n' \
-                '\tstd::map<std::string, Symbols> TOKENS;\n' \
-                '\tstd::map<int, Symbols> TYPES;\n' \
-                '};\n\n' \
-                '#endif //MANGO_CL_TOKENS_H'
-        f2 = open('../../tokens/tokens.h', 'w+')
-        f2.write(out2)
-        f2.close()
+    hardcoded_symbols = ['TS_STRING',
+                         'TS_IDENT',
+                         'TS_FLOAT',
+                         'TS_INT',
+                         'TS_VARIABLE',
 
+                         'TS_IF',
+                         'TS_ELSEIF',
+                         'TS_ELSE',
+
+                         'TS_LCB',
+                         'TS_RCB',
+                         'TS_LPAREN',
+                         'TS_RPAREN',
+
+                         'TS_EQUALS',
+                         'TS_PLUS',
+                         'TS_MINUS',
+                         'TS_MUL',
+                         'TS_DIV',
+                         'TS_EXP',
+
+                         'TS_LT',
+                         'TS_LTE',
+                         'TS_GT',
+                         'TS_GTE',
+                         'TS_EQUIV',
+                         'TS_TEQUIV',
+
+                         'TS_NEG',
+                         'TS_NOTNULL',
+                         'TS_SPACE',
+                         'TS_NEWLINE',
+                         'TS_EMPTY',
+                         'TS_EOF',
+
+                         'NTS_OPERATOR']
+    out2 = '#ifndef MANGO_CL_TOKENS_H\n' \
+           '#define MANGO_CL_TOKENS_H\n' \
+           '#include<map>\n' \
+           '#include<string>\n\n' \
+           'class tokens {\n' \
+           'public:\n' \
+           '\t\ttokens();\n\n' \
+           '\t\tenum Symbols {\n' \
+           '\t\t// Terminal Symbols\n' \
+           '\t\tTS_STRING,\n' \
+           '\t\tTS_IDENT,\n' \
+           '\t\tTS_FLOAT,\n' \
+           '\t\tTS_INT,\n' \
+           '\t\tTS_VARIABLE,\n\n' \
+           '\t\t// Control Symbols\n' \
+           '\t\tTS_IF,\n' \
+           '\t\tTS_ELSEIF,\n' \
+           '\t\tTS_ELSE,\n\n' \
+           '\t\t// Grouping Symbols\n' \
+           '\t\tTS_LCB,\n' \
+           '\t\tTS_RCB,\n' \
+           '\t\tTS_LPAREN,\n' \
+           '\t\tTS_RPAREN,\n\n' \
+           '\t\t// Operator Symbols,\n' \
+           '\t\tTS_EQUALS,\n' \
+           '\t\tTS_PLUS,\n' \
+           '\t\tTS_MINUS,\n' \
+           '\t\tTS_MUL,\n' \
+           '\t\tTS_DIV,\n' \
+           '\t\tTS_EXP,\n\n' \
+           '\t\t// Comparison Symbols\n' \
+           '\t\tTS_LT,\n' \
+           '\t\tTS_LTE,\n' \
+           '\t\tTS_GT,\n' \
+           '\t\tTS_GTE,\n' \
+           '\t\tTS_EQUIV,\n' \
+           '\t\tTS_TEQUIV,\n\n' \
+           '\t\t// Single Comparison Symbols\n' \
+           '\t\tTS_NEG,\n' \
+           '\t\tTS_NOTNULL,\n' \
+           '\t\t// Other Symbols\n' \
+           '\t\tTS_SPACE,\n' \
+           '\t\tTS_NEWLINE,\n' \
+           '\t\tTS_EMPTY,\n' \
+           '\t\tTS_EOF,\n\n' \
+           '\t\tNTS_OPERATOR,\n' \
+           '\t\t// Non-Terminal Symbols (Generated)\n'
+    for SYMBOL in GRAMMAR_SYMBOLS:
+        if SYMBOL not in hardcoded_symbols:
+            out2 += '\t\t{},\n'.format(SYMBOL)
+    out2 += '\t};\n' \
+            '\tstd::map<std::string, Symbols> TOKENS;\n' \
+            '\tstd::map<int, Symbols> TYPES;\n' \
+            '};\n\n' \
+            '#endif //MANGO_CL_TOKENS_H'
+    f2 = open('../../tokens/tokens.h', 'w+')
+    f2.write(out2)
+    f2.close()
 
     C = [CLOSURE([{
-        'A': 'NTS_SP',
+        'A': 'NTS_MANGO',
         'a': '',
-        'B': 'NTS_S',
+        'B': 'NTS_STMTS',
         'b': '',
         't': 'TS_EOF'
     }])]

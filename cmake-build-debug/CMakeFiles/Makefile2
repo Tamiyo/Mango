@@ -70,7 +70,7 @@ CMAKE_BINARY_DIR = D:\Documents\mango_cl\cmake-build-debug
 CMakeFiles/mango_cl.dir/all:
 	$(MAKE) -f CMakeFiles\mango_cl.dir\build.make CMakeFiles/mango_cl.dir/depend
 	$(MAKE) -f CMakeFiles\mango_cl.dir\build.make CMakeFiles/mango_cl.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target mango_cl"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=D:\Documents\mango_cl\cmake-build-debug\CMakeFiles --progress-num=1,2,3,4,5,6 "Built target mango_cl"
 .PHONY : CMakeFiles/mango_cl.dir/all
 
 # Include target in all.
@@ -80,7 +80,7 @@ all: CMakeFiles/mango_cl.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/mango_cl.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\mango_cl\cmake-build-debug\CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\mango_cl\cmake-build-debug\CMakeFiles 6
 	$(MAKE) -f CMakeFiles\Makefile2 CMakeFiles/mango_cl.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\mango_cl\cmake-build-debug\CMakeFiles 0
 .PHONY : CMakeFiles/mango_cl.dir/rule

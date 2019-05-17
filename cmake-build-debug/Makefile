@@ -122,33 +122,6 @@ mango_cl/fast:
 	$(MAKE) -f CMakeFiles\mango_cl.dir\build.make CMakeFiles/mango_cl.dir/build
 .PHONY : mango_cl/fast
 
-generator/generator_parser.obj: generator/generator_parser.cpp.obj
-
-.PHONY : generator/generator_parser.obj
-
-# target to build an object file
-generator/generator_parser.cpp.obj:
-	$(MAKE) -f CMakeFiles\mango_cl.dir\build.make CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.obj
-.PHONY : generator/generator_parser.cpp.obj
-
-generator/generator_parser.i: generator/generator_parser.cpp.i
-
-.PHONY : generator/generator_parser.i
-
-# target to preprocess a source file
-generator/generator_parser.cpp.i:
-	$(MAKE) -f CMakeFiles\mango_cl.dir\build.make CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.i
-.PHONY : generator/generator_parser.cpp.i
-
-generator/generator_parser.s: generator/generator_parser.cpp.s
-
-.PHONY : generator/generator_parser.s
-
-# target to generate assembly for a file
-generator/generator_parser.cpp.s:
-	$(MAKE) -f CMakeFiles\mango_cl.dir\build.make CMakeFiles/mango_cl.dir/generator/generator_parser.cpp.s
-.PHONY : generator/generator_parser.cpp.s
-
 lexer/mglexer.obj: lexer/mglexer.cpp.obj
 
 .PHONY : lexer/mglexer.obj
@@ -293,9 +266,6 @@ help:
 	@echo ... mango_cl
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... generator/generator_parser.obj
-	@echo ... generator/generator_parser.i
-	@echo ... generator/generator_parser.s
 	@echo ... lexer/mglexer.obj
 	@echo ... lexer/mglexer.i
 	@echo ... lexer/mglexer.s

@@ -80,12 +80,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="D:/Documents/mango_cl/generator/generator_parser.cpp">
-			<Option target="mango_cl"/>
-		</Unit>
-		<Unit filename="D:/Documents/mango_cl/generator/generator_parser.h">
-			<Option target="mango_cl"/>
-		</Unit>
 		<Unit filename="D:/Documents/mango_cl/lexer/mglexer.cpp">
 			<Option target="mango_cl"/>
 		</Unit>
