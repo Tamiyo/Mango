@@ -9,6 +9,7 @@
 #include <stack>
 #include <map>
 #include <string.h>
+#include <cstdlib>
 #include <regex>
 #include "../lexer/mglexer.h"
 
@@ -28,11 +29,19 @@ private:
     // The Lexer
     mglexer *lexer;
 
+    struct stack_symbol {
+        union {
+            int state;
+            tokens::Symbols lexeme;
+        };
+    };
+
     // The Stack for our LL parser
-    stack<tokens::Symbols> ss;
+    stack<stack_symbol> ss;
 
     // The LL parsing table
-    map<tokens::Symbols, map<tokens::Symbols, int>> table;
+    map<int, map<tokens::Symbols, string>> ACTION;
+    map<int, int> GOTO;
 
 };
 
