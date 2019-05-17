@@ -16,6 +16,7 @@
 using std::stack;
 using std::string;
 using std::map;
+using std::pair;
 using std::regex;
 using std::regex_match;
 
@@ -41,7 +42,7 @@ private:
 
     // The LL parsing table
     map<int, map<tokens::Symbols, string>> ACTION;
-    map<int, int> GOTO;
+    map<int, pair<tokens::Symbols, int>> GOTO;
 
 };
 

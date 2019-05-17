@@ -16,7 +16,7 @@ def main():
     TERMINALS += ['TS_EOF']
 
     index = 0
-    production_set = [x.strip() for x in open(r'C:\Users\Matt\Documents\Mango\generator\grammar.mg').readlines()]
+    production_set = [x.strip() for x in open(r'D:\Documents\mango_cl\generator\grammar.mg').readlines()]
     for production in production_set:
         if len(production) > 2:
             lhs = production[:production.find('->') - 1]
@@ -38,14 +38,16 @@ def main():
             # Add to Nonterminals
             if lhs not in NONTERMINALS:
                 NONTERMINALS += [lhs]
-                GRAMMAR_SYMBOLS += [lhs]
+                if lhs not in GRAMMAR_SYMBOLS:
+                    GRAMMAR_SYMBOLS += [lhs]
 
             # Add to terminals
             rhs_tokens = rhs.split(' ')
             for token in rhs_tokens:
                 if token not in TERMINALS:
                     TERMINALS += [token]
-                    GRAMMAR_SYMBOLS += [token]
+                    if token not in GRAMMAR_SYMBOLS:
+                        GRAMMAR_SYMBOLS += [token]
 
     tGrammar = copy.deepcopy(GRAMMAR)
     FIRST_SET = FIRST(tGrammar)
@@ -236,12 +238,14 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
               '\tss.push(stack_symbol{0});\n'
         # Note for efficiency we could ignore the symbols (add later)
         # Note also that we need to handle GOTO better (there is an error in the implemnetation rn)
-        for _, item in INDEXED_GRAMMAR.items():
-            print(_, item)
+        for key, item in INDEXED_GRAMMAR.items():
             if item[0] != '':
-                out += '\tGOTO[{0}] = {1};\n'.format(item[0] + 1, item[1])
+                out += '\tGOTO[{0}] = '.format(item[0] + 1)
+                out += '{'
+                out += 'tokens::{0}, {1}'.format(key[0], item[1])
+                out += '};\n'
             else:
-                out += '\tGOTO[1] = 2;\n'
+                out += '\tGOTO[1] = {tokens::' + key[0] + ', 2};\n'
         for keys, item in ACTION.items():
             out += '\tACTION[{0}][tokens::{1}] = \"{2}\";\n'.format(keys[0], keys[1], item)
         out += '}\n\n' \
@@ -251,7 +255,8 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                '\twhile(lexeme != tokens::TS_EOF) {\n' \
                '\t\tif (!reduced) {\n' \
                '\t\t\tlexeme = lexer->lltoken().second;\n' \
-               '\t\t}' \
+               '\t\t}\n' \
+               '\t\treduced = false;\n' \
                '\t\tint state = ss.top().state;\n' \
                '\t\tss.pop();\n' \
                '\t\tif (ACTION[state][lexeme].substr(0,1) == \"S\") {\n' \
@@ -259,12 +264,17 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                '\t\t\tss.push(stack_symbol{state});\n' \
                '\t\t}\n' \
                '\t\telse if(ACTION[state][lexeme].substr(0,1) == \"R\") {\n' \
-               '\t\t\tint pop_amnt = GOTO[atoi(ACTION[state][lexeme].substr(1))];\n' \
+               '\t\t\tint gtNum = atoi(ACTION[state][lexeme].substr(1).c_str());\n' \
+               '\t\t\tpair<tokens::Symbols, int> gt = GOTO[gtNum];\n' \
+               '\t\t\tint pop_amnt = gt.second;\n' \
                '\t\t\tint pop_cur = 0;\n' \
                '\t\t\twhile (pop_cur++ < pop_amnt) {\n' \
                '\t\t\t\tss.pop();\n' \
+               '\t\t\t\treduced = true;\n' \
                '\t\t\t}\n' \
-               '\t\t\tss.push(stack_symbol{atoi(ACTION[state][lexeme].substr(1))});\n' \
+               '\t\t\tss.push(stack_symbol{gtNum});\n' \
+               '\t\t\tss.push(stack_symbol{atoi(ACTION[gtNum][gt.first].c_str())});\n' \
+               '\t\t}\n' \
                '\t\telse if (ACTION[state][lexeme] == \"ACCEPT\") {\n' \
                '\t\t\tcout << \"ACCEPTED BY PARSER\" << endl;\n' \
                '\t\t}\n' \
@@ -272,9 +282,68 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                '}\n'
         print(out)
 
-        # f = open('../../parser/mgparser.cpp')
-        # f.write(out)
-        # f.close()
+        f = open('../../parser/mgparser.cpp', 'w+')
+        f.write(out)
+        f.close()
+
+        out2 = '#ifndef MANGO_CL_TOKENS_H\n' \
+               '#define MANGO_CL_TOKENS_H\n' \
+               '#include<map>\n' \
+               '#include<string>\n\n' \
+               'class tokens {\n' \
+               'public:\n' \
+               '\t\ttokens();\n\n' \
+               '\t\tenum Symbols {\n' \
+               '\t\t// Terminal Symbols\n' \
+               '\t\tTS_STRING,\n' \
+               '\t\tTS_IDENT,\n' \
+               '\t\tTS_FLOAT,\n' \
+               '\t\tTS_INT,\n' \
+               '\t\tTS_VARIABLE,\n\n' \
+               '\t\t// Control Symbols\n' \
+               '\t\tTS_IF,\n' \
+               '\t\tTS_ELSEIF,\n' \
+               '\t\tTS_ELSE,\n\n' \
+               '\t\t// Grouping Symbols\n' \
+               '\t\tTS_LCB,\n' \
+               '\t\tTS_RCB,\n' \
+               '\t\tTS_LPAREN,\n' \
+               '\t\tTS_RPAREN,\n\n' \
+               '\t\t// Operator Symbols,\n' \
+               '\t\tTS_EQUALS,\n' \
+               '\t\tTS_PLUS,\n' \
+               '\t\tTS_MINUS,\n' \
+               '\t\tTS_MUL,\n' \
+               '\t\tTS_DIV,\n' \
+               '\t\tTS_EXP,\n\n' \
+               '\t\t// Comparison Symbols\n' \
+               '\t\tTS_LT,\n' \
+               '\t\tTS_LTE,\n' \
+               '\t\tTS_GT,\n' \
+               '\t\tTS_GTE,\n' \
+               '\t\tTS_EQUIV,\n' \
+               '\t\tTS_TEQUIV,\n\n' \
+               '\t\t// Single Comparison Symbols\n' \
+               '\t\tTS_NEG,\n' \
+               '\t\tTS_NOTNULL,\n' \
+               '\t\t// Other Symbols\n' \
+               '\t\tTS_SPACE,\n' \
+               '\t\tTS_NEWLINE,\n' \
+               '\t\tTS_EMPTY,\n' \
+               '\t\tTS_EOF,\n\n' \
+               '\t\tNTS_OPERATOR,\n' \
+               '\t\t// Non-Terminal Symbols (Generated)\n'
+        for SYMBOL in GRAMMAR_SYMBOLS:
+            out2 += '\t\t{},\n'.format(SYMBOL)
+        out2 += '\t};\n' \
+                '\tstd::map<std::string, Symbols> TOKENS;\n' \
+                '\tstd::map<int, Symbols> TYPES;\n' \
+                '};\n\n' \
+                '#endif //MANGO_CL_TOKENS_H'
+        f2 = open('../../tokens/tokens.h', 'w+')
+        f2.write(out2)
+        f2.close()
+
 
     C = [CLOSURE([{
         'A': 'NTS_SP',
