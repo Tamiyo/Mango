@@ -45,6 +45,7 @@ public:
 		// Single Comparison Symbols
 		TS_NEG,
 		TS_NOTNULL,
+
 		// Other Symbols
 		TS_SPACE,
 		TS_NEWLINE,
@@ -52,13 +53,17 @@ public:
 		TS_EOF,
 
 		NTS_OPERATOR,
+
 		// Non-Terminal Symbols (Generated)
 		NTS_MANGO,
 		NTS_STMTS,
 		NTS_STMT,
 		NTS_ASSIGN,
 		NTS_EXPR,
+
+MYSBL_END
 	};
+
 	std::map<std::string, Symbols> TOKENS;
 	std::map<int, Symbols> TYPES;
 };

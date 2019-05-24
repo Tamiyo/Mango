@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+D:/Documents/mango_cl/lexer/mglexer.cpp
+mglexer.h
+D:/Documents/mango_cl/lexer/mglexer.h
+
 D:/Documents/mango_cl/lexer/mglexer.h
 iostream
 -
@@ -47,6 +51,10 @@ regex
 -
 ../lexer/mglexer.h
 D:/Documents/mango_cl/lexer/mglexer.h
+
+D:/Documents/mango_cl/tokens/tokens.cpp
+tokens.h
+D:/Documents/mango_cl/tokens/tokens.h
 
 D:/Documents/mango_cl/tokens/tokens.h
 map

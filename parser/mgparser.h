@@ -33,7 +33,7 @@ private:
     struct stack_symbol {
         union {
             int state;
-            tokens::Symbols lexeme;
+            tokens::Symbols symbol;
         };
     };
 

@@ -26,7 +26,7 @@ def main():
                 INDEXED_GRAMMAR[lhs, rhs] = ('', 0)
                 index += 1
             else:
-                INDEXED_GRAMMAR[lhs, rhs] = (index, len(rhs.split(' ')) * 2)
+                INDEXED_GRAMMAR[lhs, rhs] = (index, len(rhs.split(' ') * 2))
                 index += 1
 
             # Add to Grammar
@@ -206,8 +206,8 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
         print('\nCreating CLR Parsing Table')
         # [A -> a*Bb, t]
         IDENTITY = {
-            'A': 'NTS_SP',
-            'a': 'NTS_S',
+            'A': 'NTS_MANGO',
+            'a': 'NTS_STMTS',
             'B': '',
             'b': '',
             't': 'TS_EOF'
@@ -224,6 +224,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                     else:
                         ACTION[state, item['B']] = '{0}'.format(j)
                 if item['B'] == '' and item['b'] == '' and item['a'] != '':
+                    print('Searching for rule', combine_item(item), 'R', INDEXED_GRAMMAR[combine_item(item)][0])
                     ACTION[state, item['t']] = 'R{0}'.format(INDEXED_GRAMMAR[combine_item(item)][0])
                 if IDENTITY in C[state]:
                     ACTION[state, 'TS_EOF'] = 'ACCEPT'
@@ -240,7 +241,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
         # Note also that we need to handle GOTO better (there is an error in the implemnetation rn)
         for key, item in INDEXED_GRAMMAR.items():
             if item[0] != '':
-                out += '\tGOTO[{0}] = '.format(item[0] + 1)
+                out += '\tGOTO[{0}] = '.format(item[0])
                 out += '{'
                 out += 'tokens::{0}, {1}'.format(key[0], item[1])
                 out += '};\n'
@@ -250,36 +251,33 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
             out += '\tACTION[{0}][tokens::{1}] = \"{2}\";\n'.format(keys[0], keys[1], item)
         out += '}\n\n' \
                'void mgparser::ppeval() {\n' \
-               '\ttokens::Symbols lexeme = tokens::TS_EMPTY;\n' \
-               '\tbool reduced = false;\n' \
-               '\twhile(lexeme != tokens::TS_EOF) {\n' \
-               '\t\tif (!reduced) {\n' \
-               '\t\t\tlexeme = lexer->lltoken().second;\n' \
-               '\t\t}\n' \
-               '\t\treduced = false;\n' \
-               '\t\tint state = ss.top().state;\n' \
-               '\t\tss.pop();\n' \
-               '\t\tif (ACTION[state][lexeme].substr(0,1) == \"S\") {\n' \
-               '\t\t\tss.push(stack_symbol{lexeme});\n' \
-               '\t\t\tss.push(stack_symbol{state});\n' \
-               '\t\t}\n' \
-               '\t\telse if(ACTION[state][lexeme].substr(0,1) == \"R\") {\n' \
-               '\t\t\tint gtNum = atoi(ACTION[state][lexeme].substr(1).c_str());\n' \
-               '\t\t\tpair<tokens::Symbols, int> gt = GOTO[gtNum];\n' \
-               '\t\t\tint pop_amnt = gt.second;\n' \
-               '\t\t\tint pop_cur = 0;\n' \
-               '\t\t\twhile (pop_cur++ < pop_amnt) {\n' \
-               '\t\t\t\tss.pop();\n' \
-               '\t\t\t\treduced = true;\n' \
+               '\tauto token = lexer->lltoken();\n' \
+               '\twhile (true) {\n' \
+               '\t\tauto s = ss.top();\n' \
+               '\t\tif (token.second >= tokens::TS_STRING && token.second <= tokens::MYSBL_END) {\n' \
+               '\t\t\tif (ACTION[s.state][token.second].substr(0, 1) == "S") {\n' \
+               '\t\t\t\tss.push({token.second});\n' \
+               '\t\t\t\tss.push({atoi(ACTION[s.state][token.second].substr(1).c_str())});\n' \
+               '\t\t\t\ttoken = lexer->lltoken();\n' \
+               '\t\t\t} else if (ACTION[s.state][token.second] == "ACCEPT") {\n' \
+               '\t\t\t\tcout << "Parse Accepted" << endl;\n' \
+               '\t\t\t\tbreak;\n' \
+               '\t\t\t} else if (ACTION[s.state][token.second].substr(0, 1) == "R") {\n' \
+               '\t\t\t\tauto g = GOTO[atoi(ACTION[s.state][token.second].substr(1).c_str())];\n' \
+               '\t\t\t\tfor (int i = 0; i < g.second; i++) { ss.pop(); }\n' \
+               '\t\t\t\ts = ss.top();\n' \
+               '\t\t\t\tss.push(stack_symbol{g.first});\n' \
+               '\t\t\t\tss.push(stack_symbol{atoi(ACTION[s.state][g.first].c_str())});\n' \
+               '\t\t\t} else {\n' \
+               '\t\t\t\tcout << "Parse Error" << endl;\n' \
+               '\t\t\t\tbreak;\n' \
                '\t\t\t}\n' \
-               '\t\t\tss.push(stack_symbol{gtNum});\n' \
-               '\t\t\tss.push(stack_symbol{atoi(ACTION[gtNum][gt.first].c_str())});\n' \
-               '\t\t}\n' \
-               '\t\telse if (ACTION[state][lexeme] == \"ACCEPT\") {\n' \
-               '\t\t\tcout << \"ACCEPTED BY PARSER\" << endl;\n' \
+               '\t\t} else {\n' \
+               '\t\t\ttoken = lexer->lltoken();\n' \
                '\t\t}\n' \
                '\t}\n' \
                '}\n'
+
         print(out)
 
         f = open('../../parser/mgparser.cpp', 'w+')
@@ -362,18 +360,18 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
            '\t\tTS_TEQUIV,\n\n' \
            '\t\t// Single Comparison Symbols\n' \
            '\t\tTS_NEG,\n' \
-           '\t\tTS_NOTNULL,\n' \
+           '\t\tTS_NOTNULL,\n\n' \
            '\t\t// Other Symbols\n' \
            '\t\tTS_SPACE,\n' \
            '\t\tTS_NEWLINE,\n' \
            '\t\tTS_EMPTY,\n' \
            '\t\tTS_EOF,\n\n' \
-           '\t\tNTS_OPERATOR,\n' \
+           '\t\tNTS_OPERATOR,\n\n' \
            '\t\t// Non-Terminal Symbols (Generated)\n'
     for SYMBOL in GRAMMAR_SYMBOLS:
         if SYMBOL not in hardcoded_symbols:
             out2 += '\t\t{},\n'.format(SYMBOL)
-    out2 += '\t};\n' \
+    out2 += '\nMYSBL_END\n\t};\n\n' \
             '\tstd::map<std::string, Symbols> TOKENS;\n' \
             '\tstd::map<int, Symbols> TYPES;\n' \
             '};\n\n' \
