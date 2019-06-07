@@ -21,6 +21,9 @@ pair<const char *, tokens::Symbols> mglexer::lltoken() {
                 if (ispunct(*forward)) {
                     forward++;
                 }
+                if(isSpecialToken(lexemeBegin, forward)) {
+                    return charSlice(lexemeBegin, forward, 0);
+                }
                     // This lexeme is NOT apart of the IDENTIFIER, end analysis.
                 else {
                     return charSlice(lexemeBegin, forward, 0);
@@ -46,7 +49,7 @@ pair<const char *, tokens::Symbols> mglexer::lltoken() {
         else if (isalpha(*forward) && !isspace(*forward)) {
             while (*forward) {
                 // This lexeme is apart of the IDENTIFIER, and we keep moving.
-                if ((isalpha(*forward) || ispunct(*forward)) && !isspace(*forward)) {
+                if ((isalpha(*forward) || isIdentSpecial(*forward)) && !isspace(*forward)) {
                     forward++;
                 }
                     // This lexeme is NOT apart of the IDENTIFIER, end analysis.
@@ -81,18 +84,32 @@ pair<const char *, tokens::Symbols> mglexer::lltoken() {
     }
 }
 
+bool mglexer::isIdentSpecial(char c) {
+    return c == '-' || c == '_';
+}
+
+bool mglexer::isSpecialToken(char *lb, char *lf) {
+    int LEXEME_SIZE = (lf - lb + 1) * sizeof(*lb);
+    char *lexeme = new char[LEXEME_SIZE];
+    snprintf(lexeme, LEXEME_SIZE, "%s", lb);
+
+    return keys->TOKENS.count(lexeme) != 0;
+}
+
 pair<const char *, tokens::Symbols> mglexer::charSlice(char *lb, char *lf, int TYPE) {
     int LEXEME_SIZE = (lf - lb + 1) * sizeof(*lb);
     char *lexeme = new char[LEXEME_SIZE];
     snprintf(lexeme, LEXEME_SIZE, "%s", lb);
     lexemeBegin = lf;
 
+    printf("Found lexeme: %s\n", lexeme);
+
     if (TYPE == 0) {
         if (keys->TOKENS.count(lexeme)) {
             return { lexeme, keys->TOKENS[lexeme] };
         }
         else {
-            return { lexeme, tokens::TS_IDENT };
+            return { lexeme, tokens::TS_IDENTIFIER };
         }
     }
     else if (TYPE == 4) {

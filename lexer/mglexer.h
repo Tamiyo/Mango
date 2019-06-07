@@ -26,6 +26,8 @@ private:
 
     tokens *keys;
 
+    bool isSpecialToken(char *lb, char *lf);
+    bool isIdentSpecial(char);
     pair<const char *, tokens::Symbols> charSlice(char *, char *, int);
 
 public:

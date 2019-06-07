@@ -18,7 +18,7 @@ def main():
     index = 0
     production_set = [x.strip() for x in open(r'D:\Documents\mango_cl\generator\grammar.mg').readlines()]
     for production in production_set:
-        if len(production) > 2:
+        if len(production) > 2 and production[0] != "#":
             lhs = production[:production.find('->') - 1]
             rhs = production[production.find('->') + 3:]
 
@@ -75,7 +75,7 @@ def FIRST(G):
                     first_productions[key] += [first]
                 else:
                     first_productions[key] = [first]
-            else:
+            elif first != '':
                 for production in G[first]:
                     rhs.append(production)
     print('first_productions:', first_productions, end='\n\n')
@@ -207,13 +207,14 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
         # [A -> a*Bb, t]
         IDENTITY = {
             'A': 'NTS_MANGO',
-            'a': 'NTS_STMTS',
+            'a': 'NTS_STATEMENTS',
             'B': '',
             'b': '',
             't': 'TS_EOF'
         }
         # Creating the table matrix
         ACTION = {}
+        print('len(C):', len(C))
         for state in range(0, len(C)):
             for item in C[state]:
                 GTC = GOTO(C[state], item['B'])
@@ -285,13 +286,13 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
         f.close()
 
     hardcoded_symbols = ['TS_STRING',
-                         'TS_IDENT',
+                         'TS_IDENTIFIER',
                          'TS_FLOAT',
                          'TS_INT',
-                         'TS_VARIABLE',
+                         'TS_TERM',
 
                          'TS_IF',
-                         'TS_ELSEIF',
+                         'TS_ELIF',
                          'TS_ELSE',
 
                          'TS_LCB',
@@ -299,22 +300,29 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                          'TS_LPAREN',
                          'TS_RPAREN',
 
-                         'TS_EQUALS',
-                         'TS_PLUS',
-                         'TS_MINUS',
-                         'TS_MUL',
-                         'TS_DIV',
-                         'TS_EXP',
+                         'TS_OPERATOR_EQUALS',
+                         'TS_OPERATOR_ADD',
+                         'TS_OPERATOR_SUB',
+                         'TS_OPERATOR_MUL',
+                         'TS_OPERATOR_DIV',
+                         'TS_OPERATOR_EXP',
 
-                         'TS_LT',
-                         'TS_LTE',
-                         'TS_GT',
-                         'TS_GTE',
-                         'TS_EQUIV',
-                         'TS_TEQUIV',
+                         'TS_COLON',
+                         'TS_COMMA',
 
-                         'TS_NEG',
-                         'TS_NOTNULL',
+                         'TS_FOR',
+                         'TS_WHILE',
+                         'TS_DEFINE',
+
+                         'TS_OPERATOR_LT',
+                         'TS_OPERATOR_LTE',
+                         'TS_OPERATOR_GT',
+                         'TS_OPERATOR_GTE',
+                         'TS_OPERATOR_DOUBLE_EQUALS',
+                         'TS_OPERATOR_TRIPLE_EQUALS',
+
+                         'TS_OPERATOR_NEG',
+                         'TS_OPERATOR_NONNULL',
                          'TS_SPACE',
                          'TS_NEWLINE',
                          'TS_EMPTY',
@@ -328,50 +336,16 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
            'class tokens {\n' \
            'public:\n' \
            '\t\ttokens();\n\n' \
-           '\t\tenum Symbols {\n' \
-           '\t\t// Terminal Symbols\n' \
-           '\t\tTS_STRING,\n' \
-           '\t\tTS_IDENT,\n' \
-           '\t\tTS_FLOAT,\n' \
-           '\t\tTS_INT,\n' \
-           '\t\tTS_VARIABLE,\n\n' \
-           '\t\t// Control Symbols\n' \
-           '\t\tTS_IF,\n' \
-           '\t\tTS_ELSEIF,\n' \
-           '\t\tTS_ELSE,\n\n' \
-           '\t\t// Grouping Symbols\n' \
-           '\t\tTS_LCB,\n' \
-           '\t\tTS_RCB,\n' \
-           '\t\tTS_LPAREN,\n' \
-           '\t\tTS_RPAREN,\n\n' \
-           '\t\t// Operator Symbols,\n' \
-           '\t\tTS_EQUALS,\n' \
-           '\t\tTS_PLUS,\n' \
-           '\t\tTS_MINUS,\n' \
-           '\t\tTS_MUL,\n' \
-           '\t\tTS_DIV,\n' \
-           '\t\tTS_EXP,\n\n' \
-           '\t\t// Comparison Symbols\n' \
-           '\t\tTS_LT,\n' \
-           '\t\tTS_LTE,\n' \
-           '\t\tTS_GT,\n' \
-           '\t\tTS_GTE,\n' \
-           '\t\tTS_EQUIV,\n' \
-           '\t\tTS_TEQUIV,\n\n' \
-           '\t\t// Single Comparison Symbols\n' \
-           '\t\tTS_NEG,\n' \
-           '\t\tTS_NOTNULL,\n\n' \
-           '\t\t// Other Symbols\n' \
-           '\t\tTS_SPACE,\n' \
-           '\t\tTS_NEWLINE,\n' \
-           '\t\tTS_EMPTY,\n' \
-           '\t\tTS_EOF,\n\n' \
-           '\t\tNTS_OPERATOR,\n\n' \
-           '\t\t// Non-Terminal Symbols (Generated)\n'
+           '\t\tenum Symbols {\n'
+
+    for SYMBOL in hardcoded_symbols:
+        out2 += '\t\t\t{0},\n'.format(SYMBOL)
+    out2 += '\n'
     for SYMBOL in GRAMMAR_SYMBOLS:
         if SYMBOL not in hardcoded_symbols:
-            out2 += '\t\t{},\n'.format(SYMBOL)
-    out2 += '\nMYSBL_END\n\t};\n\n' \
+            out2 += '\t\t\t{},\n'.format(SYMBOL)
+
+    out2 += '\n\t\t\tMYSBL_END\n\t};\n\n' \
             '\tstd::map<std::string, Symbols> TOKENS;\n' \
             '\tstd::map<int, Symbols> TYPES;\n' \
             '};\n\n' \
@@ -383,7 +357,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
     C = [CLOSURE([{
         'A': 'NTS_MANGO',
         'a': '',
-        'B': 'NTS_STMTS',
+        'B': 'NTS_STATEMENTS',
         'b': '',
         't': 'TS_EOF'
     }])]

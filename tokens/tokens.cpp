@@ -6,39 +6,44 @@
 
 tokens::tokens() {
     TOKENS = {
-            {"if",   TS_IF},
-            {"elif", TS_ELSEIF},
+            {"if", TS_IF},
+            {"elif", TS_ELIF},
             {"else", TS_ELSE},
 
-            {"{",    TS_LCB},
-            {"}",    TS_RCB},
-            {"(",    TS_RPAREN},
-            {")",    TS_LPAREN},
+            {"{", TS_LCB},
+            {"}", TS_RCB},
+            {"(", TS_LPAREN},
+            {")", TS_RPAREN},
 
-            {"=",    TS_EQUALS},
-            {"+",    TS_PLUS},
-            {"-",    TS_MINUS},
-            {"*",    TS_MUL},
-            {"/",    TS_DIV},
-            {"^",    TS_EXP},
+            {"=", TS_OPERATOR_EQUALS},
+            {"+", TS_OPERATOR_ADD},
+            {"-", TS_OPERATOR_SUB},
+            {"*", TS_OPERATOR_MUL},
+            {"/", TS_OPERATOR_DIV},
+            {"^", TS_OPERATOR_EXP},
 
-            {"<",    TS_LT},
-            {">",    TS_GT},
-            {">=",   TS_GTE},
-            {"<=",   TS_LTE},
-            {"==",   TS_EQUIV},
-            {"===",  TS_TEQUIV},
+            {"<", TS_OPERATOR_LT},
+            {">", TS_OPERATOR_GT},
+            {">=", TS_OPERATOR_GTE},
+            {"<=", TS_OPERATOR_LTE},
+            {"==", TS_OPERATOR_DOUBLE_EQUALS},
+            {"===", TS_OPERATOR_TRIPLE_EQUALS},
 
-            {" ",    TS_SPACE},
-            {"\n",   TS_NEWLINE},
-            {"$",    TS_EOF},
+            {"@", TS_DEFINE},
+
+            {"", TS_EMPTY},
+            {":", TS_COLON},
+            {",", TS_COMMA},
+            {" ", TS_SPACE},
+            {"\n", TS_NEWLINE},
+            {"$", TS_EOF},
     };
 
     TYPES = {
-            {0, TS_IDENT},
-            {1, TS_VARIABLE},
-            {2, TS_VARIABLE},
-            {3, TS_VARIABLE},
+            {0, TS_IDENTIFIER},
+            {1, TS_TERM},
+            {2, TS_TERM},
+            {3, TS_TERM},
             {4, NTS_OPERATOR}
     };
 

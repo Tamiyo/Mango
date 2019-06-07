@@ -7,7 +7,7 @@ using std::endl;
 using std::pair;
 
 int main() {
-    const char *body = "70 + 20\n$";
+    const char *body = "@myfunction():\n$";
     auto *parser = new mgparser(body);
     parser->ppeval();
 }
