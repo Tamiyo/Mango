@@ -12,23 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2304df7-99fc-4f96-b465-873010310fc0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/generator/test" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/main.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/main.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/objects.a" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/objects.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/mango_cl.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/mango_cl.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generator/grammar.mg" beforeDir="false" afterPath="$PROJECT_DIR$/generator/grammar.mg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generator/python/generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/generator/python/generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lexer/mglexer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lexer/mglexer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lexer/mglexer.h" beforeDir="false" afterPath="$PROJECT_DIR$/lexer/mglexer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parser/mgparser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/parser/mgparser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tokens/tokens.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tokens/tokens.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tokens/tokens.h" beforeDir="false" afterPath="$PROJECT_DIR$/tokens/tokens.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -60,8 +44,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/generator/grammar.mg">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="407">
-                  <caret line="69" column="32" selection-start-line="69" selection-start-column="32" selection-end-line="69" selection-end-column="32" />
+                <state relative-caret-position="454">
+                  <caret line="69" column="32" lean-forward="true" selection-start-line="69" selection-start-column="32" selection-end-line="69" selection-end-column="32" />
                 </state>
               </provider>
             </entry>
@@ -82,8 +66,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/parser/mgparser.cpp">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="388">
-                  <caret line="164" column="13" selection-start-line="164" selection-start-column="11" selection-end-line="164" selection-end-column="13" />
+                <state relative-caret-position="405">
+                  <caret line="165" column="13" selection-start-line="165" selection-start-column="13" selection-end-line="165" selection-end-column="13" />
                   <folding>
                     <element signature="e#0#21#0" expanded="true" />
                   </folding>
@@ -215,9 +199,9 @@
     </option>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="117" />
-    <option name="y" value="91" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-1731" />
+    <option name="y" value="164" />
     <option name="width" value="1400" />
     <option name="height" value="1000" />
   </component>
@@ -380,12 +364,12 @@
       <workItem from="1559493085779" duration="601000" />
       <workItem from="1559618245488" duration="3739000" />
       <workItem from="1559872513919" duration="3241000" />
-      <workItem from="1559875881837" duration="1398000" />
+      <workItem from="1559875881837" duration="1925000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="114191000" />
+    <option name="totallyTimeSpent" value="114718000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -398,21 +382,20 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12579957" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32917964" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3956386" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3956386" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39875388" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" />
       <window_info anchor="bottom" id="Messages" order="8" weight="0.3281412" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32917964" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.32917964" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="11" />
       <window_info anchor="bottom" id="CMake" order="12" />
@@ -571,8 +554,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/parser/mgparser.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="388">
-          <caret line="164" column="13" selection-start-line="164" selection-start-column="11" selection-end-line="164" selection-end-column="13" />
+        <state relative-caret-position="405">
+          <caret line="165" column="13" selection-start-line="165" selection-start-column="13" selection-end-line="165" selection-end-column="13" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
           </folding>
@@ -581,8 +564,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/generator/grammar.mg">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="69" column="32" selection-start-line="69" selection-start-column="32" selection-end-line="69" selection-end-column="32" />
+        <state relative-caret-position="454">
+          <caret line="69" column="32" lean-forward="true" selection-start-line="69" selection-start-column="32" selection-end-line="69" selection-end-column="32" />
         </state>
       </provider>
     </entry>
