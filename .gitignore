@@ -1,3 +1,5 @@
 venv/
 .vscode/
 cmake-build-debug/
+.idea/
+cmake-build-debug/

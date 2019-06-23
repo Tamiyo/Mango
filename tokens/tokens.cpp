@@ -35,7 +35,7 @@ tokens::tokens() {
             {":", TS_COLON},
             {",", TS_COMMA},
             {" ", TS_SPACE},
-            {"\n", TS_NEWLINE},
+            {"\n", TS_SYMBOL_NEWLINE},
             {"$", TS_EOF},
     };
 

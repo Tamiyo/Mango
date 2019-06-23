@@ -49,6 +49,8 @@ def main():
                     if token not in GRAMMAR_SYMBOLS:
                         GRAMMAR_SYMBOLS += [token]
 
+    for key, item in INDEXED_GRAMMAR.items():
+        print(key)
     tGrammar = copy.deepcopy(GRAMMAR)
     FIRST_SET = FIRST(tGrammar)
 
@@ -56,7 +58,8 @@ def main():
     tFirst = copy.deepcopy(FIRST_SET)
     FOLLOW_SET = FOLLOW(tGrammar, tFirst)
 
-    ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET)
+    RULES = TRANSITIONS(INDEXED_GRAMMAR)
+    ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES)
     return
 
 
@@ -145,7 +148,7 @@ def FOLLOW(G, FIRST_SET):
     return follow_productions
 
 
-def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
+def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
     print('Calculating ITEMS(G, F, FL)')
 
     def __createitemset__(A, a, B, b, t):
@@ -207,7 +210,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
         # [A -> a*Bb, t]
         IDENTITY = {
             'A': 'NTS_MANGO',
-            'a': 'NTS_STATEMENTS',
+            'a': 'NTS_STATEMENT_SUITE',
             'B': '',
             'b': '',
             't': 'TS_EOF'
@@ -257,29 +260,32 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                '\t\tauto s = ss.top();\n' \
                '\t\tif (token.second >= tokens::TS_STRING && token.second <= tokens::MYSBL_END) {\n' \
                '\t\t\tif (ACTION[s.state][token.second].substr(0, 1) == "S") {\n' \
+               '\t\t\t\tif (token.second == tokens::TS_TERM) { strs.push(token.first); }\n' \
                '\t\t\t\tss.push({token.second});\n' \
                '\t\t\t\tss.push({atoi(ACTION[s.state][token.second].substr(1).c_str())});\n' \
                '\t\t\t\ttoken = lexer->lltoken();\n' \
                '\t\t\t} else if (ACTION[s.state][token.second] == "ACCEPT") {\n' \
+               '\t\t\t\tnode NTS_STATEMENT_SUITE = ns.top();\n' \
+               '\t\t\t\tns.pop();\n' \
+               '\t\t\t\tns.push(NTS_MANGO_NTS_STATEMENT_SUITE(NTS_STATEMENT_SUITE));\n' \
                '\t\t\t\tcout << "Parse Accepted" << endl;\n' \
                '\t\t\t\tbreak;\n' \
                '\t\t\t} else if (ACTION[s.state][token.second].substr(0, 1) == "R") {\n' \
                '\t\t\t\tauto g = GOTO[atoi(ACTION[s.state][token.second].substr(1).c_str())];\n' \
                '\t\t\t\tfor (int i = 0; i < g.second; i++) { ss.pop(); }\n' \
-               '\t\t\t\ts = ss.top();\n' \
-               '\t\t\t\tss.push(stack_symbol{g.first});\n' \
-               '\t\t\t\tss.push(stack_symbol{atoi(ACTION[s.state][g.first].c_str())});\n' \
-               '\t\t\t} else {\n' \
-               '\t\t\t\tcout << "Parse Error" << endl;\n' \
-               '\t\t\t\tbreak;\n' \
-               '\t\t\t}\n' \
-               '\t\t} else {\n' \
-               '\t\t\ttoken = lexer->lltoken();\n' \
-               '\t\t}\n' \
-               '\t}\n' \
-               '}\n'
-
-        print(out)
+               '' + RULES + '' \
+                            '\t\t\t\ts = ss.top();\n' \
+                            '\t\t\t\tss.push(stack_symbol{g.first});\n' \
+                            '\t\t\t\tss.push(stack_symbol{atoi(ACTION[s.state][g.first].c_str())});\n' \
+                            '\t\t\t} else {\n' \
+                            '\t\t\t\tcout << "Parse Error" << endl;\n' \
+                            '\t\t\t\tbreak;\n' \
+                            '\t\t\t}\n' \
+                            '\t\t} else {\n' \
+                            '\t\t\ttoken = lexer->lltoken();\n' \
+                            '\t\t}\n' \
+                            '\t}\n' \
+                            '}\n'
 
         f = open('../../parser/mgparser.cpp', 'w+')
         f.write(out)
@@ -324,7 +330,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
                          'TS_OPERATOR_NEG',
                          'TS_OPERATOR_NONNULL',
                          'TS_SPACE',
-                         'TS_NEWLINE',
+                         'TS_SYMBOL_NEWLINE',
                          'TS_EMPTY',
                          'TS_EOF',
 
@@ -357,7 +363,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
     C = [CLOSURE([{
         'A': 'NTS_MANGO',
         'a': '',
-        'B': 'NTS_STATEMENTS',
+        'B': 'NTS_STATEMENT_SUITE',
         'b': '',
         't': 'TS_EOF'
     }])]
@@ -375,6 +381,94 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET):
 
     print_itemset(C)
     create_CLR_parsing_table(C)
+
+
+def TRANSITIONS(INDEXED_GRAMMAR):
+    def create_struct_from_production(key, production):
+        header = ""
+        out = "\nclass {0}_{1} : public node ".format(key, production.replace(' ', '_'))
+        out += "{\npublic:\n"
+
+        tokens = production.split(' ')
+        constructor = "\n\texplicit {0}_{1} (".format(key, production.replace(' ', '_'))
+        constructor_body = ""
+        for token in tokens:
+            if token[0:2] == "NT":
+                out += "\tnode {0};\n".format(token)
+                constructor += "node {0}, ".format(token)
+                constructor_body += "\t\tthis->{0} = {1};\n".format(token, token)
+            elif token == "TS_TERM" or token == "TS_IDENTIFIER":
+                out += "\tnode {0};\n".format(token)
+                constructor += "node {0}, ".format(token)
+                constructor_body += "\t\tthis->{0} = {1};\n".format(token, token)
+        constructor = constructor[:len(constructor) - 2]
+        constructor += ") {\n"
+        constructor += "\t\tcout << \"{0}\" << endl;\n".format(key)
+        constructor += constructor_body
+        constructor += '\t}\n'
+
+        out += constructor
+        out += "};\n"
+        return out
+
+    def create_rule_from_production(index, key, production):
+        rule_no = str(index)
+        out = "\t\t\t\t\tcase {}: ".format(rule_no)
+        out += "{\n"
+
+        tokens = production.split(' ')
+
+        prod = []
+        for p in production:
+            if p == "TS_TERM" or p == "TS_IDENTIFIER" or p[0:2] == "NT":
+                prod.append(p)
+
+        node_creation = "\t\t\t\t\t\tns.push({}_{}(".format(key, production.replace(' ', '_'))
+        for token in tokens:
+            if token == "TS_TERM":
+                out += "\t\t\t\t\t\tnode _{} = TS_IDENTIFIER(strs.top());\n\t\t\t\t\t\tstrs.pop();\n".format(token)
+                node_creation += '_{}, '.format(token)
+            elif token == "TS_IDENTIFIER":
+                out += "\t\t\t\t\t\tnode _{} = TS_TERM(token.first, token.second);\n".format(token)
+                node_creation += '_{}, '.format(token)
+            elif token[0:2] == "NT":
+                out += "\t\t\t\t\t\tnode {} = ns.top();\n\t\t\t\t\t\tns.pop();\n".format(token)
+                node_creation += '{}, '.format(token)
+        node_creation = node_creation[:len(node_creation) - 2]
+        node_creation += "));\n\t\t\t\t\t\tbreak;\n\t\t\t\t\t}\n"
+        out += node_creation
+        return out
+
+    struct_output = "class node {};\n\n"
+    rule_output = ""
+
+    i = 0
+    structs = []
+    rules = []
+    for k, _ in INDEXED_GRAMMAR.items():
+        key = k[0]
+        production = k[1]
+        struct = create_struct_from_production(key, production)
+        structs.append(struct)
+        rule = create_rule_from_production(i, key, production)
+        rules.append(rule)
+        i += 1
+
+    myfile = open('../../parse_tree/node.h', 'w')
+    myfile.write(
+        "#ifndef MANGO_CL_NODE_H\n#define MANGO_CL_NODE_H\n#include<string>\n#include<iostream>\nusing std::string; "
+        "using std::cout; using std::endl;\nclass node {};\nclass TS_IDENTIFIER : public node {public:    string "
+        "identifier;    explicit TS_IDENTIFIER (string identifier) {        this->identifier = std::move(identifier); "
+        "   }};class TS_TERM : public node {public:    string term;    int infered_type;    explicit TS_TERM (string "
+        "term, int infered_type) {        this->term = std::move(term);        this->infered_type = infered_type;    "
+        "}};\n")
+    myfile.write('\n'.join(structs))
+    myfile.write('\n#endif //MANGO_CL_NODE_H')
+    myfile.close()
+    x = '\n\t\t\t\tswitch (atoi(ACTION[s.state][token.second].substr(1).c_str())) {\n'
+    x += '\n'.join(rules)
+    x += "\t\t\t\t}\n"
+    return x
 
 
 if __name__ == '__main__':

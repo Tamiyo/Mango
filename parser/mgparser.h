@@ -11,6 +11,7 @@
 #include <string.h>
 #include <cstdlib>
 #include <regex>
+#include "../parse_tree/node.h"
 #include "../lexer/mglexer.h"
 
 using std::stack;
@@ -39,6 +40,8 @@ private:
 
     // The Stack for our LL parser
     stack<stack_symbol> ss;
+    stack<string> strs;
+    stack<node> ns;
 
     // The LL parsing table
     map<int, map<tokens::Symbols, string>> ACTION;

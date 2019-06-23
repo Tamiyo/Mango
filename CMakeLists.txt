@@ -3,4 +3,4 @@ project(mango_cl)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(mango_cl main.cpp tokens/tokens.cpp tokens/tokens.h lexer/mglexer.cpp lexer/mglexer.h parser/mgparser.cpp parser/mgparser.h parse_tree/expr.cpp parse_tree/expr.h)
+add_executable(mango_cl main.cpp tokens/tokens.cpp tokens/tokens.h lexer/mglexer.cpp lexer/mglexer.h parser/mgparser.cpp parser/mgparser.h parse_tree/node.cpp parse_tree/node.h parse_tree/node.cpp parse_tree/node.h)

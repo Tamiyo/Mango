@@ -7,7 +7,7 @@ using std::endl;
 using std::pair;
 
 int main() {
-    const char *body = "@myfunction():\n$";
+    const char *body = "myident = 2.0\n";
     auto *parser = new mgparser(body);
     parser->ppeval();
 }

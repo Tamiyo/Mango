@@ -6,7 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "D:/Documents/mango_cl/lexer/mglexer.cpp" "D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj"
   "D:/Documents/mango_cl/main.cpp" "D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir/main.cpp.obj"
-  "D:/Documents/mango_cl/parse_tree/expr.cpp" "D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.obj"
+  "D:/Documents/mango_cl/parse_tree/node.cpp" "D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir/parse_tree/node.cpp.obj"
   "D:/Documents/mango_cl/parser/mgparser.cpp" "D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj"
   "D:/Documents/mango_cl/tokens/tokens.cpp" "D:/Documents/mango_cl/cmake-build-debug/CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj"
   )

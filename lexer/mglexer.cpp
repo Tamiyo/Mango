@@ -13,7 +13,7 @@ pair<const char *, tokens::Symbols> mglexer::lltoken() {
     else {
         if (*forward == '\n') {
             lexemeBegin++;
-            return { "\n", tokens::TS_NEWLINE };
+            return { "\n", tokens::TS_SYMBOL_NEWLINE };
         }
         else if (ispunct(*forward)) {
             while (*forward) {
@@ -102,7 +102,7 @@ pair<const char *, tokens::Symbols> mglexer::charSlice(char *lb, char *lf, int T
     snprintf(lexeme, LEXEME_SIZE, "%s", lb);
     lexemeBegin = lf;
 
-    printf("Found lexeme: %s\n", lexeme);
+    printf("Found lexeme: %s, %i\n", lexeme, TYPE);
 
     if (TYPE == 0) {
         if (keys->TOKENS.count(lexeme)) {

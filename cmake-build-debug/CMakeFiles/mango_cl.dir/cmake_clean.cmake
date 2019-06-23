@@ -3,7 +3,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/mango_cl.dir/tokens/tokens.cpp.obj"
   "CMakeFiles/mango_cl.dir/lexer/mglexer.cpp.obj"
   "CMakeFiles/mango_cl.dir/parser/mgparser.cpp.obj"
-  "CMakeFiles/mango_cl.dir/parse_tree/expr.cpp.obj"
+  "CMakeFiles/mango_cl.dir/parse_tree/node.cpp.obj"
   "mango_cl.pdb"
   "mango_cl.exe"
   "mango_cl.exe.manifest"

@@ -30,6 +30,16 @@ stdio.h
 parser/mgparser.h
 D:/Documents/mango_cl/parser/mgparser.h
 
+D:/Documents/mango_cl/parse_tree/node.cpp
+node.h
+D:/Documents/mango_cl/parse_tree/node.h
+
+D:/Documents/mango_cl/parse_tree/node.h
+string
+-
+iostream
+-
+
 D:/Documents/mango_cl/parser/mgparser.cpp
 mgparser.h
 D:/Documents/mango_cl/parser/mgparser.h
@@ -49,6 +59,8 @@ cstdlib
 -
 regex
 -
+../parse_tree/node.h
+D:/Documents/mango_cl/parse_tree/node.h
 ../lexer/mglexer.h
 D:/Documents/mango_cl/lexer/mglexer.h
 

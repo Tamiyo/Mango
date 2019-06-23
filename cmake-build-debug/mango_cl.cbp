@@ -89,10 +89,10 @@
 		<Unit filename="D:/Documents/mango_cl/main.cpp">
 			<Option target="mango_cl"/>
 		</Unit>
-		<Unit filename="D:/Documents/mango_cl/parse_tree/expr.cpp">
+		<Unit filename="D:/Documents/mango_cl/parse_tree/node.cpp">
 			<Option target="mango_cl"/>
 		</Unit>
-		<Unit filename="D:/Documents/mango_cl/parse_tree/expr.h">
+		<Unit filename="D:/Documents/mango_cl/parse_tree/node.h">
 			<Option target="mango_cl"/>
 		</Unit>
 		<Unit filename="D:/Documents/mango_cl/parser/mgparser.cpp">
