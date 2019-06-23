@@ -25,6 +25,7 @@ mgparser::mgparser(const char* body) {
 void mgparser::ppeval() {
 std::pair<const char*, keywords::Symbols> token = lexer->lltoken();
 	while(ss.size() > 0) {
+		// Ignore Spaces
 		while (!token.first) { token = lexer->lltoken(); }
 		cout << "Found a: " << token.first << endl;
 		if(token.second == ss.top()) {

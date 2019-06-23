@@ -6,7 +6,7 @@
 #include<vector>
 #include<algorithm>
 
-#include "sys/keywords.h"
+#include "../sys/keywords.h"
 
 class grammar_cpp_gen
 {

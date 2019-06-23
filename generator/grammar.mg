@@ -1,0 +1,4 @@
+NTS_SP -> NTS_S
+NTS_S -> NTS_C NTS_C
+NTS_C -> TS_C NTS_C
+NTS_C -> TS_D
