@@ -13,10 +13,10 @@ C = {}
 
 def main():
     global TERMINALS, NONTERMINALS, GRAMMAR, GRAMMAR_SYMBOLS, INDEXED_GRAMMAR
-    TERMINALS += ['TS_EOF']
+    TERMINALS += ['TS_END_OF_FILE']
 
     index = 0
-    production_set = [x.strip() for x in open(r'D:\Documents\mango_cl\generator\grammar.mg').readlines()]
+    production_set = [x.strip() for x in open(r'../grammar.mg').readlines()]
     for production in production_set:
         if len(production) > 2 and production[0] != "#":
             lhs = production[:production.find('->') - 1]
@@ -58,8 +58,8 @@ def main():
     tFirst = copy.deepcopy(FIRST_SET)
     FOLLOW_SET = FOLLOW(tGrammar, tFirst)
 
-    RULES = TRANSITIONS(INDEXED_GRAMMAR)
-    ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES)
+    # RULES = TRANSITIONS(INDEXED_GRAMMAR)
+    ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES=None)
     return
 
 
@@ -105,7 +105,7 @@ def FOLLOW(G, FIRST_SET):
     print('Calculating FOLLOW(G)')
     follow_productions = {}
 
-    follow_productions[NONTERMINALS[0]] = ['TS_EOF']
+    follow_productions[NONTERMINALS[0]] = ['TS_END_OF_FILE']
     changed = True
 
     while changed:
@@ -213,7 +213,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
             'a': 'NTS_STATEMENT_SUITE',
             'B': '',
             'b': '',
-            't': 'TS_EOF'
+            't': 'TS_END_OF_FILE'
         }
         # Creating the table matrix
         ACTION = {}
@@ -231,7 +231,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                     print('Searching for rule', combine_item(item), 'R', INDEXED_GRAMMAR[combine_item(item)][0])
                     ACTION[state, item['t']] = 'R{0}'.format(INDEXED_GRAMMAR[combine_item(item)][0])
                 if IDENTITY in C[state]:
-                    ACTION[state, 'TS_EOF'] = 'ACCEPT'
+                    ACTION[state, 'TS_END_OF_FILE'] = 'ACCEPT'
         for key, item in ACTION.items():
             print(key, item)
         # Creating the C file
@@ -243,16 +243,29 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
               '\tss.push(stack_symbol{0});\n'
         # Note for efficiency we could ignore the symbols (add later)
         # Note also that we need to handle GOTO better (there is an error in the implemnetation rn)
+        for n in NONTERMINALS:
+            print(''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in n.split("_")]) + ",")
         for key, item in INDEXED_GRAMMAR.items():
             if item[0] != '':
                 out += '\tGOTO[{0}] = '.format(item[0])
                 out += '{'
                 out += 'tokens::{0}, {1}'.format(key[0], item[1])
                 out += '};\n'
+                ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in key[0].split("_")])
+                print("self.goto.insert({}, GotoNode".format(item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(int(int(item[1])/2))) + "});")
             else:
                 out += '\tGOTO[1] = {tokens::' + key[0] + ', 2};\n'
         for keys, item in ACTION.items():
             out += '\tACTION[{0}][tokens::{1}] = \"{2}\";\n'.format(keys[0], keys[1], item)
+            ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in keys[1].split("_")])
+            if item[0] == "S":
+                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Shift", item[1:]) + "});")
+            elif item[0] == "R":
+                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Reduce", item[1:]) + "});")
+            elif item == "ACCEPT":
+                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Accept", -1) + "});")
+            else:
+                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Goto", item) + "});")
         out += '}\n\n' \
                'void mgparser::ppeval() {\n' \
                '\tauto token = lexer->lltoken();\n' \
@@ -273,21 +286,21 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                '\t\t\t} else if (ACTION[s.state][token.second].substr(0, 1) == "R") {\n' \
                '\t\t\t\tauto g = GOTO[atoi(ACTION[s.state][token.second].substr(1).c_str())];\n' \
                '\t\t\t\tfor (int i = 0; i < g.second; i++) { ss.pop(); }\n' \
-               '' + RULES + '' \
-                            '\t\t\t\ts = ss.top();\n' \
-                            '\t\t\t\tss.push(stack_symbol{g.first});\n' \
-                            '\t\t\t\tss.push(stack_symbol{atoi(ACTION[s.state][g.first].c_str())});\n' \
-                            '\t\t\t} else {\n' \
-                            '\t\t\t\tcout << "Parse Error" << endl;\n' \
-                            '\t\t\t\tbreak;\n' \
-                            '\t\t\t}\n' \
-                            '\t\t} else {\n' \
-                            '\t\t\ttoken = lexer->lltoken();\n' \
-                            '\t\t}\n' \
-                            '\t}\n' \
-                            '}\n'
+               '' + '' + '' \
+                         '\t\t\t\ts = ss.top();\n' \
+                         '\t\t\t\tss.push(stack_symbol{g.first});\n' \
+                         '\t\t\t\tss.push(stack_symbol{atoi(ACTION[s.state][g.first].c_str())});\n' \
+                         '\t\t\t} else {\n' \
+                         '\t\t\t\tcout << "Parse Error" << endl;\n' \
+                         '\t\t\t\tbreak;\n' \
+                         '\t\t\t}\n' \
+                         '\t\t} else {\n' \
+                         '\t\t\ttoken = lexer->lltoken();\n' \
+                         '\t\t}\n' \
+                         '\t}\n' \
+                         '}\n'
 
-        f = open('../../parser/mgparser.cpp', 'w+')
+        f = open('mgparser.cpp', 'w')
         f.write(out)
         f.close()
 
@@ -332,7 +345,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                          'TS_SPACE',
                          'TS_SYMBOL_NEWLINE',
                          'TS_EMPTY',
-                         'TS_EOF',
+                         'TS_END_OF_FILE',
 
                          'NTS_OPERATOR']
     out2 = '#ifndef MANGO_CL_TOKENS_H\n' \
@@ -356,16 +369,16 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
             '\tstd::map<int, Symbols> TYPES;\n' \
             '};\n\n' \
             '#endif //MANGO_CL_TOKENS_H'
-    f2 = open('../../tokens/tokens.h', 'w+')
-    f2.write(out2)
-    f2.close()
+    # f2 = open('../../tokens/tokens.h', 'w')
+    # f2.write(out2)
+    # f2.close()
 
     C = [CLOSURE([{
         'A': 'NTS_MANGO',
         'a': '',
         'B': 'NTS_STATEMENT_SUITE',
         'b': '',
-        't': 'TS_EOF'
+        't': 'TS_END_OF_FILE'
     }])]
     # Note that this should change when the Mango language is implemented
 
@@ -466,7 +479,7 @@ def TRANSITIONS(INDEXED_GRAMMAR):
     myfile.write('\n#endif //MANGO_CL_NODE_H')
     myfile.close()
     x = '\n\t\t\t\tswitch (atoi(ACTION[s.state][token.second].substr(1).c_str())) {\n'
-    x += '\n'.join(rules)
+    # x += '\n'.join(rules)
     x += "\t\t\t\t}\n"
     return x
 

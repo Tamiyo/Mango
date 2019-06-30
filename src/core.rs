@@ -1,14 +1,11 @@
-// Enums that the compiler references
-// pub enum Keyword {
-//     If,
-//     Else,
-//     Elif,
-//     For,
-//     While,
-//     Define,
-// }
+use crate::parser::Parser;
 
-pub enum Symbol {
+// Enums that the compiler references
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
+pub enum TokenType {
+    Term,
+    Identifier,
+
     Add,
     Subtract,
     Multiply,
@@ -34,23 +31,93 @@ pub enum Symbol {
     Semicolon,
     Newline,
     EndOfFile,
+
+    None,
+
+    Mango,
+    StatementSuite,
+    StatementList,
+    Statement,
+    StatementSimple,
+    StatementAssignment,
 }
 
-pub enum Types {
+#[derive(Debug)]
+pub enum PrimitiveType {
     Float,
     Integer,
     String,
-    Term
+    Boolean,
+    Object,
+    None,
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub enum ParserAction {
+    Shift,
+    Reduce,
+    Accept,
+    Goto
 }
 
 // Structs that are needed throughout the compiler
-pub struct LexerResult<'a> {
+#[derive(Debug)]
+pub struct LexerResult {
     pub token: String,
-    pub ttype: &'a str,
+    pub inferred_type: PrimitiveType,
+    pub token_type: TokenType,
 }
 
-impl<'a> LexerResult<'a> {
+impl LexerResult {
     pub fn to_string(&self) -> String {
-        return format!("LexerResult: (token: {}, type: {})", self.token, self.ttype);
+        return format!("LexerResult: (token: {}, inferred_type: {:?}, token_type: {:?})", self.token, self.inferred_type, self.token_type);
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct ActionNode {
+    pub action: ParserAction,
+    pub value: i32
+}
+
+impl ActionNode {
+    pub fn to_string(&self) -> String {
+        return format!("ActionNode: (action: {:?}, value: {:?})", self.action, self.value);
+    }
+}
+
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct GotoNode {
+    pub token_type: TokenType,
+    pub value: i32,
+}
+
+pub fn symbol_to_enum(symbol: &str) -> TokenType {
+    match symbol {
+        "+" => TokenType::Add,
+        "-" => TokenType::Subtract,
+        "*" => TokenType::Multiply,
+        "/" => TokenType::Divide,
+        "%" => TokenType::Modulo,
+        "^" => TokenType::Exponent,
+        "=" => TokenType::Equals,
+        "==" => TokenType::DoubleEquals,
+        "===" => TokenType::TripleEquals,
+        "<" => TokenType::LessThan,
+        "<=" => TokenType::LessThanEquals,
+        ">" => TokenType::GreaterThan,
+        ">=" => TokenType::GreaterThanEquals,
+        "!" => TokenType::Not,
+        "{" => TokenType::LeftCurlyBrace,
+        "}" => TokenType::RightCurlyBrace,
+        "(" => TokenType::LeftParenthesis,
+        ")" => TokenType::RightParenthesis,
+        "," => TokenType::Comma,
+        ":" => TokenType::Colon,
+        ";" => TokenType::Semicolon,
+        "\n" => TokenType::Newline,
+        "$" => TokenType::EndOfFile,
+        _ => TokenType::None,
     }
 }

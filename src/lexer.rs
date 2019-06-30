@@ -7,7 +7,8 @@
     float:          [0-9]+.[0-9]+
 */
 
-use crate::core::LexerResult;
+use crate::core::{LexerResult, PrimitiveType, TokenType, symbol_to_enum};
+
 use regex::Regex;
 use std::iter::Peekable;
 use std::str::Chars;
@@ -23,7 +24,7 @@ impl<'a> Default for Lexer<'a> {
 }
 
 impl<'a> Lexer<'a> {
-    pub fn get_tokens(&self) {
+    pub fn lex(&self) -> Vec<LexerResult> {
         let mut tokens: Vec<LexerResult> = Vec::new();
 
         let mut it = self.input.chars().peekable();
@@ -46,6 +47,8 @@ impl<'a> Lexer<'a> {
                 }
             }
         }
+
+        tokens
     }
 
     fn get_numeric(tokens: &mut Vec<LexerResult>, it: &mut Peekable<Chars>) {
@@ -75,14 +78,16 @@ impl<'a> Lexer<'a> {
         if has_decimal {
             let result = LexerResult {
                 token,
-                ttype: "float",
+                inferred_type: PrimitiveType::Float,
+                token_type: TokenType::Term,
             };
             println!("{}", result.to_string());
             tokens.push(result);
         } else {
             let result = LexerResult {
                 token,
-                ttype: "integer",
+                inferred_type: PrimitiveType::Integer,
+                token_type: TokenType::Term,
             };
             println!("{}", result.to_string());
             tokens.push(result);
@@ -115,7 +120,8 @@ impl<'a> Lexer<'a> {
         }
         let result = LexerResult {
             token,
-            ttype: "identifier",
+            inferred_type: PrimitiveType::None,
+            token_type: TokenType::Identifier,
         };
         println!("{}", result.to_string());
         tokens.push(result);
@@ -144,7 +150,8 @@ impl<'a> Lexer<'a> {
         }
         let result = LexerResult {
             token,
-            ttype: "string",
+            inferred_type: PrimitiveType::String,
+            token_type: TokenType::Term,
         };
         println!("{}", result.to_string());
         tokens.push(result);
@@ -164,36 +171,42 @@ impl<'a> Lexer<'a> {
                         it.next();
                     }
                     break;
-
-                },
+                }
                 '=' => {
-                    if length < 2 && !previous {
+                    if  previous {
+                        token.push(c);
+                        it.next();
+                        break;
+                    }
+                    else if length < 3 {
                         token.push(c);
                         it.next();
                         length += 1;
                     } else {
                         break;
                     }
-                },
+                }
                 '>' | '<' => {
                     if length < 1 {
                         token.push(c);
+                        previous = true;
                         it.next();
                         length += 1;
-
                     } else {
                         break;
                     }
-                },
+                }
                 _ => {
                     it.next();
                     break;
                 }
             }
         }
+        let token_type = symbol_to_enum(token.as_str());
         let result = LexerResult {
             token,
-            ttype: "symbol",
+            inferred_type: PrimitiveType::None,
+            token_type: token_type,
         };
         println!("{}", result.to_string());
         tokens.push(result);

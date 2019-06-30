@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 /target
 **/*.rs.bk
-/.idea
-=======
-venv/
-.vscode/
-cmake-build-debug/
 .idea/
-cmake-build-debug/
->>>>>>> 503aad76e0a416563af04ec169777c022db637ef
+
