@@ -42,7 +42,7 @@ pub enum TokenType {
     StatementAssignment,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum PrimitiveType {
     Float,
     Integer,
@@ -61,7 +61,7 @@ pub enum ParserAction {
 }
 
 // Structs that are needed throughout the compiler
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LexerResult {
     pub token: String,
     pub inferred_type: PrimitiveType,
@@ -70,7 +70,7 @@ pub struct LexerResult {
 
 impl LexerResult {
     pub fn to_string(&self) -> String {
-        return format!("LexerResult: (token: {}, inferred_type: {:?}, token_type: {:?})", self.token, self.inferred_type, self.token_type);
+        return format!("LexerResult: (token_type: {:?})", self.token_type);
     }
 }
 

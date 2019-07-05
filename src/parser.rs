@@ -7,9 +7,7 @@ use std::slice::Iter;
 
 
 pub struct Parser {
-    pub stack: Vec<i32>,
     pub token_stack: Vec<LexerResult>,
-    pub node_stack: Vec<ActionNode>,
     pub action: HashMap<(i32, TokenType), ActionNode>,
     pub goto: HashMap<i32, GotoNode>,
 }
@@ -17,9 +15,7 @@ pub struct Parser {
 impl Default for Parser {
     fn default() -> Parser {
         Parser {
-            stack: Vec::new(),
             token_stack: Vec::new(),
-            node_stack: Vec::new(),
             action: HashMap::new(),
             goto: HashMap::new(),
         }
@@ -28,8 +24,6 @@ impl Default for Parser {
 
 impl Parser {
     fn initialize(&mut self) {
-        self.stack.push(0);
-
         self.goto.insert(1, GotoNode { token_type: TokenType::StatementSuite, value: 2 });
         self.goto.insert(2, GotoNode { token_type: TokenType::StatementList, value: 3 });
         self.goto.insert(3, GotoNode { token_type: TokenType::StatementList, value: 1 });
@@ -62,28 +56,36 @@ impl Parser {
 
     pub fn parse(&mut self) {
         self.initialize();
-        let mut token = self.token_stack.first().unwrap();
+
+        let mut stack: Vec<i32> = Vec::new();
+        stack.push(0);
+
+        let mut node_stack: Vec<ActionNode> = Vec::new();
+
+        let token_stack = self.token_stack.clone();
+        let mut iterator = token_stack.iter();
+        let mut token = iterator.next().unwrap();
 
         loop {
-            let mut state = self.stack.pop().unwrap();
-            println!("Token: {}, State: {}, TokenType: {:?}", token.token, state, token.token_type);
+            let mut state = *stack.last().unwrap();
             let action_node = self.action.get(&(state, token.token_type)).unwrap();
-            println!("Action: {:?}", action_node.action);
+            println!("State: {}, TokenType: {:?}", state, token.token_type);
+            println!("Action: {:?} {}", action_node.action, action_node.value);
 
             match action_node.action {
                 ParserAction::Shift => {
-//                    if token.token_type == TokenType::Term { self.token_stack.push(token) }
-                    self.stack.push(action_node.value);
-                    token = &self.token_stack.pop().unwrap();
+                    if token.token_type == TokenType::Term { self.token_stack.push(token.clone()) }
+                    stack.push(action_node.value);
+                    token = iterator.next().unwrap();
                 }
                 ParserAction::Reduce => {
                     let goto_node = self.goto.get(&action_node.value).unwrap();
-                    for _ in 0..goto_node.value { self.stack.pop(); }
-                    state = *self.stack.get(0).unwrap();
+                    for _ in 0..goto_node.value { stack.pop(); }
+                    state = *stack.last().unwrap();
                     let goto_action = self.action.get(&(state, goto_node.token_type)).unwrap();
-                    self.stack.push(goto_action.value);
+                    stack.push(goto_action.value);
                 }
-                ParserAction::Accept => { println!("Parse Accepted!"); }
+                ParserAction::Accept => { println!("Parse Accepted!"); break; }
                 _ => {
                     println!("Parse Error!");
                     break;
