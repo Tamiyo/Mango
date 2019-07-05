@@ -8,7 +8,7 @@ mod parser;
 mod core;
 
 fn main() {
-    let input_string = "myident = 12.0\n$";
+    let input_string = "my_ident4 = 12.0\n$";
     let lexer = Lexer { input: input_string };
     let stack = lexer.lex();
 

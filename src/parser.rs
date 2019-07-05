@@ -1,10 +1,10 @@
-use crate::core::{TokenType, ActionNode, GotoNode, ParserAction, LexerResult};
-use std::vec::Vec;
-use std::collections::HashMap;
-use crate::core::TokenType::Term;
 use core::borrow::Borrow;
+use std::collections::HashMap;
 use std::slice::Iter;
+use std::vec::Vec;
 
+use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, TokenType};
+use crate::core::TokenType::Term;
 
 pub struct Parser {
     pub token_stack: Vec<LexerResult>,
@@ -69,8 +69,7 @@ impl Parser {
         loop {
             let mut state = *stack.last().unwrap();
             let action_node = self.action.get(&(state, token.token_type)).unwrap();
-            println!("State: {}, TokenType: {:?}", state, token.token_type);
-            println!("Action: {:?} {}", action_node.action, action_node.value);
+            println!("State: {}, TokenType: {:?} -> {:?} {}", state, token.token_type, action_node.action, action_node.value);
 
             match action_node.action {
                 ParserAction::Shift => {
@@ -96,4 +95,6 @@ impl Parser {
             }
         }
     }
+
+    pub fn new_node(&mut self, index: i32, token_stack: Vec<LexerResult>, node_stack: Vec<ActionNode>) {}
 }
