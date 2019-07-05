@@ -85,7 +85,10 @@ impl Parser {
                     let goto_action = self.action.get(&(state, goto_node.token_type)).unwrap();
                     stack.push(goto_action.value);
                 }
-                ParserAction::Accept => { println!("Parse Accepted!"); break; }
+                ParserAction::Accept => {
+                    println!("Parse Accepted!");
+                    break;
+                }
                 _ => {
                     println!("Parse Error!");
                     break;

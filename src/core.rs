@@ -57,7 +57,7 @@ pub enum ParserAction {
     Shift,
     Reduce,
     Accept,
-    Goto
+    Goto,
 }
 
 // Structs that are needed throughout the compiler
@@ -77,7 +77,7 @@ impl LexerResult {
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct ActionNode {
     pub action: ParserAction,
-    pub value: i32
+    pub value: i32,
 }
 
 impl ActionNode {

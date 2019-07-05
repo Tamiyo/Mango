@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use crate::lexer::Lexer;
 use crate::parser::Parser;
-use std::collections::HashMap;
 
 mod lexer;
 mod parser;
@@ -12,9 +13,9 @@ fn main() {
     let stack = lexer.lex();
 
     let mut parser = Parser {
-        token_stack:  stack,
+        token_stack: stack,
         action: HashMap::new(),
-        goto: HashMap::new()
+        goto: HashMap::new(),
     };
 
     parser.parse();

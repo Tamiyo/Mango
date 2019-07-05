@@ -173,12 +173,11 @@ impl<'a> Lexer<'a> {
                     break;
                 }
                 '=' => {
-                    if  previous {
+                    if previous {
                         token.push(c);
                         it.next();
                         break;
-                    }
-                    else if length < 3 {
+                    } else if length < 3 {
                         token.push(c);
                         it.next();
                         length += 1;
