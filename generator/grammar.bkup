@@ -12,17 +12,66 @@ NTS_STATEMENT -> NTS_STATEMENT_LOOP
 NTS_STATEMENT -> NTS_STATEMENT_DEFINE_FUNCTION
 
 # Expression Statement (designed to prevent left recursion)
+
+# if Term.type == Expression.eval().type
+#   return Term.value + Expression.eval()
+# elif Term.type  {can be converted to} Expression.eval().type
+#   return converted(Term.value) + Expression.eval()
+# elif Expression.eval().type {can be converted to} Term.type
+#   return Term.value + converted(Expression.eval())
+# else
+#   {type mismatch error}
 NTS_STATEMENT_EXPRESSION -> TS_TERM TS_OPERATOR_ADD NTS_STATEMENT_EXPRESSION
+
+
+# if Term.type == Expression.eval().type
+#   return Term.value - Expression.eval()
+# elif Term.type  {can be converted to} Expression.eval().type
+#   return converted(Term.value) - Expression.eval()
+# elif Expression.eval().type {can be converted to} Term.type
+#   return Term.value - converted(Expression.eval())
+# else
+#   {type mismatch error}
 NTS_STATEMENT_EXPRESSION -> TS_TERM TS_OPERATOR_SUB NTS_STATEMENT_EXPRESSION
 NTS_STATEMENT_EXPRESSION -> TS_TERM
 NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2
 
+# if Term.type == Expression.eval().type
+#   return Term.value * Expression.eval()
+# elif Term.type  {can be converted to} Expression.eval().type
+#   return converted(Term.value) * Expression.eval()
+# elif Expression.eval().type {can be converted to} Term.type
+#   return Term.value * converted(Expression.eval())
+# else
+#   {type mismatch error}
 NTS_STATEMENT_EXPRESSION_2 -> TS_TERM TS_OPERATOR_MUL NTS_STATEMENT_EXPRESSION_3
+
+# if Term.type == Expression.eval().type
+#   return Term.value / Expression.eval()
+# elif Term.type  {can be converted to} Expression.eval().type
+#   return converted(Term.value) / Expression.eval()
+# elif Expression.eval().type {can be converted to} Term.type
+#   return Term.value / converted(Expression.eval())
+# else
+#   {type mismatch error}
 NTS_STATEMENT_EXPRESSION_2 -> TS_TERM TS_OPERATOR_DIV NTS_STATEMENT_EXPRESSION_3
+
+# if Term.type == Expression.eval().type
+#   return Term.value % Expression.eval()
+# elif Term.type  {can be converted to} Expression.eval().type
+#   return converted(Term.value) % Expression.eval()
+# elif Expression.eval().type {can be converted to} Term.type
+#   return Term.value % converted(Expression.eval())
+# else
+#   {type mismatch error}
+NTS_STATEMENT_EXPRESSION_2 -> TS_TERM TS_OPERATOR_MODULO NTS_STATEMENT_EXPRESSION_3
 NTS_STATEMENT_EXPRESSION_2 -> TS_TERM
 
 # Assignment Statement
-NTS_STATEMENT_ASSIGNMENT -> TS_IDENTIFIER TS_OPERATOR_EQUALS NTS_EXPRESSION
+# symbol_table<String, Term>;
+
+# symbol_table[Identifier] = Expression.eval();
+NTS_STATEMENT_ASSIGNMENT -> TS_IDENTIFIER TS_OPERATOR_EQUALS NTS_STATEMENT_EXPRESSION
 
 # Conditional Constructs
 NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_STATEMENT_CONDITIONAL_TEST TS_COLON NTS_STATEMENTS
@@ -35,7 +84,26 @@ NTS_STATEMENT_CONDITIONAL_ELIF -> TS_ELIF NTS_STATEMENT_CONDITIONAL_TEST TS_COLO
 NTS_STATEMENT_CONDITIONAL_ELSE -> TS_ELIF NTS_STATEMENT_CONDITIONAL_TEST TS_COLON NTS_STATEMENTS
 
 # Conditional Test Statements
-NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM NTS_OPERATOR_BINARY TS_TERM
+
+# Operator Definitions
+# <, <=, >, >=, ==, ===
+
+#
+# if Term.type == Expression.eval().type
+#   return term1.value {compared to} term2.value
+# elif Term.type  {can be converted to} Expression.eval().type
+#   return converted(term1.value) {compared to} Expression.eval().value
+# elif Expression.eval().type {can be converted to} Term.type
+#   return term1.value {compared to} converted(Expression.eval()).value
+# else
+#   {type mismatch error}
+NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM TS_OPERATOR_LT TS_TERM
+NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM TS_OPERATOR_LTE TS_TERM
+NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM TS_OPERATOR_GT TS_TERM
+NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM TS_OPERATOR_GTE TS_TERM
+NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM TS_OPERATOR_DOUBLE_EQUALS TS_TERM
+NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM TS_OPERATOR_TRIPLE_EQUALS TS_TERM
+
 NTS_STATEMENT_CONDITIONAL_TEST -> NTS_OPERATOR_UNARY TS_TERM
 NTS_STATEMENT_CONDITIONAL_TEST -> TS_TERM
 

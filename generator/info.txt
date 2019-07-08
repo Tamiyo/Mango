@@ -1,0 +1,17 @@
+######################
+###  BUILTIN TYPES ###
+######################
+
+### Primitive Data Structures
+Integer
+Float
+String
+Boolean
+
+### Non-Primitive Data Structures
+Arrays
+Lists
+ - Linked List
+ - Stack
+ - Queue
+Dictionary (Map)

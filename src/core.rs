@@ -32,6 +32,13 @@ pub enum TokenType {
     Newline,
     EndOfFile,
 
+    For,
+    While,
+    Define,
+    If,
+    Elif,
+    Else,
+
     None,
 
     Mango,
@@ -39,7 +46,26 @@ pub enum TokenType {
     StatementList,
     Statement,
     StatementSimple,
+    StatementComplex,
+    StatementExpression,
+    StatementExpressionP,
+    StatementExpression2,
+    StatementExpression2p,
+    StatementExpression3,
     StatementAssignment,
+    StatementConditional,
+    StatementConditionalElif,
+    StatementConditionalElse,
+    StatementConditionalTest,
+    OperatorBinary,
+    OperatorUnary,
+    StatementLoop,
+    StatementLoopFor,
+    StatementLoopForOptions,
+    StatementLoopWhile,
+    StatementDefineFunction,
+    FunctionParams,
+    StatementDefineClass,
 }
 
 #[derive(Debug, Clone)]

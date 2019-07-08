@@ -235,37 +235,67 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
         for key, item in ACTION.items():
             print(key, item)
         # Creating the C file
-        out = '#include \"mgparser.h\"\n' \
-              '#include <string>\n' \
-              '#include <iostream>\n\n' \
-              'mgparser::mgparser(const char* file) {\n' \
-              '\tlexer = new mglexer(file);\n' \
-              '\tss.push(stack_symbol{0});\n'
+        # out = 'use core::borrow::Borrow; use std::collections::HashMap; use std::ptr::null; use std::slice::Iter; use ' \
+        #       'std::vec::Vec; use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, PrimitiveType, ' \
+        #       'TokenType}; use crate::core::TokenType::{StatementSuite, Term}; use crate::parse_tree::{Node, ' \
+        #       'NodeIdentifier, NodeMango, NodeStatement, NodeStatementAssignment, NodeStatementList, ' \
+        #       'NodeStatementSimple, NodeStatementSuite, NodeTerm}; pub struct Parser { pub token_stack: ' \
+        #       'Vec<LexerResult>, pub action: HashMap<(i32, TokenType), ActionNode>, pub goto: HashMap<i32, GotoNode>, ' \
+        #       '} impl Default for Parser { fn default() -> Parser { Parser { token_stack: Vec::new(), ' \
+        #       'action: HashMap::new(), goto: HashMap::new(), } } } impl Parser { fn initialize(&mut self) { {' \
+        #       'PARSER_INIT} } pub fn parse(&mut self) -> Box<Node> { self.initialize(); let mut stack: Vec<i32> = ' \
+        #       'Vec::new(); stack.push(0); let mut node_stack: Vec<Box<Node>> = Vec::new(); let token_stack = ' \
+        #       'self.token_stack.clone(); let mut iterator = token_stack.iter(); let mut token = iterator.next(' \
+        #       ').unwrap(); let mut item_stack: Vec<LexerResult> = Vec::new(); loop { let mut state = *stack.last(' \
+        #       ').unwrap(); let action_node = self.action.get(&(state, token.token_type)).unwrap(); println!("State: {' \
+        #       '}, TokenType: {:?} -> {:?} {}", state, token.token_type, action_node.action, action_node.value); match ' \
+        #       'action_node.action { ParserAction::Shift => { if token.token_type == TokenType::Term { ' \
+        #       'self.token_stack.push(token.clone()) } stack.push(action_node.value); if token.token_type == ' \
+        #       'TokenType::Term || token.token_type == TokenType::Identifier { item_stack.push(token.clone()); } token ' \
+        #       '= iterator.next().unwrap(); } ParserAction::Reduce => { let goto_node = self.goto.get(' \
+        #       '&action_node.value).unwrap(); for _ in 0..goto_node.value { stack.pop(); } state = *stack.last(' \
+        #       ').unwrap(); let goto_action = self.action.get(&(state, goto_node.token_type)).unwrap(); stack.push(' \
+        #       'goto_action.value); { match action_node.value { 1 => { let node = node_stack.pop().unwrap(); ' \
+        #       'node_stack.push(Box::from(NodeStatementSuite { statement_list: node })); } 2 => {} 3 => { let node ' \
+        #       '= node_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatementList { statement: node })); } 4 => ' \
+        #       '{ let node = node_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatement { statement_simple: ' \
+        #       'node })); } 5 => { let node = node_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatementSimple ' \
+        #       '{ statement_assignment: node })); } 6 => { let term = item_stack.pop().unwrap(); let identifier = ' \
+        #       'item_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatementAssignment { identifier: Box::new((' \
+        #       'NodeIdentifier { value: Box::from(identifier) })), term: Box::new((NodeTerm { value: Box::from(term) ' \
+        #       '})) })); } _ => {} } } } ParserAction::Accept => { println!("Parse Accepted!"); return Box::from(' \
+        #       'NodeMango { statement_suite: node_stack.pop().unwrap() }); } _ => { println!("Parse Error!"); return ' \
+        #       'Box::from(NodeMango { statement_suite: node_stack.pop().unwrap() }); } } } } }'
+        out = ""
+
+        # {PARSER_INIT}
+        matrix_setup = ""
         # Note for efficiency we could ignore the symbols (add later)
         # Note also that we need to handle GOTO better (there is an error in the implemnetation rn)
         for n in NONTERMINALS:
             print(''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in n.split("_")]) + ",")
         for key, item in INDEXED_GRAMMAR.items():
-            if item[0] != '':
-                out += '\tGOTO[{0}] = '.format(item[0])
-                out += '{'
-                out += 'tokens::{0}, {1}'.format(key[0], item[1])
-                out += '};\n'
-                ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in key[0].split("_")])
-                print("self.goto.insert({}, GotoNode".format(item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(int(int(item[1])/2))) + "});")
-            else:
-                out += '\tGOTO[1] = {tokens::' + key[0] + ', 2};\n'
+            ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in key[0].split("_")])
+            if ttype != "Mango":
+                if item[0] != '':
+                    matrix_setup += "self.goto.insert({}, GotoNode".format(item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(int(int(item[1])/2))) + "});\n"
+                else:
+                    matrix_setup += "self.goto.insert({}, GotoNode".format("1") + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(int(int(item[1])/2))) + "});\n"
+
+        print(matrix_setup)
+
+
         for keys, item in ACTION.items():
             out += '\tACTION[{0}][tokens::{1}] = \"{2}\";\n'.format(keys[0], keys[1], item)
             ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in keys[1].split("_")])
             if item[0] == "S":
-                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Shift", item[1:]) + "});")
+                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Shift", item[1:]) + "});")
             elif item[0] == "R":
-                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Reduce", item[1:]) + "});")
+                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Reduce", item[1:]) + "});")
             elif item == "ACCEPT":
-                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Accept", -1) + "});")
+                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Accept", -1) + "});")
             else:
-                print("self.action.insert(({}, &TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Goto", item) + "});")
+                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Goto", item) + "});")
         out += '}\n\n' \
                'void mgparser::ppeval() {\n' \
                '\tauto token = lexer->lltoken();\n' \
