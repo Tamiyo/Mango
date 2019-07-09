@@ -16,7 +16,7 @@ def main():
     TERMINALS += ['TS_END_OF_FILE']
 
     index = 0
-    production_set = [x.strip() for x in open(r'../grammar.mg').readlines()]
+    production_set = [x.strip() for x in open(r'../grammar').readlines()]
     for production in production_set:
         if len(production) > 2 and production[0] != "#":
             lhs = production[:production.find('->') - 1]
@@ -234,174 +234,71 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                     ACTION[state, 'TS_END_OF_FILE'] = 'ACCEPT'
         for key, item in ACTION.items():
             print(key, item)
-        # Creating the C file
-        # out = 'use core::borrow::Borrow; use std::collections::HashMap; use std::ptr::null; use std::slice::Iter; use ' \
-        #       'std::vec::Vec; use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, PrimitiveType, ' \
-        #       'TokenType}; use crate::core::TokenType::{StatementSuite, Term}; use crate::parse_tree::{Node, ' \
-        #       'NodeIdentifier, NodeMango, NodeStatement, NodeStatementAssignment, NodeStatementList, ' \
-        #       'NodeStatementSimple, NodeStatementSuite, NodeTerm}; pub struct Parser { pub token_stack: ' \
-        #       'Vec<LexerResult>, pub action: HashMap<(i32, TokenType), ActionNode>, pub goto: HashMap<i32, GotoNode>, ' \
-        #       '} impl Default for Parser { fn default() -> Parser { Parser { token_stack: Vec::new(), ' \
-        #       'action: HashMap::new(), goto: HashMap::new(), } } } impl Parser { fn initialize(&mut self) { {' \
-        #       'PARSER_INIT} } pub fn parse(&mut self) -> Box<Node> { self.initialize(); let mut stack: Vec<i32> = ' \
-        #       'Vec::new(); stack.push(0); let mut node_stack: Vec<Box<Node>> = Vec::new(); let token_stack = ' \
-        #       'self.token_stack.clone(); let mut iterator = token_stack.iter(); let mut token = iterator.next(' \
-        #       ').unwrap(); let mut item_stack: Vec<LexerResult> = Vec::new(); loop { let mut state = *stack.last(' \
-        #       ').unwrap(); let action_node = self.action.get(&(state, token.token_type)).unwrap(); println!("State: {' \
-        #       '}, TokenType: {:?} -> {:?} {}", state, token.token_type, action_node.action, action_node.value); match ' \
-        #       'action_node.action { ParserAction::Shift => { if token.token_type == TokenType::Term { ' \
-        #       'self.token_stack.push(token.clone()) } stack.push(action_node.value); if token.token_type == ' \
-        #       'TokenType::Term || token.token_type == TokenType::Identifier { item_stack.push(token.clone()); } token ' \
-        #       '= iterator.next().unwrap(); } ParserAction::Reduce => { let goto_node = self.goto.get(' \
-        #       '&action_node.value).unwrap(); for _ in 0..goto_node.value { stack.pop(); } state = *stack.last(' \
-        #       ').unwrap(); let goto_action = self.action.get(&(state, goto_node.token_type)).unwrap(); stack.push(' \
-        #       'goto_action.value); { match action_node.value { 1 => { let node = node_stack.pop().unwrap(); ' \
-        #       'node_stack.push(Box::from(NodeStatementSuite { statement_list: node })); } 2 => {} 3 => { let node ' \
-        #       '= node_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatementList { statement: node })); } 4 => ' \
-        #       '{ let node = node_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatement { statement_simple: ' \
-        #       'node })); } 5 => { let node = node_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatementSimple ' \
-        #       '{ statement_assignment: node })); } 6 => { let term = item_stack.pop().unwrap(); let identifier = ' \
-        #       'item_stack.pop().unwrap(); node_stack.push(Box::from(NodeStatementAssignment { identifier: Box::new((' \
-        #       'NodeIdentifier { value: Box::from(identifier) })), term: Box::new((NodeTerm { value: Box::from(term) ' \
-        #       '})) })); } _ => {} } } } ParserAction::Accept => { println!("Parse Accepted!"); return Box::from(' \
-        #       'NodeMango { statement_suite: node_stack.pop().unwrap() }); } _ => { println!("Parse Error!"); return ' \
-        #       'Box::from(NodeMango { statement_suite: node_stack.pop().unwrap() }); } } } } }'
         out = ""
 
-        # {PARSER_INIT}
-        matrix_setup = ""
-        # Note for efficiency we could ignore the symbols (add later)
-        # Note also that we need to handle GOTO better (there is an error in the implemnetation rn)
+        # Gather Parse Table
+        PARSER_INIT = ""
+        NODE_INIT = ""
         for n in NONTERMINALS:
-            print(''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in n.split("_")]) + ",")
+            ttype = 'Node' + ''.join(
+                [str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in
+                 n.split("_")])
+            NODE_INIT += "pub struct {}".format(ttype) + "{\n}" + "\n\nimpl node for {}".format(ttype) + "{\n" \
+                                                                                                         "\tfn eval(&self) -> String { return \"\".to_string(); }" \
+                                                                                                         "\n}\n\n"
+        NODE_SELECTION_INIT = ""
         for key, item in INDEXED_GRAMMAR.items():
-            ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in key[0].split("_")])
+            ttype = ''.join(
+                [str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in key[0].split("_")])
             if ttype != "Mango":
                 if item[0] != '':
-                    matrix_setup += "self.goto.insert({}, GotoNode".format(item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(int(int(item[1])/2))) + "});\n"
+                    NODE_SELECTION_INIT += "\t\t\t\t\t\t\t{}".format(
+                        item[0]) + " => {\n\t\t\t\t\t\t\t\t//" + "{}".format(
+                        key[0] + " -> " + key[1]) + "\n\t\t\t\t\t\t\t}\n"
+                    PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
+                        item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(
+                        int(int(item[1]) / 2))) + "});\n"
                 else:
-                    matrix_setup += "self.goto.insert({}, GotoNode".format("1") + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(int(int(item[1])/2))) + "});\n"
-
-        print(matrix_setup)
-
-
+                    NODE_SELECTION_INIT += "\t\t\t\t\t\t\t{}".format(1) + " => {}\n"
+                    PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
+                        "1") + "{" + "token_type: TokenType::{}, value: {}".format(ttype,
+                                                                                   str(int(int(item[1]) / 2))) + "});\n"
+        NODE_SELECTION_INIT += "\t\t\t\t\t\t\t_" + " => {\n\t\t\t\t\t\t\t\t//" + "exhaustive" + "\n\t\t\t\t\t\t\t}\n"
         for keys, item in ACTION.items():
-            out += '\tACTION[{0}][tokens::{1}] = \"{2}\";\n'.format(keys[0], keys[1], item)
-            ttype = ''.join([str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in keys[1].split("_")])
+            ttype = ''.join(
+                [str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in keys[1].split("_")])
             if item[0] == "S":
-                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Shift", item[1:]) + "});")
+                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                    "Shift", item[1:]) + "});\n"
             elif item[0] == "R":
-                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Reduce", item[1:]) + "});")
+                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                    "Reduce", item[1:]) + "});\n"
             elif item == "ACCEPT":
-                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Accept", -1) + "});")
+                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                    "Accept", -1) + "});\n"
             else:
-                print("self.action.insert(({}, TokenType::{}), ActionNode".format(keys[0], ttype) + "{" + "action: ParserAction::{}, value: {}".format("Goto", item) + "});")
-        out += '}\n\n' \
-               'void mgparser::ppeval() {\n' \
-               '\tauto token = lexer->lltoken();\n' \
-               '\twhile (true) {\n' \
-               '\t\tauto s = ss.top();\n' \
-               '\t\tif (token.second >= tokens::TS_STRING && token.second <= tokens::MYSBL_END) {\n' \
-               '\t\t\tif (ACTION[s.state][token.second].substr(0, 1) == "S") {\n' \
-               '\t\t\t\tif (token.second == tokens::TS_TERM) { strs.push(token.first); }\n' \
-               '\t\t\t\tss.push({token.second});\n' \
-               '\t\t\t\tss.push({atoi(ACTION[s.state][token.second].substr(1).c_str())});\n' \
-               '\t\t\t\ttoken = lexer->lltoken();\n' \
-               '\t\t\t} else if (ACTION[s.state][token.second] == "ACCEPT") {\n' \
-               '\t\t\t\tnode NTS_STATEMENT_SUITE = ns.top();\n' \
-               '\t\t\t\tns.pop();\n' \
-               '\t\t\t\tns.push(NTS_MANGO_NTS_STATEMENT_SUITE(NTS_STATEMENT_SUITE));\n' \
-               '\t\t\t\tcout << "Parse Accepted" << endl;\n' \
-               '\t\t\t\tbreak;\n' \
-               '\t\t\t} else if (ACTION[s.state][token.second].substr(0, 1) == "R") {\n' \
-               '\t\t\t\tauto g = GOTO[atoi(ACTION[s.state][token.second].substr(1).c_str())];\n' \
-               '\t\t\t\tfor (int i = 0; i < g.second; i++) { ss.pop(); }\n' \
-               '' + '' + '' \
-                         '\t\t\t\ts = ss.top();\n' \
-                         '\t\t\t\tss.push(stack_symbol{g.first});\n' \
-                         '\t\t\t\tss.push(stack_symbol{atoi(ACTION[s.state][g.first].c_str())});\n' \
-                         '\t\t\t} else {\n' \
-                         '\t\t\t\tcout << "Parse Error" << endl;\n' \
-                         '\t\t\t\tbreak;\n' \
-                         '\t\t\t}\n' \
-                         '\t\t} else {\n' \
-                         '\t\t\ttoken = lexer->lltoken();\n' \
-                         '\t\t}\n' \
-                         '\t}\n' \
-                         '}\n'
+                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                    "Goto", item) + "});\n"
+        PARSER_FILE = open('PARSER_TEMPLATE').read()
+        PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
+        PARSER_FILE = PARSER_FILE.replace("{NODE_SELECTION_INIT}", NODE_SELECTION_INIT)
 
-        f = open('mgparser.cpp', 'w')
-        f.write(out)
-        f.close()
+        NODE_FILE = open('NODE_TEMPLATE').read()
+        NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
 
-    hardcoded_symbols = ['TS_STRING',
-                         'TS_IDENTIFIER',
-                         'TS_FLOAT',
-                         'TS_INT',
-                         'TS_TERM',
+        myfile = open('../../src/parser.rs', 'w')
+        myfile.write(PARSER_FILE)
+        myfile.close()
 
-                         'TS_IF',
-                         'TS_ELIF',
-                         'TS_ELSE',
+        myfile2 = open('../../src/parse_tree.rs', 'w')
+        myfile2.write(NODE_FILE)
+        myfile2.close()
 
-                         'TS_LCB',
-                         'TS_RCB',
-                         'TS_LPAREN',
-                         'TS_RPAREN',
-
-                         'TS_OPERATOR_EQUALS',
-                         'TS_OPERATOR_ADD',
-                         'TS_OPERATOR_SUB',
-                         'TS_OPERATOR_MUL',
-                         'TS_OPERATOR_DIV',
-                         'TS_OPERATOR_EXP',
-
-                         'TS_COLON',
-                         'TS_COMMA',
-
-                         'TS_FOR',
-                         'TS_WHILE',
-                         'TS_DEFINE',
-
-                         'TS_OPERATOR_LT',
-                         'TS_OPERATOR_LTE',
-                         'TS_OPERATOR_GT',
-                         'TS_OPERATOR_GTE',
-                         'TS_OPERATOR_DOUBLE_EQUALS',
-                         'TS_OPERATOR_TRIPLE_EQUALS',
-
-                         'TS_OPERATOR_NEG',
-                         'TS_OPERATOR_NONNULL',
-                         'TS_SPACE',
-                         'TS_SYMBOL_NEWLINE',
-                         'TS_EMPTY',
-                         'TS_END_OF_FILE',
-
-                         'NTS_OPERATOR']
-    out2 = '#ifndef MANGO_CL_TOKENS_H\n' \
-           '#define MANGO_CL_TOKENS_H\n' \
-           '#include<map>\n' \
-           '#include<string>\n\n' \
-           'class tokens {\n' \
-           'public:\n' \
-           '\t\ttokens();\n\n' \
-           '\t\tenum Symbols {\n'
-
-    for SYMBOL in hardcoded_symbols:
-        out2 += '\t\t\t{0},\n'.format(SYMBOL)
-    out2 += '\n'
-    for SYMBOL in GRAMMAR_SYMBOLS:
-        if SYMBOL not in hardcoded_symbols:
-            out2 += '\t\t\t{},\n'.format(SYMBOL)
-
-    out2 += '\n\t\t\tMYSBL_END\n\t};\n\n' \
-            '\tstd::map<std::string, Symbols> TOKENS;\n' \
-            '\tstd::map<int, Symbols> TYPES;\n' \
-            '};\n\n' \
-            '#endif //MANGO_CL_TOKENS_H'
-    # f2 = open('../../tokens/tokens.h', 'w')
-    # f2.write(out2)
-    # f2.close()
+        #
 
     C = [CLOSURE([{
         'A': 'NTS_MANGO',

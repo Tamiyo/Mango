@@ -1,0 +1,7 @@
+use crate::core::{LexerResult, PrimitiveType};
+
+pub trait Node {
+    fn eval(&self) -> String;
+}
+
+{NODE_INIT}
