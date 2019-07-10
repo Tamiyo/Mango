@@ -18,6 +18,20 @@ impl node for NodeStatementSuite{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
+pub struct NodeStatementSuiteFunction{
+}
+
+impl node for NodeStatementSuiteFunction{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementSuiteClass{
+}
+
+impl node for NodeStatementSuiteClass{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
 pub struct NodeStatementList{
 }
 
@@ -25,10 +39,38 @@ impl node for NodeStatementList{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
+pub struct NodeStatementListFunction{
+}
+
+impl node for NodeStatementListFunction{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementListClass{
+}
+
+impl node for NodeStatementListClass{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
 pub struct NodeStatement{
 }
 
 impl node for NodeStatement{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementLimited{
+}
+
+impl node for NodeStatementLimited{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementRestricted{
+}
+
+impl node for NodeStatementRestricted{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
@@ -43,6 +85,27 @@ pub struct NodeStatementComplex{
 }
 
 impl node for NodeStatementComplex{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementFunction{
+}
+
+impl node for NodeStatementFunction{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeFunctionParams{
+}
+
+impl node for NodeFunctionParams{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementClass{
+}
+
+impl node for NodeStatementClass{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
@@ -95,38 +158,38 @@ impl node for NodeStatementConditional{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementConditionalElif{
+pub struct NodeStatementConditional2{
 }
 
-impl node for NodeStatementConditionalElif{
+impl node for NodeStatementConditional2{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementConditionalElse{
+pub struct NodeStatementConditional3{
 }
 
-impl node for NodeStatementConditionalElse{
+impl node for NodeStatementConditional3{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementConditionalTest{
+pub struct NodeConditionalExpression{
 }
 
-impl node for NodeStatementConditionalTest{
+impl node for NodeConditionalExpression{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeOperatorBinary{
+pub struct NodeComparisonOperator{
 }
 
-impl node for NodeOperatorBinary{
+impl node for NodeComparisonOperator{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeOperatorUnary{
+pub struct NodeComparisonOperatorUnary{
 }
 
-impl node for NodeOperatorUnary{
+impl node for NodeComparisonOperatorUnary{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
@@ -144,38 +207,10 @@ impl node for NodeStatementLoopFor{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementLoopForOptions{
-}
-
-impl node for NodeStatementLoopForOptions{
-	fn eval(&self) -> String { return "".to_string(); }
-}
-
 pub struct NodeStatementLoopWhile{
 }
 
 impl node for NodeStatementLoopWhile{
-	fn eval(&self) -> String { return "".to_string(); }
-}
-
-pub struct NodeStatementDefineFunction{
-}
-
-impl node for NodeStatementDefineFunction{
-	fn eval(&self) -> String { return "".to_string(); }
-}
-
-pub struct NodeFunctionParams{
-}
-
-impl node for NodeFunctionParams{
-	fn eval(&self) -> String { return "".to_string(); }
-}
-
-pub struct NodeStatementDefineClass{
-}
-
-impl node for NodeStatementDefineClass{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 

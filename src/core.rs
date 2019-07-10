@@ -40,6 +40,8 @@ pub enum TokenType {
     Else,
 
     None,
+    At,
+    Ellipsis,
 
     Mango,
     StatementSuite,
@@ -143,6 +145,8 @@ pub fn symbol_to_enum(symbol: &str) -> TokenType {
         ":" => TokenType::Colon,
         ";" => TokenType::Semicolon,
         "\n" => TokenType::Newline,
+        "@" => TokenType::At,
+        ".." => TokenType::Ellipsis,
         "$" => TokenType::EndOfFile,
         _ => TokenType::None,
     }

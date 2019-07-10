@@ -232,8 +232,6 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                     ACTION[state, item['t']] = 'R{0}'.format(INDEXED_GRAMMAR[combine_item(item)][0])
                 if IDENTITY in C[state]:
                     ACTION[state, 'TS_END_OF_FILE'] = 'ACCEPT'
-        for key, item in ACTION.items():
-            print(key, item)
         out = ""
 
         # Gather Parse Table
@@ -248,6 +246,7 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                                                                                                          "\n}\n\n"
         NODE_SELECTION_INIT = ""
         for key, item in INDEXED_GRAMMAR.items():
+            # print("key-item", key, item)
             ttype = ''.join(
                 [str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in key[0].split("_")])
             if ttype != "Mango":
