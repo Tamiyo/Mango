@@ -214,3 +214,17 @@ impl node for NodeStatementLoopWhile{
 	fn eval(&self) -> String { return "".to_string(); }
 }
 
+pub struct NodeStatementMatch{
+}
+
+impl node for NodeStatementMatch{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementMatchBody{
+}
+
+impl node for NodeStatementMatchBody{
+	fn eval(&self) -> String { return "".to_string(); }
+}
+
