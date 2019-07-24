@@ -74,7 +74,7 @@ impl Node for NodeStatementListFunction {
 
 pub struct NodeStatementListClassRecursive {
     pub statement_restricted: Box<Node>,
-    pub statement_list_function: Box<Node>,
+    pub statement_list_class: Box<Node>,
 }
 
 impl Node for NodeStatementListClassRecursive {
@@ -106,7 +106,7 @@ impl Node for NodeStatementLimited {
 }
 
 pub struct NodeStatementRestricted {
-    pub statement: Box<Node>,
+    pub statement_x: Box<Node>,
 }
 
 impl Node for NodeStatementRestricted {
@@ -114,7 +114,7 @@ impl Node for NodeStatementRestricted {
 }
 
 pub struct NodeStatementSimple {
-    pub statement: Box<Node>
+    pub statement_x: Box<Node>
 }
 
 impl Node for NodeStatementSimple {
@@ -122,7 +122,7 @@ impl Node for NodeStatementSimple {
 }
 
 pub struct NodeStatementComplex {
-    pub statement: Box<Node>
+    pub statement_x: Box<Node>
 }
 
 impl Node for NodeStatementComplex {
@@ -156,7 +156,7 @@ impl Node for NodeFunctionParams {
 
 pub struct NodeStatementClass {
     pub identifier: Box<Node>,
-    pub statement_suite_class: Box<Node>
+    pub statement_suite_class: Box<Node>,
 }
 
 impl Node for NodeStatementClass {
@@ -165,7 +165,7 @@ impl Node for NodeStatementClass {
 
 pub struct NodeStatementExpressionRecursive {
     pub statement_expression_2: Box<Node>,
-    pub statement_statement_expression_p: Box<Node>
+    pub statement_statement_expression_p: Box<Node>,
 }
 
 impl Node for NodeStatementExpressionRecursive {
@@ -190,7 +190,7 @@ impl Node for NodeStatementExpressionP {
 
 pub struct NodeStatementExpression2Recursive {
     pub statement_expression_3: Box<Node>,
-    pub statement_expression_2p: Box<Node>
+    pub statement_expression_2p: Box<Node>,
 }
 
 impl Node for NodeStatementExpression2Recursive {
@@ -239,7 +239,7 @@ impl Node for NodeStatementExpression3 {
 
 pub struct NodeStatementAssignment {
     pub identifier: Box<Node>,
-    pub statement_expression: Box<Node>
+    pub statement_expression: Box<Node>,
 }
 
 impl Node for NodeStatementAssignment {
@@ -248,7 +248,7 @@ impl Node for NodeStatementAssignment {
 
 pub struct NodeStatementConditional {
     pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>
+    pub statement_suite_function: Box<Node>,
 }
 
 impl Node for NodeStatementConditional {
@@ -258,7 +258,7 @@ impl Node for NodeStatementConditional {
 pub struct NodeStatementConditionalW2 {
     pub conditional_expression: Box<Node>,
     pub statement_suite_function: Box<Node>,
-    pub statement_conditional_2: Box<Node>
+    pub statement_conditional_2: Box<Node>,
 }
 
 impl Node for NodeStatementConditionalW2 {
@@ -268,58 +268,118 @@ impl Node for NodeStatementConditionalW2 {
 pub struct NodeStatementConditionalW3 {
     pub conditional_expression: Box<Node>,
     pub statement_suite_function: Box<Node>,
-    pub statement_conditional_3: Box<Node>
+    pub statement_conditional_3: Box<Node>,
 }
 
 impl Node for NodeStatementConditionalW3 {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementConditional2 {}
+pub struct NodeStatementConditional2Recursive {
+    pub statement_conditional_2: Box<Node>,
+    pub conditional_expression: Box<Node>,
+    pub statement_suite_function: Box<Node>,
+}
+
+impl Node for NodeStatementConditional2Recursive {
+    fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementConditional2 {
+    pub conditional_expression: Box<Node>,
+    pub statement_suite_function: Box<Node>,
+    pub statement_conditional_3: Box<Node>,
+}
 
 impl Node for NodeStatementConditional2 {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementConditional3 {}
+pub struct NodeStatementConditional3 {
+    pub statement_suite_function: Box<Node>,
+}
 
 impl Node for NodeStatementConditional3 {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeConditionalExpression {}
+pub struct NodeConditionalExpression {
+    pub term1: Box<Node>,
+    pub comparison_operator: Box<Node>,
+    pub term2: Box<Node>,
+}
 
 impl Node for NodeConditionalExpression {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeComparisonOperator {}
+pub struct NodeComparisonOperator {
+    pub operator: Box<Node>
+}
 
 impl Node for NodeComparisonOperator {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeComparisonOperatorUnary {}
+pub struct NodeComparisonOperatorUnary {
+    pub operator: Box<Node>
+}
 
 impl Node for NodeComparisonOperatorUnary {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementLoop {}
+pub struct NodeStatementLoop {
+    pub statement_loop: Box<Node>
+}
 
 impl Node for NodeStatementLoop {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementLoopFor {}
+pub struct NodeStatementLoopFor {
+    pub identifier: Box<Node>,
+    pub term: Box<Node>,
+    pub statement_suite_function: Box<Node>,
+}
 
 impl Node for NodeStatementLoopFor {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
-pub struct NodeStatementLoopWhile {}
+pub struct NodeStatementLoopFor2 {
+    pub identifier: Box<Node>,
+    pub term1: Box<Node>,
+    pub term2: Box<Node>,
+    pub statement_suite_function: Box<Node>,
+}
+
+impl Node for NodeStatementLoopFor2 {
+    fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeStatementLoopWhile {
+    pub conditional_expression: Box<Node>,
+    pub statement_suite_function: Box<Node>,
+}
 
 impl Node for NodeStatementLoopWhile {
+    fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeTerm {
+    pub payload: LexerResult,
+}
+
+impl Node for NodeTerm {
+    fn eval(&self) -> String { return "".to_string(); }
+}
+
+pub struct NodeIdentifier {
+    pub payload: LexerResult,
+}
+
+impl Node for NodeIdentifier {
     fn eval(&self) -> String { return "".to_string(); }
 }
 

@@ -5,7 +5,7 @@ use std::slice::Iter;
 use std::vec::Vec;
 use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, PrimitiveType, TokenType};
 use crate::core::TokenType::{StatementSuite, Term, StatementList};
-use crate::parse_tree::{Node, NodeMango, NodeStatementSuite};
+use crate::parse_tree::{Node, NodeMango, NodeStatementSuite, NodeStatementListFunction, NodeStatementSuiteClass, NodeStatementList, NodeStatementListRecursive, NodeStatementListFunctionRecursive, NodeStatementListClass, NodeStatementListClassRecursive, NodeStatement, NodeStatementLimited, NodeStatementRestricted, NodeStatementSimple, NodeStatementComplex};
 
 pub struct Parser { pub token_stack: Vec<LexerResult>, pub action: HashMap<(i32, TokenType), ActionNode>, pub goto: HashMap<i32, GotoNode> }
 
@@ -1505,60 +1505,90 @@ impl Parser {
                             }
                             2 => {
                                 //NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION TS_NEWLINE
+                                let statement_limited = node_stack.pop().unwrap();
+                                let node = NodeStatementListFunction { statement_limited: statement_limited };
+                                node_stack.push(Box::new(node));
                             }
                             3 => {
                                 //NTS_STATEMENT_SUITE_CLASS -> NTS_STATEMENT_LIST_CLASS TS_NEWLINE
+                                let statement_list_class = node_stack.pop().unwrap();
+                                let node = NodeStatementSuiteClass { statement_list_class: statement_list_class };
+                                node_stack.push(Box::new(node));
                             }
                             4 => {
                                 //NTS_STATEMENT_LIST -> NTS_STATEMENT NTS_STATEMENT_LIST
+                                let statement = node_stack.pop().unwrap();
+                                let statement_list = node_stack.pop().unwrap();
+                                let node = NodeStatementListRecursive { statement: statement, statement_list: statement_list };
+                                node_stack.push(Box::new(node));
                             }
                             5 => {
                                 //NTS_STATEMENT_LIST -> NTS_STATEMENT
+                                let statement = node_stack.pop().unwrap();
+                                let node = NodeStatementList { statement: statement };
+                                node_stack.push(Box::new(node));
                             }
                             6 => {
                                 //NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED NTS_STATEMENT_LIST_FUNCTION
+                                let statement_limited = node_stack.pop().unwrap();
+                                let statement_list_function = node_stack.pop().unwrap();
+                                let node = NodeStatementListFunctionRecursive { statement_limited: statement_limited, statement_list_function: statement_list_function };
+                                node_stack.push(Box::new(node));
                             }
                             7 => {
                                 //NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED
+                                let statement_limited = node_stack.pop().unwrap();
+                                let node = NodeStatementListFunction { statement_limited: statement_limited };
+                                node_stack.push(Box::new(node));
                             }
                             8 => {
                                 //NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED NTS_STATEMENT_LIST_CLASS
+                                let statement_restricted = node_stack.pop().unwrap();
+                                let statement_list_class = node_stack.pop().unwrap();
+                                let node = NodeStatementListClassRecursive { statement_restricted: statement_restricted, statement_list_class: statement_list_class };
+                                node_stack.push(Box::new(node));
                             }
                             9 => {
                                 //NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED
+                                let statement_restricted = node_stack.pop().unwrap();
+                                let node = NodeStatementListClass { statement_restricted: statement_restricted };
+                                node_stack.push(Box::new(node));
                             }
-                            10 => {
+                            10 | 11 | 12 | 13 => {
                                 //NTS_STATEMENT -> NTS_STATEMENT_SIMPLE
-                            }
-                            11 => {
                                 //NTS_STATEMENT -> NTS_STATEMENT_COMPLEX
-                            }
-                            12 => {
                                 //NTS_STATEMENT -> NTS_STATEMENT_FUNCTION
-                            }
-                            13 => {
                                 //NTS_STATEMENT -> NTS_STATEMENT_CLASS
+                                let statement_x = node_stack.pop().unwrap();
+                                let node = NodeStatement { statement_x: statement_x };
+                                node_stack.push(Box::new(node));
                             }
-                            14 => {
+                            14 | 15 => {
                                 //NTS_STATEMENT_LIMITED -> NTS_STATEMENT_SIMPLE
-                            }
-                            15 => {
                                 //NTS_STATEMENT_LIMITED -> NTS_STATEMENT_COMPLEX
+                                let statement_x = node_stack.pop().unwrap();
+                                let node = NodeStatementLimited { statement_x: statement_x };
+                                node_stack.push(Box::new(node));
                             }
                             16 => {
                                 //NTS_STATEMENT_RESTRICTED -> NTS_STATEMENT_FUNCTION
+                                let statement_x = node_stack.pop().unwrap();
+                                let node = NodeStatementRestricted { statement_x: statement_x };
+                                node_stack.push(Box::new(node));
                             }
-                            17 => {
+                            17 | 18 | 19 => {
                                 //NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_EXPRESSION
-                            }
-                            18 => {
                                 //NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_ASSIGNMENT
-                            }
-                            19 => {
                                 //NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_CONDITIONAL
+                                let statement_x = node_stack.pop().unwrap();
+                                let node = NodeStatementSimple { statement_x: statement_x };
+                                node_stack.push(Box::new(node));
                             }
                             20 => {
                                 //NTS_STATEMENT_COMPLEX -> NTS_STATEMENT_LOOP
+                                let statement_x = node_stack.pop().unwrap();
+                                let node = NodeStatementComplex { statement_x: statement_x };
+                                node_stack.push(Box::new(node));
                             }
                             21 => {
                                 //NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
