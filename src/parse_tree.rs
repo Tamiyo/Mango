@@ -130,7 +130,9 @@ impl Node for NodeStatementComplex {
 }
 
 pub struct NodeStatementFunction {
-    pub statement: Box<Node>
+    pub identifier: Box<Node>,
+    pub function_params: Box<Node>,
+    pub statement_suite_function: Box<Node>,
 }
 
 impl Node for NodeStatementFunction {

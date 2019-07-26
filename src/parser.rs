@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use std::ptr::null;
 use std::slice::Iter;
 use std::vec::Vec;
+
 use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, PrimitiveType, TokenType};
-use crate::core::TokenType::{StatementSuite, Term, StatementList};
-use crate::parse_tree::{Node, NodeMango, NodeStatementSuite, NodeStatementListFunction, NodeStatementSuiteClass, NodeStatementList, NodeStatementListRecursive, NodeStatementListFunctionRecursive, NodeStatementListClass, NodeStatementListClassRecursive, NodeStatement, NodeStatementLimited, NodeStatementRestricted, NodeStatementSimple, NodeStatementComplex};
+use crate::core::TokenType::{StatementList, StatementSuite, Term};
+use crate::parse_tree::{Node, NodeFunctionParamsRecursive, NodeMango, NodeStatement, NodeStatementComplex, NodeStatementFunction, NodeStatementLimited, NodeStatementList, NodeStatementListClass, NodeStatementListClassRecursive, NodeStatementListFunction, NodeStatementListFunctionRecursive, NodeStatementListRecursive, NodeStatementRestricted, NodeStatementSimple, NodeStatementSuite, NodeStatementSuiteClass};
 
 pub struct Parser { pub token_stack: Vec<LexerResult>, pub action: HashMap<(i32, TokenType), ActionNode>, pub goto: HashMap<i32, GotoNode> }
 
@@ -1592,9 +1593,18 @@ impl Parser {
                             }
                             21 => {
                                 //NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+                                let identifier = node_stack.pop().unwrap();
+                                let function_params = node_stack.pop().unwrap();
+                                let statement_suite_function = node_stack.pop().unwrap();
+                                let node = NodeStatementFunction { identifier: identifier, function_params: function_params, statement_suite_function: statement_suite_function };
+                                node_stack.push(Box::new(node));
                             }
                             22 => {
                                 //NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA TS_IDENTIFIER
+                                let function_params = node_stack.pop().unwrap();
+                                let identifier = node_stack.pop().unwrap();
+                                let node = NodeFunctionParamsRecursive { function_params: function_params, identifier: identifier };
+                                node_stack.push(Box::new(node));
                             }
                             23 => {
                                 //NTS_FUNCTION_PARAMS -> TS_IDENTIFIER
