@@ -10,7 +10,7 @@ mod parse_tree;
 
 fn main() {
     #![allow(dead_code)]
-    let input_string = "my_ident4 = 12.0\n$";
+    let input_string = "12 + 12\n$";
     let lexer = Lexer { input: input_string };
     let stack = lexer.lex();
 

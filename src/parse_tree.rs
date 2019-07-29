@@ -9,7 +9,7 @@ pub struct NodeMango {
 }
 
 impl Node for NodeMango {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_suite.eval(); }
 }
 
 pub struct NodeStatementSuite {
@@ -17,7 +17,7 @@ pub struct NodeStatementSuite {
 }
 
 impl Node for NodeStatementSuite {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_list.eval(); }
 }
 
 pub struct NodeStatementSuiteFunction {
@@ -25,7 +25,7 @@ pub struct NodeStatementSuiteFunction {
 }
 
 impl Node for NodeStatementSuiteFunction {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_list_function.eval(); }
 }
 
 pub struct NodeStatementSuiteClass {
@@ -33,7 +33,7 @@ pub struct NodeStatementSuiteClass {
 }
 
 impl Node for NodeStatementSuiteClass {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_list_class.eval(); }
 }
 
 pub struct NodeStatementListRecursive {
@@ -51,7 +51,7 @@ pub struct NodeStatementList {
 }
 
 impl Node for NodeStatementList {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement.eval(); }
 }
 
 pub struct NodeStatementListFunctionRecursive {
@@ -69,7 +69,7 @@ pub struct NodeStatementListFunction {
 }
 
 impl Node for NodeStatementListFunction {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_limited.eval(); }
 }
 
 pub struct NodeStatementListClassRecursive {
@@ -86,23 +86,23 @@ pub struct NodeStatementListClass {
 }
 
 impl Node for NodeStatementListClass {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_restricted.eval(); }
 }
 
 pub struct NodeStatement {
-    statement_x: Box<Node>
+    pub statement_x: Box<Node>
 }
 
 impl Node for NodeStatement {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_x.eval(); }
 }
 
 pub struct NodeStatementLimited {
-    statement_x: Box<Node>,
+    pub statement_x: Box<Node>,
 }
 
 impl Node for NodeStatementLimited {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_x.eval(); }
 }
 
 pub struct NodeStatementRestricted {
@@ -110,7 +110,7 @@ pub struct NodeStatementRestricted {
 }
 
 impl Node for NodeStatementRestricted {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_x.eval(); }
 }
 
 pub struct NodeStatementSimple {
@@ -118,7 +118,7 @@ pub struct NodeStatementSimple {
 }
 
 impl Node for NodeStatementSimple {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_x.eval(); }
 }
 
 pub struct NodeStatementComplex {
@@ -126,7 +126,7 @@ pub struct NodeStatementComplex {
 }
 
 impl Node for NodeStatementComplex {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_x.eval(); }
 }
 
 pub struct NodeStatementFunction {
@@ -167,7 +167,7 @@ impl Node for NodeStatementClass {
 
 pub struct NodeStatementExpressionRecursive {
     pub statement_expression_2: Box<Node>,
-    pub statement_statement_expression_p: Box<Node>,
+    pub statement_expression_p: Box<Node>,
 }
 
 impl Node for NodeStatementExpressionRecursive {
@@ -179,7 +179,7 @@ pub struct NodeStatementExpression {
 }
 
 impl Node for NodeStatementExpression {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_expression_2.eval(); }
 }
 
 pub struct NodeStatementExpressionP {
@@ -187,7 +187,7 @@ pub struct NodeStatementExpressionP {
 }
 
 impl Node for NodeStatementExpressionP {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_expression.eval(); }
 }
 
 pub struct NodeStatementExpression2Recursive {
@@ -204,7 +204,7 @@ pub struct NodeStatementExpression2 {
 }
 
 impl Node for NodeStatementExpression2 {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_expression_3.eval(); }
 }
 
 pub struct NodeStatementExpression2p {
@@ -212,7 +212,7 @@ pub struct NodeStatementExpression2p {
 }
 
 impl Node for NodeStatementExpression2p {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_expression_2.eval(); }
 }
 
 pub struct NodeStatementExpression3Negation {
@@ -228,7 +228,7 @@ pub struct NodeStatementExpression3Paren {
 }
 
 impl Node for NodeStatementExpression3Paren {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement_expression.eval(); }
 }
 
 pub struct NodeStatementExpression3 {
@@ -236,7 +236,7 @@ pub struct NodeStatementExpression3 {
 }
 
 impl Node for NodeStatementExpression3 {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.term.eval(); }
 }
 
 pub struct NodeStatementAssignment {
@@ -315,6 +315,15 @@ impl Node for NodeConditionalExpression {
     fn eval(&self) -> String { return "".to_string(); }
 }
 
+pub struct NodeConditionalExpressionUnary {
+    pub comparison_operator_unary: Box<Node>,
+    pub term: Box<Node>,
+}
+
+impl Node for NodeConditionalExpressionUnary {
+    fn eval(&self) -> String { return "".to_string(); }
+}
+
 pub struct NodeComparisonOperator {
     pub operator: Box<Node>
 }
@@ -374,7 +383,10 @@ pub struct NodeTerm {
 }
 
 impl Node for NodeTerm {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String {
+        let token = &self.payload.token;
+        return token.clone();
+    }
 }
 
 pub struct NodeIdentifier {
@@ -382,6 +394,9 @@ pub struct NodeIdentifier {
 }
 
 impl Node for NodeIdentifier {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String {
+        let token = &self.payload.token;
+        return token.clone();
+    }
 }
 
