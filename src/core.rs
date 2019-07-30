@@ -125,7 +125,6 @@ impl ActionNode {
     }
 }
 
-
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GotoNode {
     pub token_type: TokenType,

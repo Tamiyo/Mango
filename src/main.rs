@@ -2,15 +2,18 @@ use std::collections::HashMap;
 
 use crate::lexer::Lexer;
 use crate::parser::Parser;
+#[macro_use]
+extern crate downcast_rs;
 
+mod core;
 mod lexer;
 mod parser;
-mod core;
 mod parse_tree;
+mod semantic_analyzer;
 
 fn main() {
     #![allow(dead_code)]
-    let input_string = "12 + 12\n$";
+    let input_string = "13 + 12\n$";
     let lexer = Lexer { input: input_string };
     let stack = lexer.lex();
 
@@ -21,5 +24,5 @@ fn main() {
     };
 
     let top_node = parser.parse();
-    println!("{}", top_node.eval());
+    println!("evaluation: {}", top_node.eval());
 }

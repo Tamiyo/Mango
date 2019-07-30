@@ -1,4 +1,6 @@
-use crate::core::{LexerResult, PrimitiveType};
+use downcast_rs::Downcast;
+
+use crate::core::{LexerResult, PrimitiveType, TokenType};
 
 pub trait Node {
     fn eval(&self) -> String;
@@ -167,11 +169,25 @@ impl Node for NodeStatementClass {
 
 pub struct NodeStatementExpressionRecursive {
     pub statement_expression_2: Box<Node>,
-    pub statement_expression_p: Box<Node>,
+    pub statement_expression_p: Box<NodeStatementExpressionP>,
 }
 
 impl Node for NodeStatementExpressionRecursive {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String {
+        return "".to_string();
+//        TODO
+//        match self.statement_expression_p {
+//            0 => {
+//                return self.statement_expression_2.eval() + self.statement_expression_p.eval().as_str();
+//            }
+//            1 => {
+//                return (self.statement_expression_2.eval().parse::<i32>().unwrap() - self.statement_expression_p.eval().parse::<i32>().unwrap()).to_string();
+//            }
+//            _ => {
+//                return "".to_string();
+//            }
+//        }
+    }
 }
 
 pub struct NodeStatementExpression {
@@ -183,7 +199,8 @@ impl Node for NodeStatementExpression {
 }
 
 pub struct NodeStatementExpressionP {
-    pub statement_expression: Box<Node>
+    pub statement_expression: Box<Node>,
+    pub operator: TokenType,
 }
 
 impl Node for NodeStatementExpressionP {

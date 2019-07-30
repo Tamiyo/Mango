@@ -6,7 +6,7 @@ use std::vec::Vec;
 
 use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, PrimitiveType, TokenType};
 use crate::core::TokenType::{StatementList, StatementSuite, Term};
-use crate::parse_tree::{Node, NodeFunctionParamsRecursive, NodeMango, NodeStatement, NodeStatementComplex, NodeStatementFunction, NodeStatementLimited, NodeStatementList, NodeStatementListClass, NodeStatementListClassRecursive, NodeStatementListFunction, NodeStatementListFunctionRecursive, NodeStatementListRecursive, NodeStatementRestricted, NodeStatementSimple, NodeStatementSuite, NodeStatementSuiteClass, NodeFunctionParams, NodeStatementClass, NodeStatementExpression, NodeStatementExpressionRecursive, NodeStatementExpressionP, NodeStatementExpression2, NodeStatementExpression2Recursive, NodeStatementExpression2p, NodeStatementExpression3, NodeStatementExpression3Paren, NodeStatementExpression3Negation, NodeStatementAssignment, NodeStatementConditional, NodeStatementConditionalW2, NodeStatementConditionalW3, NodeStatementConditional2Recursive, NodeStatementConditional2, NodeStatementConditional3, NodeConditionalExpression, NodeConditionalExpressionUnary, NodeTerm};
+use crate::parse_tree::{Node, NodeConditionalExpression, NodeConditionalExpressionUnary, NodeFunctionParams, NodeFunctionParamsRecursive, NodeIdentifier, NodeMango, NodeStatement, NodeStatementAssignment, NodeStatementClass, NodeStatementComplex, NodeStatementConditional, NodeStatementConditional2, NodeStatementConditional2Recursive, NodeStatementConditional3, NodeStatementConditionalW2, NodeStatementConditionalW3, NodeStatementExpression, NodeStatementExpression2, NodeStatementExpression2p, NodeStatementExpression2Recursive, NodeStatementExpression3, NodeStatementExpression3Negation, NodeStatementExpression3Paren, NodeStatementExpressionP, NodeStatementExpressionRecursive, NodeStatementFunction, NodeStatementLimited, NodeStatementList, NodeStatementListClass, NodeStatementListClassRecursive, NodeStatementListFunction, NodeStatementListFunctionRecursive, NodeStatementListRecursive, NodeStatementRestricted, NodeStatementSimple, NodeStatementSuite, NodeStatementSuiteClass, NodeTerm};
 
 pub struct Parser { pub token_stack: Vec<LexerResult>, pub action: HashMap<(i32, TokenType), ActionNode>, pub goto: HashMap<i32, GotoNode> }
 
@@ -1478,7 +1478,6 @@ impl Parser {
         let token_stack = self.token_stack.clone();
         let mut iterator = token_stack.iter();
         let mut token = iterator.next().unwrap();
-        let mut item_stack: Vec<LexerResult> = Vec::new();
         loop {
             let mut state = *stack.last().unwrap();
             let action_node = self.action.get(&(state, token.token_type)).unwrap();
@@ -1487,7 +1486,19 @@ impl Parser {
                 ParserAction::Shift => {
                     if token.token_type == TokenType::Term { self.token_stack.push(token.clone()) }
                     stack.push(action_node.value);
-                    if token.token_type == TokenType::Term || token.token_type == TokenType::Identifier { item_stack.push(token.clone()); }
+
+                    match token.token_type {
+                        TokenType::Term => {
+                            println!("Pushed {:?} onto the node stack", token);
+                            node_stack.push(Box::new(NodeTerm { payload: token.clone() }));
+                        }
+                        TokenType::Identifier => {
+                            println!("Pushed {:?} onto the node stack", token);
+                            node_stack.push(Box::new(NodeIdentifier { payload: token.clone() }));
+                        }
+                        _ => {}
+                    }
+
                     token = iterator.next().unwrap();
                 }
                 ParserAction::Reduce => {
@@ -1622,27 +1633,26 @@ impl Parser {
                             25 => {
                                 //NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2 NTS_STATEMENT_EXPRESSION_P
                                 let statement_expression_2 = node_stack.pop().unwrap();
-                                let statement_expression_p = node_stack.pop().unwrap();
+                                let statement_expression_p = node_stack.pop().unwrap() as Box<NodeStatementExpressionP>;
                                 let node = NodeStatementExpressionRecursive { statement_expression_2: statement_expression_2, statement_expression_p: statement_expression_p };
                                 node_stack.push(Box::new(node));
                             }
                             26 => {
                                 //NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2
                                 let statement_expression_2 = node_stack.pop().unwrap();
-                                let statement_expression_p = node_stack.pop().unwrap();
                                 let node = NodeStatementExpression { statement_expression_2: statement_expression_2 };
                                 node_stack.push(Box::new(node));
                             }
                             27 => {
-                            //NTS_STATEMENT_EXPRESSION_P -> TS_ADD NTS_STATEMENT_EXPRESSION
-                            let statement_expression = node_stack.pop().unwrap();
-                            let node = NodeStatementExpressionP{statement_expression: statement_expression};
-                            node_stack.push(Box::new(node));
+                                //NTS_STATEMENT_EXPRESSION_P -> TS_ADD NTS_STATEMENT_EXPRESSION
+                                let statement_expression = node_stack.pop().unwrap();
+                                let node = NodeStatementExpressionP { statement_expression: statement_expression, otype: 0 };
+                                node_stack.push(Box::new(node));
                             }
                             28 => {
                                 //NTS_STATEMENT_EXPRESSION_P -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION
                                 let statement_expression = node_stack.pop().unwrap();
-                                let node = NodeStatementExpressionP { statement_expression: statement_expression };
+                                let node = NodeStatementExpressionP { statement_expression: statement_expression, otype: 1 };
                                 node_stack.push(Box::new(node));
                             }
                             29 => {
@@ -1678,8 +1688,7 @@ impl Parser {
                             }
                             34 => {
                                 //NTS_STATEMENT_EXPRESSION_3 -> TS_TERM
-                                let ttoken = token.clone();
-                                let term = Box::new(NodeTerm{payload: ttoken });
+                                let term = node_stack.pop().unwrap();
                                 let node = NodeStatementExpression3 { term: term };
                                 node_stack.push(Box::new(node));
                             }
@@ -1759,7 +1768,7 @@ impl Parser {
                                 //NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY TS_TERM
                                 let comparison_operator_unary = node_stack.pop().unwrap();
                                 let term = node_stack.pop().unwrap();
-                                let node  = NodeConditionalExpressionUnary{comparison_operator_unary: comparison_operator_unary, term: term};
+                                let node = NodeConditionalExpressionUnary { comparison_operator_unary: comparison_operator_unary, term: term };
                                 node_stack.push(Box::new(node));
                             }
                             46 => {
