@@ -176,6 +176,61 @@ impl Node for NodeStatementExpressionRecursive {
     fn eval(&self) -> String {
         return "".to_string();
 //        TODO
+//        use std::any::Any;
+//
+//        trait Node {
+//            fn eval(&self){}
+//            fn as_any(&self) -> &dyn Any;
+//        }
+//
+//        struct NodeA {}
+//        struct NodeB {
+//            pub variabl: i32
+//        }
+//
+//        impl Node for NodeA {
+//            fn eval(&self) {
+//                println!("NodeA");
+//            }
+//            fn as_any(&self) -> &dyn Any {
+//                self
+//            }
+//        }
+//
+//        impl Node for NodeB {
+//            fn eval(&self) {
+//                println!("NodeB");
+//            }
+//            fn as_any(&self) -> &dyn Any {
+//                self
+//            }
+//        }
+//
+//        impl NodeB {
+//            fn special(&self) {
+//                println!("NodeB Special!");
+//            }
+//        }
+//
+//        fn main() {
+//            let mut v: Vec<Box<Node>> = Vec::new();
+//            let a = NodeA{};
+//            let b = NodeB{variabl: 3};
+//            a.eval();
+//            b.eval();
+//            b.special();
+//
+//            v.push(Box::new(b));
+//            for node in v.iter() {
+//                let t: &NodeB = match node.as_any().downcast_ref::<NodeB>() {
+//                    Some(t) => t,
+//                    None => panic!("Yikes"),
+//                };
+//                t.special();
+//                println!("{}", t.variabl);
+//            }
+//        }
+
 //        match self.statement_expression_p {
 //            0 => {
 //                return self.statement_expression_2.eval() + self.statement_expression_p.eval().as_str();
