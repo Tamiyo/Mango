@@ -1489,11 +1489,9 @@ impl Parser {
 
                     match token.token_type {
                         TokenType::Term => {
-                            println!("Pushed {:?} onto the node stack", token);
                             node_stack.push(Box::new(NodeTerm { payload: token.clone() }));
                         }
                         TokenType::Identifier => {
-                            println!("Pushed {:?} onto the node stack", token);
                             node_stack.push(Box::new(NodeIdentifier { payload: token.clone() }));
                         }
                         _ => {}
@@ -1529,8 +1527,8 @@ impl Parser {
                             }
                             4 => {
                                 //NTS_STATEMENT_LIST -> NTS_STATEMENT NTS_STATEMENT_LIST
-                                let statement = node_stack.pop().unwrap();
                                 let statement_list = node_stack.pop().unwrap();
+                                let statement = node_stack.pop().unwrap();
                                 let node = NodeStatementListRecursive { statement: statement, statement_list: statement_list };
                                 node_stack.push(Box::new(node));
                             }
@@ -1542,8 +1540,8 @@ impl Parser {
                             }
                             6 => {
                                 //NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED NTS_STATEMENT_LIST_FUNCTION
-                                let statement_limited = node_stack.pop().unwrap();
                                 let statement_list_function = node_stack.pop().unwrap();
+                                let statement_limited = node_stack.pop().unwrap();
                                 let node = NodeStatementListFunctionRecursive { statement_limited: statement_limited, statement_list_function: statement_list_function };
                                 node_stack.push(Box::new(node));
                             }
@@ -1555,8 +1553,8 @@ impl Parser {
                             }
                             8 => {
                                 //NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED NTS_STATEMENT_LIST_CLASS
-                                let statement_restricted = node_stack.pop().unwrap();
                                 let statement_list_class = node_stack.pop().unwrap();
+                                let statement_restricted = node_stack.pop().unwrap();
                                 let node = NodeStatementListClassRecursive { statement_restricted: statement_restricted, statement_list_class: statement_list_class };
                                 node_stack.push(Box::new(node));
                             }
@@ -1604,16 +1602,16 @@ impl Parser {
                             }
                             21 => {
                                 //NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                                let identifier = node_stack.pop().unwrap();
-                                let function_params = node_stack.pop().unwrap();
                                 let statement_suite_function = node_stack.pop().unwrap();
+                                let function_params = node_stack.pop().unwrap();
+                                let identifier = node_stack.pop().unwrap();
                                 let node = NodeStatementFunction { identifier: identifier, function_params: function_params, statement_suite_function: statement_suite_function };
                                 node_stack.push(Box::new(node));
                             }
                             22 => {
                                 //NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA TS_IDENTIFIER
-                                let function_params = node_stack.pop().unwrap();
                                 let identifier = node_stack.pop().unwrap();
+                                let function_params = node_stack.pop().unwrap();
                                 let node = NodeFunctionParamsRecursive { function_params: function_params, identifier: identifier };
                                 node_stack.push(Box::new(node));
                             }
@@ -1625,15 +1623,15 @@ impl Parser {
                             }
                             24 => {
                                 //NTS_STATEMENT_CLASS -> TS_AT TS_IDENTIFIER TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_CLASS TS_RIGHT_CURLY_BRACE
-                                let identifier = node_stack.pop().unwrap();
                                 let statement_suite_class = node_stack.pop().unwrap();
+                                let identifier = node_stack.pop().unwrap();
                                 let node = NodeStatementClass { identifier: identifier, statement_suite_class: statement_suite_class };
                                 node_stack.push(Box::new(node));
                             }
                             25 => {
                                 //NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2 NTS_STATEMENT_EXPRESSION_P
+                                let statement_expression_p = node_stack.pop().unwrap();
                                 let statement_expression_2 = node_stack.pop().unwrap();
-                                let statement_expression_p = node_stack.pop().unwrap() as Box<NodeStatementExpressionP>;
                                 let node = NodeStatementExpressionRecursive { statement_expression_2: statement_expression_2, statement_expression_p: statement_expression_p };
                                 node_stack.push(Box::new(node));
                             }
@@ -1646,19 +1644,19 @@ impl Parser {
                             27 => {
                                 //NTS_STATEMENT_EXPRESSION_P -> TS_ADD NTS_STATEMENT_EXPRESSION
                                 let statement_expression = node_stack.pop().unwrap();
-                                let node = NodeStatementExpressionP { statement_expression: statement_expression, otype: 0 };
+                                let node = NodeStatementExpressionP { statement_expression: statement_expression, operator: TokenType::Add };
                                 node_stack.push(Box::new(node));
                             }
                             28 => {
                                 //NTS_STATEMENT_EXPRESSION_P -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION
                                 let statement_expression = node_stack.pop().unwrap();
-                                let node = NodeStatementExpressionP { statement_expression: statement_expression, otype: 1 };
+                                let node = NodeStatementExpressionP { statement_expression: statement_expression, operator: TokenType::Subtract };
                                 node_stack.push(Box::new(node));
                             }
                             29 => {
                                 //NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3 NTS_STATEMENT_EXPRESSION_2P
-                                let statement_expression_3 = node_stack.pop().unwrap();
                                 let statement_expression_2p = node_stack.pop().unwrap();
+                                let statement_expression_3 = node_stack.pop().unwrap();
                                 let node = NodeStatementExpression2Recursive { statement_expression_3: statement_expression_3, statement_expression_2p: statement_expression_2p };
                                 node_stack.push(Box::new(node));
                             }
@@ -1706,47 +1704,47 @@ impl Parser {
                             }
                             37 => {
                                 //NTS_STATEMENT_ASSIGNMENT -> TS_IDENTIFIER TS_EQUALS NTS_STATEMENT_EXPRESSION
-                                let identifier = node_stack.pop().unwrap();
                                 let statement_expression = node_stack.pop().unwrap();
+                                let identifier = node_stack.pop().unwrap();
                                 let node = NodeStatementAssignment { identifier: identifier, statement_expression: statement_expression };
                                 node_stack.push(Box::new(node));
                             }
                             38 => {
                                 //NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                                let conditional_expression = node_stack.pop().unwrap();
                                 let statement_suite_function = node_stack.pop().unwrap();
+                                let conditional_expression = node_stack.pop().unwrap();
                                 let node = NodeStatementConditional { conditional_expression: conditional_expression, statement_suite_function: statement_suite_function };
                                 node_stack.push(Box::new(node));
                             }
                             39 => {
                                 //NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_2
-                                let conditional_expression = node_stack.pop().unwrap();
-                                let statement_suite_function = node_stack.pop().unwrap();
                                 let statement_conditional_2 = node_stack.pop().unwrap();
+                                let statement_suite_function = node_stack.pop().unwrap();
+                                let conditional_expression = node_stack.pop().unwrap();
                                 let node = NodeStatementConditionalW2 { conditional_expression: conditional_expression, statement_suite_function: statement_suite_function, statement_conditional_2: statement_conditional_2 };
                                 node_stack.push(Box::new(node));
                             }
                             40 => {
                                 //NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
-                                let conditional_expression = node_stack.pop().unwrap();
-                                let statement_suite_function = node_stack.pop().unwrap();
                                 let statement_conditional_3 = node_stack.pop().unwrap();
+                                let statement_suite_function = node_stack.pop().unwrap();
+                                let conditional_expression = node_stack.pop().unwrap();
                                 let node = NodeStatementConditionalW3 { conditional_expression: conditional_expression, statement_suite_function: statement_suite_function, statement_conditional_3: statement_conditional_3 };
                                 node_stack.push(Box::new(node));
                             }
                             41 => {
                                 //NTS_STATEMENT_CONDITIONAL_2 -> NTS_STATEMENT_CONDITIONAL_2 TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                                let statement_conditional_2 = node_stack.pop().unwrap();
-                                let conditional_expression = node_stack.pop().unwrap();
                                 let statement_suite_function = node_stack.pop().unwrap();
+                                let conditional_expression = node_stack.pop().unwrap();
+                                let statement_conditional_2 = node_stack.pop().unwrap();
                                 let node = NodeStatementConditional2Recursive { statement_conditional_2: statement_conditional_2, conditional_expression: conditional_expression, statement_suite_function: statement_suite_function };
                                 node_stack.push(Box::new(node));
                             }
                             42 => {
                                 //NTS_STATEMENT_CONDITIONAL_2 -> TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
-                                let conditional_expression = node_stack.pop().unwrap();
-                                let statement_suite_function = node_stack.pop().unwrap();
                                 let statement_conditional_3 = node_stack.pop().unwrap();
+                                let statement_suite_function = node_stack.pop().unwrap();
+                                let conditional_expression = node_stack.pop().unwrap();
                                 let node = NodeStatementConditional2 { conditional_expression: conditional_expression, statement_suite_function: statement_suite_function, statement_conditional_3: statement_conditional_3 };
                                 node_stack.push(Box::new(node));
                             }
@@ -1758,16 +1756,16 @@ impl Parser {
                             }
                             44 | 45 => {
                                 //NTS_CONDITIONAL_EXPRESSION -> TS_TERM NTS_COMPARISON_OPERATOR TS_TERM
-                                let term1 = node_stack.pop().unwrap();
-                                let comparison_operator = node_stack.pop().unwrap();
                                 let term2 = node_stack.pop().unwrap();
+                                let comparison_operator = node_stack.pop().unwrap();
+                                let term1 = node_stack.pop().unwrap();
                                 let node = NodeConditionalExpression { term1: term1, comparison_operator: comparison_operator, term2: term2 };
                                 node_stack.push(Box::new(node));
                             }
                             45 => {
                                 //NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY TS_TERM
-                                let comparison_operator_unary = node_stack.pop().unwrap();
                                 let term = node_stack.pop().unwrap();
+                                let comparison_operator_unary = node_stack.pop().unwrap();
                                 let node = NodeConditionalExpressionUnary { comparison_operator_unary: comparison_operator_unary, term: term };
                                 node_stack.push(Box::new(node));
                             }

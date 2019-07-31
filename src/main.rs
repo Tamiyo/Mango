@@ -2,8 +2,6 @@ use std::collections::HashMap;
 
 use crate::lexer::Lexer;
 use crate::parser::Parser;
-#[macro_use]
-extern crate downcast_rs;
 
 mod core;
 mod lexer;

@@ -1,9 +1,11 @@
-use downcast_rs::Downcast;
+use std::any::Any;
 
 use crate::core::{LexerResult, PrimitiveType, TokenType};
 
 pub trait Node {
     fn eval(&self) -> String;
+    fn as_any(&self) -> &dyn Any;
+    fn debug(&self);
 }
 
 pub struct NodeMango {
@@ -12,6 +14,8 @@ pub struct NodeMango {
 
 impl Node for NodeMango {
     fn eval(&self) -> String { return self.statement_suite.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeMango"); }
 }
 
 pub struct NodeStatementSuite {
@@ -20,6 +24,8 @@ pub struct NodeStatementSuite {
 
 impl Node for NodeStatementSuite {
     fn eval(&self) -> String { return self.statement_list.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementSuite"); }
 }
 
 pub struct NodeStatementSuiteFunction {
@@ -28,6 +34,8 @@ pub struct NodeStatementSuiteFunction {
 
 impl Node for NodeStatementSuiteFunction {
     fn eval(&self) -> String { return self.statement_list_function.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementSuiteFunction"); }
 }
 
 pub struct NodeStatementSuiteClass {
@@ -36,6 +44,8 @@ pub struct NodeStatementSuiteClass {
 
 impl Node for NodeStatementSuiteClass {
     fn eval(&self) -> String { return self.statement_list_class.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementSuiteClass"); }
 }
 
 pub struct NodeStatementListRecursive {
@@ -45,6 +55,8 @@ pub struct NodeStatementListRecursive {
 
 impl Node for NodeStatementListRecursive {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementListRecursive"); }
 }
 
 
@@ -54,6 +66,8 @@ pub struct NodeStatementList {
 
 impl Node for NodeStatementList {
     fn eval(&self) -> String { return self.statement.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementList"); }
 }
 
 pub struct NodeStatementListFunctionRecursive {
@@ -63,6 +77,8 @@ pub struct NodeStatementListFunctionRecursive {
 
 impl Node for NodeStatementListFunctionRecursive {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementListFunctionRecursive"); }
 }
 
 
@@ -72,6 +88,8 @@ pub struct NodeStatementListFunction {
 
 impl Node for NodeStatementListFunction {
     fn eval(&self) -> String { return self.statement_limited.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementListFunction"); }
 }
 
 pub struct NodeStatementListClassRecursive {
@@ -81,6 +99,8 @@ pub struct NodeStatementListClassRecursive {
 
 impl Node for NodeStatementListClassRecursive {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementListClassRecursive"); }
 }
 
 pub struct NodeStatementListClass {
@@ -89,6 +109,8 @@ pub struct NodeStatementListClass {
 
 impl Node for NodeStatementListClass {
     fn eval(&self) -> String { return self.statement_restricted.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementListClass"); }
 }
 
 pub struct NodeStatement {
@@ -97,6 +119,8 @@ pub struct NodeStatement {
 
 impl Node for NodeStatement {
     fn eval(&self) -> String { return self.statement_x.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatement"); }
 }
 
 pub struct NodeStatementLimited {
@@ -105,6 +129,8 @@ pub struct NodeStatementLimited {
 
 impl Node for NodeStatementLimited {
     fn eval(&self) -> String { return self.statement_x.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementLimited"); }
 }
 
 pub struct NodeStatementRestricted {
@@ -113,6 +139,8 @@ pub struct NodeStatementRestricted {
 
 impl Node for NodeStatementRestricted {
     fn eval(&self) -> String { return self.statement_x.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementRestricted"); }
 }
 
 pub struct NodeStatementSimple {
@@ -121,6 +149,8 @@ pub struct NodeStatementSimple {
 
 impl Node for NodeStatementSimple {
     fn eval(&self) -> String { return self.statement_x.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementSimple"); }
 }
 
 pub struct NodeStatementComplex {
@@ -129,6 +159,8 @@ pub struct NodeStatementComplex {
 
 impl Node for NodeStatementComplex {
     fn eval(&self) -> String { return self.statement_x.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementComplex"); }
 }
 
 pub struct NodeStatementFunction {
@@ -139,6 +171,8 @@ pub struct NodeStatementFunction {
 
 impl Node for NodeStatementFunction {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementFunction"); }
 }
 
 pub struct NodeFunctionParamsRecursive {
@@ -148,6 +182,8 @@ pub struct NodeFunctionParamsRecursive {
 
 impl Node for NodeFunctionParamsRecursive {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeFunctionParamsRecursive"); }
 }
 
 pub struct NodeFunctionParams {
@@ -156,6 +192,8 @@ pub struct NodeFunctionParams {
 
 impl Node for NodeFunctionParams {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeFunctionParams"); }
 }
 
 pub struct NodeStatementClass {
@@ -165,84 +203,34 @@ pub struct NodeStatementClass {
 
 impl Node for NodeStatementClass {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementClass"); }
 }
 
 pub struct NodeStatementExpressionRecursive {
     pub statement_expression_2: Box<Node>,
-    pub statement_expression_p: Box<NodeStatementExpressionP>,
+    pub statement_expression_p: Box<Node>,
 }
 
 impl Node for NodeStatementExpressionRecursive {
     fn eval(&self) -> String {
-        return "".to_string();
-//        TODO
-//        use std::any::Any;
-//
-//        trait Node {
-//            fn eval(&self){}
-//            fn as_any(&self) -> &dyn Any;
-//        }
-//
-//        struct NodeA {}
-//        struct NodeB {
-//            pub variabl: i32
-//        }
-//
-//        impl Node for NodeA {
-//            fn eval(&self) {
-//                println!("NodeA");
-//            }
-//            fn as_any(&self) -> &dyn Any {
-//                self
-//            }
-//        }
-//
-//        impl Node for NodeB {
-//            fn eval(&self) {
-//                println!("NodeB");
-//            }
-//            fn as_any(&self) -> &dyn Any {
-//                self
-//            }
-//        }
-//
-//        impl NodeB {
-//            fn special(&self) {
-//                println!("NodeB Special!");
-//            }
-//        }
-//
-//        fn main() {
-//            let mut v: Vec<Box<Node>> = Vec::new();
-//            let a = NodeA{};
-//            let b = NodeB{variabl: 3};
-//            a.eval();
-//            b.eval();
-//            b.special();
-//
-//            v.push(Box::new(b));
-//            for node in v.iter() {
-//                let t: &NodeB = match node.as_any().downcast_ref::<NodeB>() {
-//                    Some(t) => t,
-//                    None => panic!("Yikes"),
-//                };
-//                t.special();
-//                println!("{}", t.variabl);
-//            }
-//        }
+        let statement_expression_p: &NodeStatementExpressionP = match self.statement_expression_p.as_any().downcast_ref::<NodeStatementExpressionP>() {
+            Some(statement_expression_p) => statement_expression_p,
+            None => panic!("Node Downcast Error: Node -> NodeStatementExpressionP"),
+        };
 
-//        match self.statement_expression_p {
-//            0 => {
-//                return self.statement_expression_2.eval() + self.statement_expression_p.eval().as_str();
-//            }
-//            1 => {
-//                return (self.statement_expression_2.eval().parse::<i32>().unwrap() - self.statement_expression_p.eval().parse::<i32>().unwrap()).to_string();
-//            }
-//            _ => {
-//                return "".to_string();
-//            }
-//        }
+        match statement_expression_p.operator {
+            TokenType::Add => {
+                (self.statement_expression_2.eval().parse::<i32>().unwrap() + self.statement_expression_p.eval().parse::<i32>().unwrap()).to_string()
+            }
+            TokenType::Subtract => {
+                (self.statement_expression_2.eval().parse::<i32>().unwrap() - self.statement_expression_p.eval().parse::<i32>().unwrap()).to_string()
+            }
+            _ => { panic!("Operator Type Error") }
+        }
     }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpressionRecursive"); }
 }
 
 pub struct NodeStatementExpression {
@@ -251,6 +239,8 @@ pub struct NodeStatementExpression {
 
 impl Node for NodeStatementExpression {
     fn eval(&self) -> String { return self.statement_expression_2.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression"); }
 }
 
 pub struct NodeStatementExpressionP {
@@ -260,6 +250,8 @@ pub struct NodeStatementExpressionP {
 
 impl Node for NodeStatementExpressionP {
     fn eval(&self) -> String { return self.statement_expression.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpressionP"); }
 }
 
 pub struct NodeStatementExpression2Recursive {
@@ -269,6 +261,8 @@ pub struct NodeStatementExpression2Recursive {
 
 impl Node for NodeStatementExpression2Recursive {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression2Recursive"); }
 }
 
 pub struct NodeStatementExpression2 {
@@ -277,6 +271,8 @@ pub struct NodeStatementExpression2 {
 
 impl Node for NodeStatementExpression2 {
     fn eval(&self) -> String { return self.statement_expression_3.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression2"); }
 }
 
 pub struct NodeStatementExpression2p {
@@ -285,6 +281,8 @@ pub struct NodeStatementExpression2p {
 
 impl Node for NodeStatementExpression2p {
     fn eval(&self) -> String { return self.statement_expression_2.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression2p"); }
 }
 
 pub struct NodeStatementExpression3Negation {
@@ -293,6 +291,8 @@ pub struct NodeStatementExpression3Negation {
 
 impl Node for NodeStatementExpression3Negation {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression3Negation"); }
 }
 
 pub struct NodeStatementExpression3Paren {
@@ -301,6 +301,8 @@ pub struct NodeStatementExpression3Paren {
 
 impl Node for NodeStatementExpression3Paren {
     fn eval(&self) -> String { return self.statement_expression.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression3Paren"); }
 }
 
 pub struct NodeStatementExpression3 {
@@ -309,6 +311,8 @@ pub struct NodeStatementExpression3 {
 
 impl Node for NodeStatementExpression3 {
     fn eval(&self) -> String { return self.term.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression3"); }
 }
 
 pub struct NodeStatementAssignment {
@@ -318,6 +322,8 @@ pub struct NodeStatementAssignment {
 
 impl Node for NodeStatementAssignment {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementAssignment"); }
 }
 
 pub struct NodeStatementConditional {
@@ -327,6 +333,8 @@ pub struct NodeStatementConditional {
 
 impl Node for NodeStatementConditional {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementConditional"); }
 }
 
 pub struct NodeStatementConditionalW2 {
@@ -337,6 +345,8 @@ pub struct NodeStatementConditionalW2 {
 
 impl Node for NodeStatementConditionalW2 {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementConditionalW2"); }
 }
 
 pub struct NodeStatementConditionalW3 {
@@ -347,6 +357,8 @@ pub struct NodeStatementConditionalW3 {
 
 impl Node for NodeStatementConditionalW3 {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementConditionalW3"); }
 }
 
 pub struct NodeStatementConditional2Recursive {
@@ -357,6 +369,8 @@ pub struct NodeStatementConditional2Recursive {
 
 impl Node for NodeStatementConditional2Recursive {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementConditional2Recursive"); }
 }
 
 pub struct NodeStatementConditional2 {
@@ -367,6 +381,8 @@ pub struct NodeStatementConditional2 {
 
 impl Node for NodeStatementConditional2 {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementConditional2"); }
 }
 
 pub struct NodeStatementConditional3 {
@@ -375,6 +391,8 @@ pub struct NodeStatementConditional3 {
 
 impl Node for NodeStatementConditional3 {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementConditional3"); }
 }
 
 pub struct NodeConditionalExpression {
@@ -385,6 +403,8 @@ pub struct NodeConditionalExpression {
 
 impl Node for NodeConditionalExpression {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeConditionalExpression"); }
 }
 
 pub struct NodeConditionalExpressionUnary {
@@ -394,6 +414,8 @@ pub struct NodeConditionalExpressionUnary {
 
 impl Node for NodeConditionalExpressionUnary {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeConditionalExpressionUnary"); }
 }
 
 pub struct NodeComparisonOperator {
@@ -402,6 +424,8 @@ pub struct NodeComparisonOperator {
 
 impl Node for NodeComparisonOperator {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeComparisonOperator"); }
 }
 
 pub struct NodeComparisonOperatorUnary {
@@ -410,6 +434,8 @@ pub struct NodeComparisonOperatorUnary {
 
 impl Node for NodeComparisonOperatorUnary {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeComparisonOperatorUnary"); }
 }
 
 pub struct NodeStatementLoop {
@@ -418,6 +444,8 @@ pub struct NodeStatementLoop {
 
 impl Node for NodeStatementLoop {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementLoop"); }
 }
 
 pub struct NodeStatementLoopFor {
@@ -428,6 +456,8 @@ pub struct NodeStatementLoopFor {
 
 impl Node for NodeStatementLoopFor {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementLoopFor"); }
 }
 
 pub struct NodeStatementLoopFor2 {
@@ -439,6 +469,8 @@ pub struct NodeStatementLoopFor2 {
 
 impl Node for NodeStatementLoopFor2 {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementLoopFor2"); }
 }
 
 pub struct NodeStatementLoopWhile {
@@ -448,6 +480,8 @@ pub struct NodeStatementLoopWhile {
 
 impl Node for NodeStatementLoopWhile {
     fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementLoopWhile"); }
 }
 
 pub struct NodeTerm {
@@ -459,6 +493,8 @@ impl Node for NodeTerm {
         let token = &self.payload.token;
         return token.clone();
     }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeTerm"); }
 }
 
 pub struct NodeIdentifier {
@@ -470,5 +506,7 @@ impl Node for NodeIdentifier {
         let token = &self.payload.token;
         return token.clone();
     }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeIdentifier"); }
 }
 
