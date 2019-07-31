@@ -23,7 +23,7 @@ NTS_STATEMENT_SUITE_CLASS -> NTS_STATEMENT_LIST_CLASS TS_NEWLINE
 ########################################
 
 ## Recursive Statement for the "Main" script
-NTS_STATEMENT_LIST -> NTS_STATEMENT NTS_STATEMENT_LIST
+NTS_STATEMENT_LIST -> NTS_STATEMENT TS_NEWLINE NTS_STATEMENT_LIST
 NTS_STATEMENT_LIST -> NTS_STATEMENT
 
 ## Recursive Statement for the "Method / Function / Procedure"

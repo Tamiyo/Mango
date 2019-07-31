@@ -10,7 +10,7 @@ FOLLOW_SET = {}
 GRAMMAR_SYMBOLS = []
 C = {}
 
-
+# TODO - Nodes have extra parameters that can be automated
 def main():
     global TERMINALS, NONTERMINALS, GRAMMAR, GRAMMAR_SYMBOLS, INDEXED_GRAMMAR
     TERMINALS += ['TS_END_OF_FILE']
