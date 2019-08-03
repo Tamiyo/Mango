@@ -9,7 +9,7 @@ pub trait Node {
 }
 
 pub struct NodeMango {
-    pub statement_suite: Box<Node>
+    pub statement_suite: Box<dyn Node>
 }
 
 impl Node for NodeMango {
@@ -19,7 +19,7 @@ impl Node for NodeMango {
 }
 
 pub struct NodeStatementSuite {
-    pub statement_list: Box<Node>
+    pub statement_list: Box<dyn Node>
 }
 
 impl Node for NodeStatementSuite {
@@ -29,7 +29,7 @@ impl Node for NodeStatementSuite {
 }
 
 pub struct NodeStatementSuiteFunction {
-    pub statement_list_function: Box<Node>
+    pub statement_list_function: Box<dyn Node>
 }
 
 impl Node for NodeStatementSuiteFunction {
@@ -39,7 +39,7 @@ impl Node for NodeStatementSuiteFunction {
 }
 
 pub struct NodeStatementSuiteClass {
-    pub statement_list_class: Box<Node>
+    pub statement_list_class: Box<dyn Node>
 }
 
 impl Node for NodeStatementSuiteClass {
@@ -49,19 +49,19 @@ impl Node for NodeStatementSuiteClass {
 }
 
 pub struct NodeStatementListRecursive {
-    pub statement: Box<Node>,
-    pub statement_list: Box<Node>,
+    pub statement: Box<dyn Node>,
+    pub statement_list: Box<dyn Node>,
 }
 
 impl Node for NodeStatementListRecursive {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String { return self.statement.eval() + "\n" + self.statement_list.eval().as_str(); }
     fn as_any(&self) -> &dyn Any { self }
     fn debug(&self) { println!("NodeStatementListRecursive"); }
 }
 
 
 pub struct NodeStatementList {
-    pub statement: Box<Node>
+    pub statement: Box<dyn Node>
 }
 
 impl Node for NodeStatementList {
@@ -71,8 +71,8 @@ impl Node for NodeStatementList {
 }
 
 pub struct NodeStatementListFunctionRecursive {
-    pub statement_limited: Box<Node>,
-    pub statement_list_function: Box<Node>,
+    pub statement_limited: Box<dyn Node>,
+    pub statement_list_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementListFunctionRecursive {
@@ -83,7 +83,7 @@ impl Node for NodeStatementListFunctionRecursive {
 
 
 pub struct NodeStatementListFunction {
-    pub statement_limited: Box<Node>,
+    pub statement_limited: Box<dyn Node>,
 }
 
 impl Node for NodeStatementListFunction {
@@ -93,8 +93,8 @@ impl Node for NodeStatementListFunction {
 }
 
 pub struct NodeStatementListClassRecursive {
-    pub statement_restricted: Box<Node>,
-    pub statement_list_class: Box<Node>,
+    pub statement_restricted: Box<dyn Node>,
+    pub statement_list_class: Box<dyn Node>,
 }
 
 impl Node for NodeStatementListClassRecursive {
@@ -104,7 +104,7 @@ impl Node for NodeStatementListClassRecursive {
 }
 
 pub struct NodeStatementListClass {
-    pub statement_restricted: Box<Node>,
+    pub statement_restricted: Box<dyn Node>,
 }
 
 impl Node for NodeStatementListClass {
@@ -114,7 +114,7 @@ impl Node for NodeStatementListClass {
 }
 
 pub struct NodeStatement {
-    pub statement_x: Box<Node>
+    pub statement_x: Box<dyn Node>
 }
 
 impl Node for NodeStatement {
@@ -124,7 +124,7 @@ impl Node for NodeStatement {
 }
 
 pub struct NodeStatementLimited {
-    pub statement_x: Box<Node>,
+    pub statement_x: Box<dyn Node>,
 }
 
 impl Node for NodeStatementLimited {
@@ -134,7 +134,7 @@ impl Node for NodeStatementLimited {
 }
 
 pub struct NodeStatementRestricted {
-    pub statement_x: Box<Node>,
+    pub statement_x: Box<dyn Node>,
 }
 
 impl Node for NodeStatementRestricted {
@@ -144,7 +144,7 @@ impl Node for NodeStatementRestricted {
 }
 
 pub struct NodeStatementSimple {
-    pub statement_x: Box<Node>
+    pub statement_x: Box<dyn Node>
 }
 
 impl Node for NodeStatementSimple {
@@ -154,7 +154,7 @@ impl Node for NodeStatementSimple {
 }
 
 pub struct NodeStatementComplex {
-    pub statement_x: Box<Node>
+    pub statement_x: Box<dyn Node>
 }
 
 impl Node for NodeStatementComplex {
@@ -164,9 +164,9 @@ impl Node for NodeStatementComplex {
 }
 
 pub struct NodeStatementFunction {
-    pub identifier: Box<Node>,
-    pub function_params: Box<Node>,
-    pub statement_suite_function: Box<Node>,
+    pub identifier: Box<dyn Node>,
+    pub function_params: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementFunction {
@@ -176,8 +176,8 @@ impl Node for NodeStatementFunction {
 }
 
 pub struct NodeFunctionParamsRecursive {
-    pub function_params: Box<Node>,
-    pub identifier: Box<Node>,
+    pub function_params: Box<dyn Node>,
+    pub identifier: Box<dyn Node>,
 }
 
 impl Node for NodeFunctionParamsRecursive {
@@ -187,7 +187,7 @@ impl Node for NodeFunctionParamsRecursive {
 }
 
 pub struct NodeFunctionParams {
-    pub identifier: Box<Node>,
+    pub identifier: Box<dyn Node>,
 }
 
 impl Node for NodeFunctionParams {
@@ -197,8 +197,8 @@ impl Node for NodeFunctionParams {
 }
 
 pub struct NodeStatementClass {
-    pub identifier: Box<Node>,
-    pub statement_suite_class: Box<Node>,
+    pub identifier: Box<dyn Node>,
+    pub statement_suite_class: Box<dyn Node>,
 }
 
 impl Node for NodeStatementClass {
@@ -208,8 +208,8 @@ impl Node for NodeStatementClass {
 }
 
 pub struct NodeStatementExpressionRecursive {
-    pub statement_expression_2: Box<Node>,
-    pub statement_expression_p: Box<Node>,
+    pub statement_expression_2: Box<dyn Node>,
+    pub statement_expression_p: Box<dyn Node>,
 }
 
 impl Node for NodeStatementExpressionRecursive {
@@ -234,7 +234,7 @@ impl Node for NodeStatementExpressionRecursive {
 }
 
 pub struct NodeStatementExpression {
-    pub statement_expression_2: Box<Node>,
+    pub statement_expression_2: Box<dyn Node>,
 }
 
 impl Node for NodeStatementExpression {
@@ -244,7 +244,7 @@ impl Node for NodeStatementExpression {
 }
 
 pub struct NodeStatementExpressionP {
-    pub statement_expression: Box<Node>,
+    pub statement_expression: Box<dyn Node>,
     pub operator: TokenType,
 }
 
@@ -255,18 +255,36 @@ impl Node for NodeStatementExpressionP {
 }
 
 pub struct NodeStatementExpression2Recursive {
-    pub statement_expression_3: Box<Node>,
-    pub statement_expression_2p: Box<Node>,
+    pub statement_expression_3: Box<dyn Node>,
+    pub statement_expression_2p: Box<dyn Node>,
 }
 
 impl Node for NodeStatementExpression2Recursive {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String {
+        let statement_expression_2p: &NodeStatementExpression2p = match self.statement_expression_2p.as_any().downcast_ref::<NodeStatementExpression2p>() {
+            Some(statement_expression_2p) => statement_expression_2p,
+            None => panic!("Node Downcast Error: Node -> NodeStatementExpression2p"),
+        };
+
+        match statement_expression_2p.operator {
+            TokenType::Multiply => {
+                (self.statement_expression_3.eval().parse::<i32>().unwrap() * self.statement_expression_2p.eval().parse::<i32>().unwrap()).to_string()
+            }
+            TokenType::Divide => {
+                (self.statement_expression_3.eval().parse::<i32>().unwrap() / self.statement_expression_2p.eval().parse::<i32>().unwrap()).to_string()
+            }
+            TokenType::Modulo => {
+                (self.statement_expression_3.eval().parse::<i32>().unwrap() % self.statement_expression_2p.eval().parse::<i32>().unwrap()).to_string()
+            }
+            _ => { panic!("Operator Type Error") }
+        }
+    }
     fn as_any(&self) -> &dyn Any { self }
     fn debug(&self) { println!("NodeStatementExpression2Recursive"); }
 }
 
 pub struct NodeStatementExpression2 {
-    pub statement_expression_3: Box<Node>,
+    pub statement_expression_3: Box<dyn Node>,
 }
 
 impl Node for NodeStatementExpression2 {
@@ -276,7 +294,8 @@ impl Node for NodeStatementExpression2 {
 }
 
 pub struct NodeStatementExpression2p {
-    pub statement_expression_2: Box<Node>
+    pub statement_expression_2: Box<dyn Node>,
+    pub operator: TokenType,
 }
 
 impl Node for NodeStatementExpression2p {
@@ -286,7 +305,7 @@ impl Node for NodeStatementExpression2p {
 }
 
 pub struct NodeStatementExpression3Negation {
-    pub statement_expression_3: Box<Node>
+    pub statement_expression_3: Box<dyn Node>
 }
 
 impl Node for NodeStatementExpression3Negation {
@@ -296,7 +315,7 @@ impl Node for NodeStatementExpression3Negation {
 }
 
 pub struct NodeStatementExpression3Paren {
-    pub statement_expression: Box<Node>
+    pub statement_expression: Box<dyn Node>
 }
 
 impl Node for NodeStatementExpression3Paren {
@@ -306,7 +325,7 @@ impl Node for NodeStatementExpression3Paren {
 }
 
 pub struct NodeStatementExpression3 {
-    pub term: Box<Node>
+    pub term: Box<dyn Node>
 }
 
 impl Node for NodeStatementExpression3 {
@@ -316,8 +335,8 @@ impl Node for NodeStatementExpression3 {
 }
 
 pub struct NodeStatementAssignment {
-    pub identifier: Box<Node>,
-    pub statement_expression: Box<Node>,
+    pub identifier: Box<dyn Node>,
+    pub statement_expression: Box<dyn Node>,
 }
 
 impl Node for NodeStatementAssignment {
@@ -327,8 +346,8 @@ impl Node for NodeStatementAssignment {
 }
 
 pub struct NodeStatementConditional {
-    pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>,
+    pub conditional_expression: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementConditional {
@@ -338,9 +357,9 @@ impl Node for NodeStatementConditional {
 }
 
 pub struct NodeStatementConditionalW2 {
-    pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>,
-    pub statement_conditional_2: Box<Node>,
+    pub conditional_expression: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
+    pub statement_conditional_2: Box<dyn Node>,
 }
 
 impl Node for NodeStatementConditionalW2 {
@@ -350,9 +369,9 @@ impl Node for NodeStatementConditionalW2 {
 }
 
 pub struct NodeStatementConditionalW3 {
-    pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>,
-    pub statement_conditional_3: Box<Node>,
+    pub conditional_expression: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
+    pub statement_conditional_3: Box<dyn Node>,
 }
 
 impl Node for NodeStatementConditionalW3 {
@@ -362,9 +381,9 @@ impl Node for NodeStatementConditionalW3 {
 }
 
 pub struct NodeStatementConditional2Recursive {
-    pub statement_conditional_2: Box<Node>,
-    pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>,
+    pub statement_conditional_2: Box<dyn Node>,
+    pub conditional_expression: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementConditional2Recursive {
@@ -374,9 +393,9 @@ impl Node for NodeStatementConditional2Recursive {
 }
 
 pub struct NodeStatementConditional2 {
-    pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>,
-    pub statement_conditional_3: Box<Node>,
+    pub conditional_expression: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
+    pub statement_conditional_3: Box<dyn Node>,
 }
 
 impl Node for NodeStatementConditional2 {
@@ -386,7 +405,7 @@ impl Node for NodeStatementConditional2 {
 }
 
 pub struct NodeStatementConditional3 {
-    pub statement_suite_function: Box<Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementConditional3 {
@@ -396,9 +415,9 @@ impl Node for NodeStatementConditional3 {
 }
 
 pub struct NodeConditionalExpression {
-    pub term1: Box<Node>,
-    pub comparison_operator: Box<Node>,
-    pub term2: Box<Node>,
+    pub term1: Box<dyn Node>,
+    pub comparison_operator: Box<dyn Node>,
+    pub term2: Box<dyn Node>,
 }
 
 impl Node for NodeConditionalExpression {
@@ -408,8 +427,8 @@ impl Node for NodeConditionalExpression {
 }
 
 pub struct NodeConditionalExpressionUnary {
-    pub comparison_operator_unary: Box<Node>,
-    pub term: Box<Node>,
+    pub comparison_operator_unary: Box<dyn Node>,
+    pub term: Box<dyn Node>,
 }
 
 impl Node for NodeConditionalExpressionUnary {
@@ -419,7 +438,7 @@ impl Node for NodeConditionalExpressionUnary {
 }
 
 pub struct NodeComparisonOperator {
-    pub operator: Box<Node>
+    pub operator: Box<dyn Node>
 }
 
 impl Node for NodeComparisonOperator {
@@ -429,7 +448,7 @@ impl Node for NodeComparisonOperator {
 }
 
 pub struct NodeComparisonOperatorUnary {
-    pub operator: Box<Node>
+    pub operator: Box<dyn Node>
 }
 
 impl Node for NodeComparisonOperatorUnary {
@@ -439,7 +458,7 @@ impl Node for NodeComparisonOperatorUnary {
 }
 
 pub struct NodeStatementLoop {
-    pub statement_loop: Box<Node>
+    pub statement_loop: Box<dyn Node>
 }
 
 impl Node for NodeStatementLoop {
@@ -449,9 +468,9 @@ impl Node for NodeStatementLoop {
 }
 
 pub struct NodeStatementLoopFor {
-    pub identifier: Box<Node>,
-    pub term: Box<Node>,
-    pub statement_suite_function: Box<Node>,
+    pub identifier: Box<dyn Node>,
+    pub term: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementLoopFor {
@@ -461,10 +480,10 @@ impl Node for NodeStatementLoopFor {
 }
 
 pub struct NodeStatementLoopFor2 {
-    pub identifier: Box<Node>,
-    pub term1: Box<Node>,
-    pub term2: Box<Node>,
-    pub statement_suite_function: Box<Node>,
+    pub identifier: Box<dyn Node>,
+    pub term1: Box<dyn Node>,
+    pub term2: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementLoopFor2 {
@@ -474,8 +493,8 @@ impl Node for NodeStatementLoopFor2 {
 }
 
 pub struct NodeStatementLoopWhile {
-    pub conditional_expression: Box<Node>,
-    pub statement_suite_function: Box<Node>,
+    pub conditional_expression: Box<dyn Node>,
+    pub statement_suite_function: Box<dyn Node>,
 }
 
 impl Node for NodeStatementLoopWhile {

@@ -1,5 +1,4 @@
 import copy
-from collections import OrderedDict
 
 NONTERMINALS = []
 TERMINALS = []
@@ -9,6 +8,7 @@ FIRST_SET = {}
 FOLLOW_SET = {}
 GRAMMAR_SYMBOLS = []
 C = {}
+
 
 # TODO - Nodes have extra parameters that can be automated
 def main():
@@ -282,22 +282,25 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                 PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
                                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
                     "Goto", item) + "});\n"
-        PARSER_FILE = open('PARSER_TEMPLATE').read()
-        PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
-        PARSER_FILE = PARSER_FILE.replace("{NODE_SELECTION_INIT}", NODE_SELECTION_INIT)
 
-        NODE_FILE = open('NODE_TEMPLATE').read()
-        NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
+        PARSER_INIT_FILE = open('../target/parser_init.txt', 'w')
+        PARSER_INIT_FILE.write(PARSER_INIT)
+        PARSER_INIT_FILE.close()
 
-        myfile = open('../../src/parser.rs', 'w')
-        myfile.write(PARSER_FILE)
-        myfile.close()
-
-        myfile2 = open('../../src/parse_tree.rs', 'w')
-        myfile2.write(NODE_FILE)
-        myfile2.close()
-
+        # PARSER_FILE = open('PARSER_TEMPLATE').read()
+        # PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
+        # PARSER_FILE = PARSER_FILE.replace("{NODE_SELECTION_INIT}", NODE_SELECTION_INIT)
         #
+        # NODE_FILE = open('NODE_TEMPLATE').read()
+        # NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
+        #
+        # myfile = open('../../src/parser.rs', 'w')
+        # myfile.write(PARSER_FILE)
+        # myfile.close()
+        #
+        # myfile2 = open('../../src/parse_tree.rs', 'w')
+        # myfile2.write(NODE_FILE)
+        # myfile2.close()
 
     C = [CLOSURE([{
         'A': 'NTS_MANGO',
@@ -320,94 +323,6 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
 
     print_itemset(C)
     create_CLR_parsing_table(C)
-
-
-def TRANSITIONS(INDEXED_GRAMMAR):
-    def create_struct_from_production(key, production):
-        header = ""
-        out = "\nclass {0}_{1} : public node ".format(key, production.replace(' ', '_'))
-        out += "{\npublic:\n"
-
-        tokens = production.split(' ')
-        constructor = "\n\texplicit {0}_{1} (".format(key, production.replace(' ', '_'))
-        constructor_body = ""
-        for token in tokens:
-            if token[0:2] == "NT":
-                out += "\tnode {0};\n".format(token)
-                constructor += "node {0}, ".format(token)
-                constructor_body += "\t\tthis->{0} = {1};\n".format(token, token)
-            elif token == "TS_TERM" or token == "TS_IDENTIFIER":
-                out += "\tnode {0};\n".format(token)
-                constructor += "node {0}, ".format(token)
-                constructor_body += "\t\tthis->{0} = {1};\n".format(token, token)
-        constructor = constructor[:len(constructor) - 2]
-        constructor += ") {\n"
-        constructor += "\t\tcout << \"{0}\" << endl;\n".format(key)
-        constructor += constructor_body
-        constructor += '\t}\n'
-
-        out += constructor
-        out += "};\n"
-        return out
-
-    def create_rule_from_production(index, key, production):
-        rule_no = str(index)
-        out = "\t\t\t\t\tcase {}: ".format(rule_no)
-        out += "{\n"
-
-        tokens = production.split(' ')
-
-        prod = []
-        for p in production:
-            if p == "TS_TERM" or p == "TS_IDENTIFIER" or p[0:2] == "NT":
-                prod.append(p)
-
-        node_creation = "\t\t\t\t\t\tns.push({}_{}(".format(key, production.replace(' ', '_'))
-        for token in tokens:
-            if token == "TS_TERM":
-                out += "\t\t\t\t\t\tnode _{} = TS_IDENTIFIER(strs.top());\n\t\t\t\t\t\tstrs.pop();\n".format(token)
-                node_creation += '_{}, '.format(token)
-            elif token == "TS_IDENTIFIER":
-                out += "\t\t\t\t\t\tnode _{} = TS_TERM(token.first, token.second);\n".format(token)
-                node_creation += '_{}, '.format(token)
-            elif token[0:2] == "NT":
-                out += "\t\t\t\t\t\tnode {} = ns.top();\n\t\t\t\t\t\tns.pop();\n".format(token)
-                node_creation += '{}, '.format(token)
-        node_creation = node_creation[:len(node_creation) - 2]
-        node_creation += "));\n\t\t\t\t\t\tbreak;\n\t\t\t\t\t}\n"
-        out += node_creation
-        return out
-
-    struct_output = "class node {};\n\n"
-    rule_output = ""
-
-    i = 0
-    structs = []
-    rules = []
-    for k, _ in INDEXED_GRAMMAR.items():
-        key = k[0]
-        production = k[1]
-        struct = create_struct_from_production(key, production)
-        structs.append(struct)
-        rule = create_rule_from_production(i, key, production)
-        rules.append(rule)
-        i += 1
-
-    myfile = open('../../parse_tree/node.h', 'w')
-    myfile.write(
-        "#ifndef MANGO_CL_NODE_H\n#define MANGO_CL_NODE_H\n#include<string>\n#include<iostream>\nusing std::string; "
-        "using std::cout; using std::endl;\nclass node {};\nclass TS_IDENTIFIER : public node {public:    string "
-        "identifier;    explicit TS_IDENTIFIER (string identifier) {        this->identifier = std::move(identifier); "
-        "   }};class TS_TERM : public node {public:    string term;    int infered_type;    explicit TS_TERM (string "
-        "term, int infered_type) {        this->term = std::move(term);        this->infered_type = infered_type;    "
-        "}};\n")
-    myfile.write('\n'.join(structs))
-    myfile.write('\n#endif //MANGO_CL_NODE_H')
-    myfile.close()
-    x = '\n\t\t\t\tswitch (atoi(ACTION[s.state][token.second].substr(1).c_str())) {\n'
-    # x += '\n'.join(rules)
-    x += "\t\t\t\t}\n"
-    return x
 
 
 if __name__ == '__main__':

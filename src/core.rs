@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::parser::Parser;
 
 // Enums that the compiler references
@@ -130,6 +132,18 @@ pub struct GotoNode {
     pub token_type: TokenType,
     pub value: i32,
 }
+
+#[derive(Debug)]
+pub struct Scope {
+    pub symbol_table: HashMap<String, LexerResult>
+}
+
+impl Default for Scope {
+    fn default() -> Self {
+        Scope { symbol_table: HashMap::<String, LexerResult>::new() }
+    }
+}
+
 
 pub fn symbol_to_enum(symbol: &str) -> TokenType {
     match symbol {
