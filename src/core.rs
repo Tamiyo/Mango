@@ -146,7 +146,19 @@ impl Default for Scope {
     }
 }
 
+// Keyword Map
+pub fn identifier_to_enum(symbol: &str) -> TokenType {
+    match symbol {
+        "if" => TokenType::If,
+        "elif" => TokenType::Elif,
+        "else" => TokenType::Else,
+        "for" => TokenType::For,
+        "while" => TokenType::While,
+        _ => TokenType::None,
+    }
+}
 
+// Symbol Map
 pub fn symbol_to_enum(symbol: &str) -> TokenType {
     match symbol {
         "+" => TokenType::Add,

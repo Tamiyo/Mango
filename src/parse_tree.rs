@@ -336,7 +336,7 @@ impl Node for NodeStatementExpression3 {
 
 pub struct NodeStatementExpression3Function {
     pub function_params: Box<dyn Node>,
-    pub identifier: Box<dyn Node>
+    pub identifier: Box<dyn Node>,
 }
 
 impl Node for NodeStatementExpression3Function {
@@ -425,6 +425,16 @@ impl Node for NodeStatementConditional3 {
     fn debug(&self) { println!("NodeStatementConditional3"); }
 }
 
+pub struct NodeConditionalOperator {
+    pub term: Box<dyn Node>
+}
+
+impl Node for NodeConditionalOperator {
+    fn eval(&self) -> String { return "".to_string(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeConditionalExpression"); }
+}
+
 pub struct NodeConditionalExpression {
     pub term1: Box<dyn Node>,
     pub comparison_operator: Box<dyn Node>,
@@ -449,13 +459,16 @@ impl Node for NodeConditionalExpressionUnary {
 }
 
 pub struct NodeComparisonOperator {
-    pub operator: Box<dyn Node>
+    pub payload: LexerResult,
 }
 
 impl Node for NodeComparisonOperator {
-    fn eval(&self) -> String { return "".to_string(); }
+    fn eval(&self) -> String {
+        let token = &self.payload.token;
+        return token.clone();
+    }
     fn as_any(&self) -> &dyn Any { self }
-    fn debug(&self) { println!("NodeComparisonOperator"); }
+    fn debug(&self) { println!("NodeTerm"); }
 }
 
 pub struct NodeComparisonOperatorUnary {

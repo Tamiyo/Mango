@@ -12,7 +12,7 @@ use std::str::Chars;
 
 use regex::Regex;
 
-use crate::core::{LexerResult, PrimitiveType, symbol_to_enum, TokenType};
+use crate::core::{identifier_to_enum, LexerResult, PrimitiveType, symbol_to_enum, TokenType};
 
 pub struct Lexer<'a> {
     pub input: &'a str,
@@ -119,11 +119,23 @@ impl<'a> Lexer<'a> {
                 }
             }
         }
-        let result = LexerResult {
-            token,
-            inferred_type: PrimitiveType::None,
-            token_type: TokenType::Identifier,
-        };
+
+        let mut result;
+        let token_type = identifier_to_enum(token.as_str());
+        if token_type == TokenType::None {
+            result = LexerResult {
+                token,
+                inferred_type: PrimitiveType::None,
+                token_type: TokenType::Identifier,
+            };
+        } else {
+            result = LexerResult {
+                token,
+                inferred_type: PrimitiveType::None,
+                token_type: token_type,
+            };
+        }
+
         println!("{}", result.to_string());
         tokens.push(result);
     }
@@ -179,7 +191,6 @@ impl<'a> Lexer<'a> {
                     it.next();
                 }
                 _ => {
-                    it.next();
                     break;
                 }
             }

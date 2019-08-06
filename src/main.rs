@@ -11,7 +11,7 @@ mod semantic_analyzer;
 
 fn main() {
     #![allow(dead_code)]
-    let input_string = "18 - 3 * 6$";
+    let input_string = "if 3 <= 4 { 3 + 4 }$";
     let lexer = Lexer { input: input_string };
     let stack = lexer.lex();
 
@@ -22,5 +22,5 @@ fn main() {
     };
 
     let top_node = parser.parse();
-    println!("evaluation: {}", top_node.eval());
+    println!("evaluation:\n{}", top_node.eval());
 }

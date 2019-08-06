@@ -3456,7 +3456,8 @@ impl Parser {
                     stack.push(action_node.value);
 
                     match token.token_type {
-                        TokenType::Term => {
+                        TokenType::Term | TokenType::LessThan | TokenType::GreaterThan | TokenType::GreaterThanEquals |
+                        TokenType::LessThanEquals | TokenType::DoubleEquals | TokenType::TripleEquals => {
                             node_stack.push(Box::new(NodeTerm { payload: token.clone() }));
                         }
                         TokenType::Identifier => {
