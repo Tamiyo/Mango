@@ -11,7 +11,7 @@ mod semantic_analyzer;
 
 fn main() {
     #![allow(dead_code)]
-    let input_string = "myfunction$";
+    let input_string = "18 - 3 * 6$";
     let lexer = Lexer { input: input_string };
     let stack = lexer.lex();
 

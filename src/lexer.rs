@@ -166,43 +166,6 @@ impl<'a> Lexer<'a> {
         let mut previous = false;
 
         while let Some(&c) = it.peek() {
-//            match c {
-//                '+' | '-' | '*' | '/' | '%' | '^' | '!' | '{' | '}' | '(' | ')' | ',' | ':'
-//                | ';' | '\n' | '$' => {
-//                    if length == 0 {
-//                        token.push(c);
-//                        it.next();
-//                    }
-//                    break;
-//                }
-//                '=' => {
-//                    if previous {
-//                        token.push(c);
-//                        it.next();
-//                        break;
-//                    } else if length < 3 {
-//                        token.push(c);
-//                        it.next();
-//                        length += 1;
-//                    } else {
-//                        break;
-//                    }
-//                }
-//                '>' | '<' => {
-//                    if length < 1 {
-//                        token.push(c);
-//                        previous = true;
-//                        it.next();
-//                        length += 1;
-//                    } else {
-//                        break;
-//                    }
-//                }
-//                _ => {
-//                    it.next();
-//                    break;
-//                }
-//            }
             match c {
                 '+' | '-' | '*' | '/' | '%' | '^' | '!' | '{' | '}' | '(' | ')' | ',' | ':'
                 | ';' | '\n' | '$' | '=' | '>' | '<' | '.' => {
