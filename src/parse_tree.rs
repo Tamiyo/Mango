@@ -325,11 +325,22 @@ impl Node for NodeStatementExpression3Paren {
 }
 
 pub struct NodeStatementExpression3 {
-    pub term: Box<dyn Node>
+    pub statement_x: Box<dyn Node>
 }
 
 impl Node for NodeStatementExpression3 {
-    fn eval(&self) -> String { return self.term.eval(); }
+    fn eval(&self) -> String { return self.statement_x.eval(); }
+    fn as_any(&self) -> &dyn Any { self }
+    fn debug(&self) { println!("NodeStatementExpression3"); }
+}
+
+pub struct NodeStatementExpression3Function {
+    pub function_params: Box<dyn Node>,
+    pub identifier: Box<dyn Node>
+}
+
+impl Node for NodeStatementExpression3Function {
+    fn eval(&self) -> String { return self.identifier.eval(); }
     fn as_any(&self) -> &dyn Any { self }
     fn debug(&self) { println!("NodeStatementExpression3"); }
 }

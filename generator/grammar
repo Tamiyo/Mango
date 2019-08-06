@@ -10,14 +10,14 @@ NTS_MANGO -> NTS_STATEMENT_SUITE
 ####################################
 
 ## Block Statement for the "Main" script
-NTS_STATEMENT_SUITE -> NTS_STATEMENT_LIST TS_NEWLINE
+NTS_STATEMENT_SUITE -> NTS_STATEMENT_LIST
 {
     let statement_list = node_stack.pop().unwrap();
     let node = NodeStatementSuite { statement_list: statement_list };
     node_stack.push(Box::new(node));
 }
 ## Block Statement to be used inside Functions / Methods / Procedures
-NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION TS_NEWLINE
+NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION
 {
     let statement_limited = node_stack.pop().unwrap();
     let node = NodeStatementListFunction { statement_limited: statement_limited };
@@ -25,7 +25,7 @@ NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION TS_NEWLINE
 }
 
 ## Block Statement to be used inside Classes
-NTS_STATEMENT_SUITE_CLASS -> NTS_STATEMENT_LIST_CLASS TS_NEWLINE
+NTS_STATEMENT_SUITE_CLASS -> NTS_STATEMENT_LIST_CLASS
 {
     let statement_list_class = node_stack.pop().unwrap();
     let node = NodeStatementSuiteClass { statement_list_class: statement_list_class };
@@ -184,7 +184,7 @@ NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LE
 }
 
 ## Recursive Function Parameters
-NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA TS_IDENTIFIER
+NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA NTS_STATEMENT_EXPRESSION
 {
     let identifier = node_stack.pop().unwrap();
     let function_params = node_stack.pop().unwrap();
@@ -192,7 +192,7 @@ NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA TS_IDENTIFIER
     node_stack.push(Box::new(node));
 }
 
-NTS_FUNCTION_PARAMS -> TS_IDENTIFIER
+NTS_FUNCTION_PARAMS -> NTS_STATEMENT_EXPRESSION
 {
     let identifier = node_stack.pop().unwrap();
     let node = NodeFunctionParams { identifier: identifier };
@@ -282,8 +282,23 @@ NTS_STATEMENT_EXPRESSION_2P -> TS_MODULO NTS_STATEMENT_EXPRESSION_2
 ## Expressions for negative terms, parenthesized terms, and an ending point without right recursion
 NTS_STATEMENT_EXPRESSION_3 -> TS_TERM
 {
-    let term = node_stack.pop().unwrap();
-    let node = NodeStatementExpression3 { term: term };
+    let statement_x = node_stack.pop().unwrap();
+    let node = NodeStatementExpression3 { statement_x: statement_x };
+    node_stack.push(Box::new(node));
+}
+
+NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER
+{
+    let statement_x = node_stack.pop().unwrap();
+    let node = NodeStatementExpression3 { statement_x: statement_x };
+    node_stack.push(Box::new(node));
+}
+
+NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS
+{
+    let function_params = node_stack.pop().unwrap();
+    let identifier = node_stack.pop().unwrap();
+    let node = NodeStatementExpression3Function { identifier: identifier, function_params: function_params };
     node_stack.push(Box::new(node));
 }
 
@@ -377,7 +392,7 @@ NTS_STATEMENT_CONDITIONAL_3 -> TS_ELSE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_F
 ################################
 
 ## Conditional Statement
-NTS_CONDITIONAL_EXPRESSION -> TS_TERM NTS_COMPARISON_OPERATOR TS_TERM
+NTS_CONDITIONAL_EXPRESSION -> NTS_STATEMENT_EXPRESSION NTS_COMPARISON_OPERATOR NTS_STATEMENT_EXPRESSION
 {
     let term2 = node_stack.pop().unwrap();
     let comparison_operator = node_stack.pop().unwrap();
@@ -386,7 +401,7 @@ NTS_CONDITIONAL_EXPRESSION -> TS_TERM NTS_COMPARISON_OPERATOR TS_TERM
     node_stack.push(Box::new(node));
 }
 
-NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY TS_TERM
+NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY NTS_STATEMENT_EXPRESSION
 {
     let term = node_stack.pop().unwrap();
     let comparison_operator_unary = node_stack.pop().unwrap();
@@ -416,10 +431,10 @@ NTS_STATEMENT_LOOP -> NTS_STATEMENT_LOOP_WHILE
 
 ## For Loop Constructs
 # Range based or integer based from 0..X
-NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON TS_TERM TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON NTS_STATEMENT_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 
 # Iteration based from X..Y
-NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON TS_TERM TS_ELLIPSIS TS_TERM TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON NTS_STATEMENT_EXPRESSION TS_ELLIPSIS NTS_STATEMENT_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 
 ## While Loop Construct
 NTS_STATEMENT_LOOP_WHILE -> TS_WHILE NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE

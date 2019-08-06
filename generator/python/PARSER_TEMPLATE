@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use std::ptr::null;
 use std::slice::Iter;
 use std::vec::Vec;
+
 use crate::core::{ActionNode, GotoNode, LexerResult, ParserAction, PrimitiveType, TokenType};
-use crate::core::TokenType::{StatementSuite, Term};
-use crate::parse_tree::{Node, NodeIdentifier, NodeMango, NodeStatement, NodeStatementAssignment, NodeStatementList, NodeStatementSimple, NodeStatementSuite, NodeTerm};
+use crate::core::TokenType::{StatementList, StatementSuite, Term};
+use crate::parse_tree::{Node, NodeConditionalExpression, NodeConditionalExpressionUnary, NodeFunctionParams, NodeFunctionParamsRecursive, NodeIdentifier, NodeMango, NodeStatement, NodeStatementAssignment, NodeStatementClass, NodeStatementComplex, NodeStatementConditional, NodeStatementConditional2, NodeStatementConditional2Recursive, NodeStatementConditional3, NodeStatementConditionalW2, NodeStatementConditionalW3, NodeStatementExpression, NodeStatementExpression2, NodeStatementExpression2p, NodeStatementExpression2Recursive, NodeStatementExpression3, NodeStatementExpression3Negation, NodeStatementExpression3Paren, NodeStatementExpressionP, NodeStatementExpressionRecursive, NodeStatementFunction, NodeStatementLimited, NodeStatementList, NodeStatementListClass, NodeStatementListClassRecursive, NodeStatementListFunction, NodeStatementListFunctionRecursive, NodeStatementListRecursive, NodeStatementRestricted, NodeStatementSimple, NodeStatementSuite, NodeStatementSuiteClass, NodeTerm, NodeStatementExpression3Function};
 
 pub struct Parser { pub token_stack: Vec<LexerResult>, pub action: HashMap<(i32, TokenType), ActionNode>, pub goto: HashMap<i32, GotoNode> }
 

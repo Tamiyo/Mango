@@ -7,11 +7,12 @@
     float:          [0-9]+.[0-9]+
 */
 
-use crate::core::{LexerResult, PrimitiveType, TokenType, symbol_to_enum};
-
-use regex::Regex;
 use std::iter::Peekable;
 use std::str::Chars;
+
+use regex::Regex;
+
+use crate::core::{LexerResult, PrimitiveType, symbol_to_enum, TokenType};
 
 pub struct Lexer<'a> {
     pub input: &'a str,
@@ -159,41 +160,60 @@ impl<'a> Lexer<'a> {
 
     fn get_symbol(tokens: &mut Vec<LexerResult>, it: &mut Peekable<Chars>) {
         let mut token = String::new();
+
+
         let mut length = 0;
         let mut previous = false;
 
         while let Some(&c) = it.peek() {
+//            match c {
+//                '+' | '-' | '*' | '/' | '%' | '^' | '!' | '{' | '}' | '(' | ')' | ',' | ':'
+//                | ';' | '\n' | '$' => {
+//                    if length == 0 {
+//                        token.push(c);
+//                        it.next();
+//                    }
+//                    break;
+//                }
+//                '=' => {
+//                    if previous {
+//                        token.push(c);
+//                        it.next();
+//                        break;
+//                    } else if length < 3 {
+//                        token.push(c);
+//                        it.next();
+//                        length += 1;
+//                    } else {
+//                        break;
+//                    }
+//                }
+//                '>' | '<' => {
+//                    if length < 1 {
+//                        token.push(c);
+//                        previous = true;
+//                        it.next();
+//                        length += 1;
+//                    } else {
+//                        break;
+//                    }
+//                }
+//                _ => {
+//                    it.next();
+//                    break;
+//                }
+//            }
             match c {
                 '+' | '-' | '*' | '/' | '%' | '^' | '!' | '{' | '}' | '(' | ')' | ',' | ':'
-                | ';' | '\n' | '$' => {
-                    if length == 0 {
-                        token.push(c);
-                        it.next();
-                    }
-                    break;
-                }
-                '=' => {
-                    if previous {
-                        token.push(c);
-                        it.next();
+                | ';' | '\n' | '$' | '=' | '>' | '<' | '.' => {
+                    let mut temp = token.clone();
+                    temp.push(c);
+                    if symbol_to_enum(temp.as_str()) == TokenType::None {
                         break;
-                    } else if length < 3 {
-                        token.push(c);
-                        it.next();
-                        length += 1;
                     } else {
-                        break;
-                    }
-                }
-                '>' | '<' => {
-                    if length < 1 {
                         token.push(c);
-                        previous = true;
-                        it.next();
-                        length += 1;
-                    } else {
-                        break;
                     }
+                    it.next();
                 }
                 _ => {
                     it.next();

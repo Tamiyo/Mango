@@ -1,5 +1,6 @@
 import copy
 import re
+import os
 
 NONTERMINALS = []
 TERMINALS = []
@@ -10,6 +11,7 @@ FIRST_SET = {}
 FOLLOW_SET = {}
 GRAMMAR_SYMBOLS = []
 C = {}
+PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 # TODO - Nodes have extra parameters that can be automated
@@ -30,12 +32,12 @@ def main():
 
 
 def INIT():
-    global TERMINALS, NONTERMINALS, GRAMMAR, GRAMMAR_SYMBOLS, INDEXED_GRAMMAR, MATCH_INDEX_GRAMMAR
+    global TERMINALS, NONTERMINALS, GRAMMAR, GRAMMAR_SYMBOLS, INDEXED_GRAMMAR, MATCH_INDEX_GRAMMAR, PATH
     TERMINALS += ['TS_END_OF_FILE']
 
     index = 0
     test_str = open(
-        r'C:\Users\mm030792\Documents\MFD\scripts\extra\Mango\generator\grammar').read()
+        PATH + r'\..\grammar').read()
     matches = re.findall(
         '(\w+ -> [\w ]+)|((?<=\{\n)(.|\n)*?(?=\n\}))', test_str)
 
@@ -75,7 +77,7 @@ def INIT():
                     if token not in GRAMMAR_SYMBOLS:
                         GRAMMAR_SYMBOLS += [token]
         if match[1] != '':
-            MATCH_INDEX_GRAMMAR += str(index) + \
+            MATCH_INDEX_GRAMMAR += str(index-1) + \
                 " => {\n" + "    // {}\n".format(name) + match[1] + "\n},\n"
     MATCH_INDEX_GRAMMAR += '_ => {\n' \
         '    //exhaustive\n' \
@@ -311,16 +313,16 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
                     "Goto", item) + "});\n"
 
-        PARSER_FILE = open('C:\\Users\\mm030792\\Documents\\MFD\\scripts\\extra\\Mango\\generator\\python\\PARSER_TEMPLATE').read()
+        PARSER_FILE = open(PATH + '\\PARSER_TEMPLATE').read()
         PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
         global MATCH_INDEX_GRAMMAR
         PARSER_FILE = PARSER_FILE.replace(
             "{NODE_SELECTION_INIT}", MATCH_INDEX_GRAMMAR)
 
-        NODE_FILE = open('C:\\Users\\mm030792\\Documents\\MFD\\scripts\\extra\\Mango\\generator\\python\\NODE_TEMPLATE').read()
+        NODE_FILE = open(PATH + '\\NODE_TEMPLATE').read()
         NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
 
-        myfile = open('C:\\Users\\mm030792\\Documents\\MFD\\scripts\\extra\\Mango\\generator\\target\\src\\parser.rs', 'w+')
+        myfile = open(PATH + '\\..\\target\\src\\parser.rs', 'w+')
         myfile.write(PARSER_FILE)
         myfile.close()
 

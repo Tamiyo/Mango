@@ -43,6 +43,7 @@ pub enum TokenType {
 
     None,
     At,
+    Dot,
     Ellipsis,
 
     Mango,
@@ -90,6 +91,7 @@ pub enum PrimitiveType {
     String,
     Boolean,
     Object,
+    Function,
     None,
 }
 
@@ -170,6 +172,7 @@ pub fn symbol_to_enum(symbol: &str) -> TokenType {
         ";" => TokenType::Semicolon,
         "\n" => TokenType::Newline,
         "@" => TokenType::At,
+        "." => TokenType::Dot,
         ".." => TokenType::Ellipsis,
         "$" => TokenType::EndOfFile,
         _ => TokenType::None,
