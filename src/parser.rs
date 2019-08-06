@@ -1477,7 +1477,7 @@ impl Parser {
                                 let node = NodeStatementConditional3 { statement_suite_function: statement_suite_function };
                                 node_stack.push(Box::new(node));
                             }
-                            44 | 45 => {
+                            44 => {
                                 //NTS_CONDITIONAL_EXPRESSION -> TS_TERM NTS_COMPARISON_OPERATOR TS_TERM
                                 let term2 = node_stack.pop().unwrap();
                                 let comparison_operator = node_stack.pop().unwrap();

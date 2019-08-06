@@ -1,9 +1,11 @@
 import copy
+import re
 
 NONTERMINALS = []
 TERMINALS = []
 GRAMMAR = {}
 INDEXED_GRAMMAR = {}
+MATCH_INDEX_GRAMMAR = ""
 FIRST_SET = {}
 FOLLOW_SET = {}
 GRAMMAR_SYMBOLS = []
@@ -13,14 +15,38 @@ C = {}
 # TODO - Nodes have extra parameters that can be automated
 def main():
     global TERMINALS, NONTERMINALS, GRAMMAR, GRAMMAR_SYMBOLS, INDEXED_GRAMMAR
+    INIT()
+
+    tGrammar = copy.deepcopy(GRAMMAR)
+    FIRST_SET = FIRST(tGrammar)
+
+    tGrammar = copy.deepcopy(GRAMMAR)
+    tFirst = copy.deepcopy(FIRST_SET)
+    FOLLOW_SET = FOLLOW(tGrammar, tFirst)
+
+    # RULES = TRANSITIONS(INDEXED_GRAMMAR)
+    ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES=None)
+    return
+
+
+def INIT():
+    global TERMINALS, NONTERMINALS, GRAMMAR, GRAMMAR_SYMBOLS, INDEXED_GRAMMAR, MATCH_INDEX_GRAMMAR
     TERMINALS += ['TS_END_OF_FILE']
 
     index = 0
-    production_set = [x.strip() for x in open(r'../grammar').readlines()]
-    for production in production_set:
-        if len(production) > 2 and production[0] != "#":
+    test_str = open(
+        r'C:\Users\mm030792\Documents\MFD\scripts\extra\Mango\generator\grammar').read()
+    matches = re.findall(
+        '(\w+ -> [\w ]+)|((?<=\{\n)(.|\n)*?(?=\n\}))', test_str)
+
+    name = ''
+    for match in matches:
+        print(match)
+        if match[0] != '':
+            production = match[0]
             lhs = production[:production.find('->') - 1]
             rhs = production[production.find('->') + 3:]
+            name = production
 
             if index == 0:
                 INDEXED_GRAMMAR[lhs, rhs] = ('', 0)
@@ -48,19 +74,12 @@ def main():
                     TERMINALS += [token]
                     if token not in GRAMMAR_SYMBOLS:
                         GRAMMAR_SYMBOLS += [token]
-
-    for key, item in INDEXED_GRAMMAR.items():
-        print(key)
-    tGrammar = copy.deepcopy(GRAMMAR)
-    FIRST_SET = FIRST(tGrammar)
-
-    tGrammar = copy.deepcopy(GRAMMAR)
-    tFirst = copy.deepcopy(FIRST_SET)
-    FOLLOW_SET = FOLLOW(tGrammar, tFirst)
-
-    # RULES = TRANSITIONS(INDEXED_GRAMMAR)
-    ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES=None)
-    return
+        if match[1] != '':
+            MATCH_INDEX_GRAMMAR += str(index) + \
+                " => {\n" + "    // {}\n".format(name) + match[1] + "\n},\n"
+    MATCH_INDEX_GRAMMAR += '_ => {\n' \
+        '    //exhaustive\n' \
+        '}\n'
 
 
 def FIRST(G):
@@ -120,20 +139,22 @@ def FOLLOW(G, FIRST_SET):
                             if index == len(tokens) - 1:
                                 for fprod in (follow_productions[key] if key in follow_productions.keys() else []):
                                     if fprod not in (follow_productions[
-                                        non_terminal] if non_terminal in follow_productions.keys() else []):
+                                            non_terminal] if non_terminal in follow_productions.keys() else []):
                                         if non_terminal in follow_productions.keys():
                                             follow_productions[non_terminal] += [fprod]
                                         else:
-                                            follow_productions[non_terminal] = [fprod]
+                                            follow_productions[non_terminal] = [
+                                                fprod]
                                         changed = True
                             elif token[0:2] == "NT":
                                 for fprod in (FIRST_SET[token] if token in FIRST_SET.keys() else []):
                                     if fprod not in (follow_productions[
-                                        non_terminal] if non_terminal in follow_productions.keys() else []):
+                                            non_terminal] if non_terminal in follow_productions.keys() else []):
                                         if non_terminal in follow_productions.keys():
                                             follow_productions[non_terminal] += [fprod]
                                         else:
-                                            follow_productions[non_terminal] = [fprod]
+                                            follow_productions[non_terminal] = [
+                                                fprod]
                                         changed = True
                             elif token[0:2] == "TS" and token not in (
                                     follow_productions[
@@ -168,7 +189,8 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
         for set in C:
             print('I{0}'.format(iter))
             for i in set:
-                print('\t[{0} -> {1} * {2} {3}, {4}]'.format(i['A'], i['a'], i['B'], i['b'], i['t']))
+                print('\t[{0} -> {1} * {2} {3}, {4}]'.format(i['A'],
+                                                             i['a'], i['B'], i['b'], i['t']))
             iter += 1
 
     def CLOSURE(I):
@@ -198,8 +220,10 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
             if item['B'] == X:
                 J.append(__createitemset__(item['A'],
                                            item['a'] + ' ' + X,
-                                           item['b'][:item['b'].find(' ')] if item['b'].find(' ') != -1 else item['b'],
-                                           item['b'][item['b'].find(' ') + 1:] if item['b'].find(' ') != -1 else '',
+                                           item['b'][:item['b'].find(' ')] if item['b'].find(
+                                               ' ') != -1 else item['b'],
+                                           item['b'][item['b'].find(
+                                               ' ') + 1:] if item['b'].find(' ') != -1 else '',
                                            item['t']))
         cJ = CLOSURE(J)
         # print_itemset(cJ)
@@ -228,8 +252,10 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                     else:
                         ACTION[state, item['B']] = '{0}'.format(j)
                 if item['B'] == '' and item['b'] == '' and item['a'] != '':
-                    print('Searching for rule', combine_item(item), 'R', INDEXED_GRAMMAR[combine_item(item)][0])
-                    ACTION[state, item['t']] = 'R{0}'.format(INDEXED_GRAMMAR[combine_item(item)][0])
+                    print('Searching for rule', combine_item(item),
+                          'R', INDEXED_GRAMMAR[combine_item(item)][0])
+                    ACTION[state, item['t']] = 'R{0}'.format(
+                        INDEXED_GRAMMAR[combine_item(item)][0])
                 if IDENTITY in C[state]:
                     ACTION[state, 'TS_END_OF_FILE'] = 'ACCEPT'
         out = ""
@@ -256,13 +282,15 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                         key[0] + " -> " + key[1]) + "\n\t\t\t\t\t\t\t}\n"
                     PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
                         item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(
-                        int(int(item[1]) / 2))) + "});\n"
+                            int(int(item[1]) / 2))) + "});\n"
                 else:
-                    NODE_SELECTION_INIT += "\t\t\t\t\t\t\t{}".format(1) + " => {}\n"
+                    NODE_SELECTION_INIT += "\t\t\t\t\t\t\t{}".format(
+                        1) + " => {}\n"
                     PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
                         "1") + "{" + "token_type: TokenType::{}, value: {}".format(ttype,
                                                                                    str(int(int(item[1]) / 2))) + "});\n"
-        NODE_SELECTION_INIT += "\t\t\t\t\t\t\t_" + " => {\n\t\t\t\t\t\t\t\t//" + "exhaustive" + "\n\t\t\t\t\t\t\t}\n"
+        NODE_SELECTION_INIT += "\t\t\t\t\t\t\t_" + \
+            " => {\n\t\t\t\t\t\t\t\t//" + "exhaustive" + "\n\t\t\t\t\t\t\t}\n"
         for keys, item in ACTION.items():
             ttype = ''.join(
                 [str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in keys[1].split("_")])
@@ -283,22 +311,20 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
                     "Goto", item) + "});\n"
 
-        PARSER_INIT_FILE = open('../target/parser_init.txt', 'w')
-        PARSER_INIT_FILE.write(PARSER_INIT)
-        PARSER_INIT_FILE.close()
+        PARSER_FILE = open('C:\\Users\\mm030792\\Documents\\MFD\\scripts\\extra\\Mango\\generator\\python\\PARSER_TEMPLATE').read()
+        PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
+        global MATCH_INDEX_GRAMMAR
+        PARSER_FILE = PARSER_FILE.replace(
+            "{NODE_SELECTION_INIT}", MATCH_INDEX_GRAMMAR)
 
-        # PARSER_FILE = open('PARSER_TEMPLATE').read()
-        # PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
-        # PARSER_FILE = PARSER_FILE.replace("{NODE_SELECTION_INIT}", NODE_SELECTION_INIT)
-        #
-        # NODE_FILE = open('NODE_TEMPLATE').read()
-        # NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
-        #
-        # myfile = open('../../src/parser.rs', 'w')
-        # myfile.write(PARSER_FILE)
-        # myfile.close()
-        #
-        # myfile2 = open('../../src/parse_tree.rs', 'w')
+        NODE_FILE = open('C:\\Users\\mm030792\\Documents\\MFD\\scripts\\extra\\Mango\\generator\\python\\NODE_TEMPLATE').read()
+        NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
+
+        myfile = open('C:\\Users\\mm030792\\Documents\\MFD\\scripts\\extra\\Mango\\generator\\target\\src\\parser.rs', 'w+')
+        myfile.write(PARSER_FILE)
+        myfile.close()
+
+        # myfile2 = open('../target/src/parse_tree.rs', 'w')
         # myfile2.write(NODE_FILE)
         # myfile2.close()
 
