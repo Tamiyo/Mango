@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 
+use crate::parse_tree::Node;
 use crate::parser::Parser;
 
-// Enums that the compiler references
+///////////////////////
+// Token Definitions //
+///////////////////////
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum TokenType {
     Term,
@@ -84,6 +87,9 @@ pub enum TokenType {
     StatementDefineClass,
 }
 
+///////////////////
+// Lexer Structs //
+///////////////////
 #[derive(Debug, Clone)]
 pub enum PrimitiveType {
     Float,
@@ -95,15 +101,6 @@ pub enum PrimitiveType {
     None,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash)]
-pub enum ParserAction {
-    Shift,
-    Reduce,
-    Accept,
-    Goto,
-}
-
-// Structs that are needed throughout the compiler
 #[derive(Debug, Clone)]
 pub struct LexerResult {
     pub token: String,
@@ -115,6 +112,17 @@ impl LexerResult {
     pub fn to_string(&self) -> String {
         return format!("LexerResult: (token_type: {:?})", self.token_type);
     }
+}
+
+////////////////////
+// Parser Structs //
+////////////////////
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub enum ParserAction {
+    Shift,
+    Reduce,
+    Accept,
+    Goto,
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -135,18 +143,25 @@ pub struct GotoNode {
     pub value: i32,
 }
 
-#[derive(Debug)]
+/////////////////////
+// Scoping Structs //
+/////////////////////
 pub struct Scope {
-    pub symbol_table: HashMap<String, LexerResult>
+    pub symbol_table: HashMap<String, Box<dyn Node + Sync>>,
 }
 
 impl Default for Scope {
     fn default() -> Self {
-        Scope { symbol_table: HashMap::<String, LexerResult>::new() }
+        Scope {
+            symbol_table: HashMap::<String, Box<dyn Node + Sync>>::new(),
+        }
     }
 }
 
-// Keyword Map
+
+/////////////////
+// Keyword Map //
+/////////////////
 pub fn identifier_to_enum(symbol: &str) -> TokenType {
     match symbol {
         "if" => TokenType::If,
@@ -158,7 +173,9 @@ pub fn identifier_to_enum(symbol: &str) -> TokenType {
     }
 }
 
-// Symbol Map
+////////////////
+// Symbol Map //
+////////////////
 pub fn symbol_to_enum(symbol: &str) -> TokenType {
     match symbol {
         "+" => TokenType::Add,

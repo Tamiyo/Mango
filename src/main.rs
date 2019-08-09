@@ -1,13 +1,26 @@
 use std::collections::HashMap;
 
+use crate::core::{LexerResult, Scope};
 use crate::lexer::Lexer;
+use crate::parse_tree::Node;
 use crate::parser::Parser;
+
+#[macro_use]
+extern crate lazy_static;
 
 mod core;
 mod lexer;
 mod parser;
 mod parse_tree;
 mod semantic_analyzer;
+
+
+static SCOPE_LEVEL: i32 = 1;
+static SCOPE_LIMIT: i32 = 256;
+
+lazy_static! {
+    static ref SCOPED_SYMBOL_TABLE: HashMap<i32, Scope> = HashMap::new();
+}
 
 fn main() {
     #![allow(dead_code)]
@@ -22,5 +35,5 @@ fn main() {
     };
 
     let top_node = parser.parse();
-    println!("evaluation:\n{}", top_node.eval());
+    top_node.eval(SCOPE_LEVEL);
 }

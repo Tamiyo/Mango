@@ -16,6 +16,7 @@ NTS_STATEMENT_SUITE -> NTS_STATEMENT_LIST
     let node = NodeStatementSuite { statement_list: statement_list };
     node_stack.push(Box::new(node));
 }
+
 ## Block Statement to be used inside Functions / Methods / Procedures
 NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION
 {
