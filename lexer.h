@@ -2,6 +2,8 @@
 // Created by Matt on 8/11/2019.
 //
 
+// Lexer, performs lexigraphic analysis
+
 #ifndef MANGO_V2_CPP_LEXER_H
 #define MANGO_V2_CPP_LEXER_H
 
@@ -21,20 +23,23 @@ public:
     string input;
 
     vector<LexerResult> lex() {
-        printf("Being Lex!\n");
+        printf("Begin Lex!\n");
 
         vector<LexerResult> tokens;
         auto input_iter = input.begin();
 
         int token_char_value;
+
+        // while we still have input
         while (*input_iter) {
             token_char_value = *input_iter;
 
-            // 0 ... 9
+            // if the first character is a digit 0 ... 9, indicating a possible number
             if (token_char_value >= 48 && token_char_value <= 57) {
                 string token;
                 bool has_decimal = false;
 
+                // continue looping until we reach our ending criteria
                 while (*input_iter) {
                     token_char_value = *input_iter;
 
@@ -43,7 +48,7 @@ public:
                         token.push_back(*input_iter);
                         input_iter++;
                     }
-                        // if the token is '.'
+                    // if the token is '.'
                     else if (token_char_value == 46) {
                         if (!has_decimal) {
                             has_decimal = true;
@@ -66,12 +71,13 @@ public:
                 cout << "Found Number!: " << token << endl;
             }
 
-            // a ... z | A ... Z
+            // if the first character is a letter a ... z | A ... Z, indicating a possible identifier
             if ((token_char_value >= 65 && token_char_value <= 90) ||
                 (token_char_value >= 97 && token_char_value <= 122)) {
                 string token;
                 bool past_first = false;
 
+                // continue looping until we reach our ending criteria
                 while (*input_iter) {
                     token_char_value = *input_iter;
 
@@ -82,7 +88,7 @@ public:
                         token.push_back(*input_iter);
                         input_iter++;
                     }
-                        // if the token is 0 ... 9 || _
+                    // if the token is 0 ... 9 || _
                     else if ((token_char_value >= 48 && token_char_value <= 57) || token_char_value == 95) {
                         if (past_first) {
                             token.push_back(*input_iter);
@@ -106,11 +112,12 @@ public:
                 cout << "Found Identifier!: " << token << endl;
             }
 
-            // "
+            // if the first character is a ", indicating a possible string
             if (token_char_value == 34) {
                 string token;
                 bool inside_quotes = false;
 
+                 // continue looping until we reach our ending criteria
                 while (*input_iter) {
                     token_char_value = *input_iter;
 
@@ -134,16 +141,17 @@ public:
                 cout << "Found String!: " << token << endl;
             }
 
-                // \t \s
+            // ignore whitespace \t \s
             else if (token_char_value == 9 || token_char_value == 32) {
                 input_iter++;
             }
-                // _
+            // if it is anything else _, it might be a symbol.
             else {
                 string token;
                 int length = 0;
                 bool previous = false;
 
+                // continue looping until we reach our ending criteria
                 while (*input_iter) {
                     token_char_value = *input_iter;
 

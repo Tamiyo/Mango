@@ -2,6 +2,8 @@
 // Created by Matt on 8/11/2019.
 //
 
+// This file contains enums and structs that act as wrappers for data.
+
 #ifndef MANGO_V2_CPP_CORE_H
 #define MANGO_V2_CPP_CORE_H
 

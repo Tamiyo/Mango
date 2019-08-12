@@ -1,7 +1,3 @@
-//
-// Created by Matt on 8/11/2019.
-//
-
 #ifndef MANGO_V2_CPP_PARSER_H
 #define MANGO_V2_CPP_PARSER_H
 

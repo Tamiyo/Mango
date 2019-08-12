@@ -27,7 +27,7 @@ function global:deactivate ([switch]$NonDestructive) {
 
 deactivate -nondestructive
 
-$env:VIRTUAL_ENV="D:\Documents\mango_v2_cpp\venv"
+$env:VIRTUAL_ENV="C:\Users\mm030792\Documents\MFD\scripts\extra\Mango\venv"
 
 if (! $env:VIRTUAL_ENV_DISABLE_PROMPT) {
     # Set the prompt to include the env name

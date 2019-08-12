@@ -1,0 +1,57 @@
+// Nodes for the parse tree
+
+#ifndef MANGO_V2_CPP_PARSER_TREE_H
+#define MANGO_V2_CPP_PARSER_TREE_H
+
+#include "core.h"
+#include "common.h"
+
+@@NODE_DEFINITIONS@@
+
+struct NodeTerm : public Node {
+public:
+    string token;
+    PrimitiveType inferred_type;
+    TokenType token_type;
+
+    Node eval() override {
+        return *static_cast<Node *>(this);
+    };
+
+    NodeTerm() {
+        this->token = "";
+        this->inferred_type = PrimitiveType::Null;
+        this->token_type = TokenType::None;
+    }
+
+    NodeTerm(string token, PrimitiveType inferred_type, TokenType token_type) {
+        this->token = std::move(token);
+        this->inferred_type = inferred_type;
+        this->token_type = token_type;
+    }
+};
+
+struct NodeIdentifier : public Node {
+public:
+    string token;
+    PrimitiveType inferred_type;
+    TokenType token_type;
+
+    Node eval() override {
+        return *static_cast<Node *>(this);
+    };
+
+    NodeIdentifier() {
+        this->token = "";
+        this->inferred_type = PrimitiveType::Null;
+        this->token_type = TokenType::None;
+    }
+
+    NodeIdentifier(string token, PrimitiveType inferred_type, TokenType token_type) {
+        this->token = std::move(token);
+        this->inferred_type = inferred_type;
+        this->token_type = token_type;
+    }
+};
+
+#endif //MANGO_V2_CPP_PARSER_TREE_H
