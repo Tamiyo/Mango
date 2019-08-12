@@ -2,3 +2,5 @@
 **/*.rs.bk
 .idea/
 /generator/target/*
+venv/
+cmake-build-debug/

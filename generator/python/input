@@ -1,4 +1,4 @@
-@myfunction: param1, param2 {
+myfunction: param1, param2 {
     return param1 + param2
 }
 

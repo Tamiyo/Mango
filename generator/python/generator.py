@@ -77,11 +77,8 @@ def INIT():
                     if token not in GRAMMAR_SYMBOLS:
                         GRAMMAR_SYMBOLS += [token]
         if match[1] != '':
-            MATCH_INDEX_GRAMMAR += str(index-1) + \
-                " => {\n" + "    // {}\n".format(name) + match[1] + "\n},\n"
-    MATCH_INDEX_GRAMMAR += '_ => {\n' \
-        '    //exhaustive\n' \
-        '}\n'
+            MATCH_INDEX_GRAMMAR += "case" + str(index-1) + \
+                " : {\n" + "    // {}\n".format(name) + match[1] + "\n};\n break;\n"
 
 
 def FIRST(G):
@@ -282,36 +279,44 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
                     NODE_SELECTION_INIT += "\t\t\t\t\t\t\t{}".format(
                         item[0]) + " => {\n\t\t\t\t\t\t\t\t//" + "{}".format(
                         key[0] + " -> " + key[1]) + "\n\t\t\t\t\t\t\t}\n"
-                    PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
-                        item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(
-                            int(int(item[1]) / 2))) + "});\n"
+                    # PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
+                    #     item[0]) + "{" + "token_type: TokenType::{}, value: {}".format(ttype, str(
+                    #         int(int(item[1]) / 2))) + "});\n"
+                    PARSER_INIT += "goto_table.insert({" + "{}, ".format(item[0]) + "GotoNode{" + "TokenType::{}, {}".format(ttype, str(int(int(item[1]) / 2))) + "}});\n"
                 else:
                     NODE_SELECTION_INIT += "\t\t\t\t\t\t\t{}".format(
                         1) + " => {}\n"
-                    PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
-                        "1") + "{" + "token_type: TokenType::{}, value: {}".format(ttype,
-                                                                                   str(int(int(item[1]) / 2))) + "});\n"
+                    # PARSER_INIT += "\t\tself.goto.insert({}, GotoNode".format(
+                    #     "1") + "{" + "token_type: TokenType::{}, value: {}".format(ttype,
+                    #                                                                str(int(int(item[1]) / 2))) + "});\n"
+                    PARSER_INIT += "goto_table.insert({"+ "{}, ".format("1") + "GotoNode{" + "TokenType::{}, {}".format(ttype, str(int(int(item[1]) / 2))) + "}});     \n"
         NODE_SELECTION_INIT += "\t\t\t\t\t\t\t_" + \
             " => {\n\t\t\t\t\t\t\t\t//" + "exhaustive" + "\n\t\t\t\t\t\t\t}\n"
         for keys, item in ACTION.items():
             ttype = ''.join(
                 [str(x).replace("NTS", "").replace("TS", "").lower().capitalize() for x in keys[1].split("_")])
             if item[0] == "S":
-                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
-                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
-                    "Shift", item[1:]) + "});\n"
+                # PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                #                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                #     "Shift", item[1:]) + "});\n"
+                PARSER_INIT += "action_table.insert({{" + "{}, TokenType::{}".format(keys[0], ttype) + "}, ActionNode{ParserAction::" + "{}, {}".format("Shift", item[1:]) + "}});\n"
             elif item[0] == "R":
-                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
-                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
-                    "Reduce", item[1:]) + "});\n"
+                # PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                #                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                #     "Reduce", item[1:]) + "});\n"
+                PARSER_INIT += "action_table.insert({{" + "{}, TokenType::{}".format(keys[0], ttype) + "}, ActionNode{ParserAction::" + "{}, {}".format("Reduce", item[1:]) + "}});\n"
+
             elif item == "ACCEPT":
-                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
-                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
-                    "Accept", -1) + "});\n"
+                    # PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                    #                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                    #     "Accept", -1) + "});\n"
+                PARSER_INIT += "action_table.insert({{" + "{}, TokenType::{}".format(keys[0], ttype) + "}, ActionNode{ParserAction::" + "{}, {}".format("Accept", str(-1)) + "}});\n"
             else:
-                PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
-                                                                                               ttype) + "{" + "action: ParserAction::{}, value: {}".format(
-                    "Goto", item) + "});\n"
+                # PARSER_INIT += "\t\tself.action.insert(({}, TokenType::{}), ActionNode".format(keys[0],
+                #                                                                                ttype) + "{" + "action: ParserAction::{}, value: {}".format(
+                #     "Goto", item) + "});\n"
+                PARSER_INIT += "action_table.insert({{" + "{}, TokenType::{}".format(keys[0], ttype) + "}, ActionNode{ParserAction::" + "{}, {}".format("Goto", item) + "}});\n"
+
 
         PARSER_FILE = open(PATH + '\\PARSER_TEMPLATE').read()
         PARSER_FILE = PARSER_FILE.replace("{PARSER_INIT}", PARSER_INIT)
@@ -322,8 +327,8 @@ def ITEMS(GRAMMAR, FIRST_SET, FOLLOW_SET, RULES):
         NODE_FILE = open(PATH + '\\NODE_TEMPLATE').read()
         NODE_FILE = NODE_FILE.replace("{NODE_INIT}", NODE_INIT)
 
-        myfile = open(PATH + '\\..\\target\\src\\parser.rs', 'w+')
-        myfile.write(PARSER_FILE)
+        myfile = open(r'D:\Documents\mango_rust\generator\target\parser_init.txt', 'w+')
+        myfile.write(PARSER_INIT)
         myfile.close()
 
         # myfile2 = open('../target/src/parse_tree.rs', 'w')
