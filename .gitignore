@@ -2,5 +2,6 @@
 **/*.rs.bk
 .idea/
 /generator/target/*
-venv/
+venv/*
 cmake-build-debug/
+CMakeLists.txt
