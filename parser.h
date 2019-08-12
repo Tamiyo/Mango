@@ -13,7 +13,7 @@
 
 #include "core.h"
 #include "common.h"
-#include "parser_tree.h"
+#include "parse_tree.h"
 
 using std::map;
 using std::pair;
@@ -3526,18 +3526,19 @@ public:
                 stack.push_back(goto_action.value);
 
                 // Big Ol' match statement here
+                // TODO - Implement C++ automation from Rust automation
                 switch (action_node.value) {
                     case 1: {
                         Node statement_list = node_stack.back();
                         node_stack.pop_back();
 
-                        Node node = NodeStatementSuite{statement_list};
+                        NodeStatementSuite node = NodeStatementSuite{statement_list};
                         node_stack.push_back(node);
-                    };
+                    }
                         break;
                     case 2: {
 
-                    };
+                    }
                         break;
                 }
 
