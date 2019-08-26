@@ -34,7 +34,7 @@ enum TokenType {
     LessThanEquals,
     GreaterThan,
     GreaterThanEquals,
-    Not,
+    Negation,
 
     LeftCurlyBrace,
     RightCurlyBrace,
@@ -176,7 +176,7 @@ TokenType symbol_to_enum(const string &symbol) {
     if (symbol == "<=") { return TokenType::LessThanEquals; }
     if (symbol == ">") { return TokenType::GreaterThan; }
     if (symbol == ">=") { return TokenType::GreaterThanEquals; }
-    if (symbol == "!") { return TokenType::Not; }
+    if (symbol == "!") { return TokenType::Negation; }
     if (symbol == "{") { return TokenType::LeftCurlyBrace; }
     if (symbol == "}") { return TokenType::RightCurlyBrace; }
     if (symbol == "(") { return TokenType::LeftParenthesis; }

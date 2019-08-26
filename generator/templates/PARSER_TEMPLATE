@@ -33,7 +33,7 @@ public:
 @@PARSE_TABLE_INSERTION@@
     }
 
-    void parse() {
+    Node parse() {
         initialize();
 
         printf("Beginning Parse...\n");
@@ -107,7 +107,7 @@ public:
                 Node t_node = node_stack.front();
                 node_stack.pop_back();
 
-                NodeMango node = {t_node};
+                NodeMango node = NodeMango{t_node};
                 return node;
             } else {
                 printf("Parse Error!\n");

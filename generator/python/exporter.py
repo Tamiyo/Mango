@@ -73,13 +73,19 @@ def export_reduce_statements():
         tokens = rhs.split(' ')
         tokens.reverse()
 
-        CASE = '\t\t\t\t\tcase {}: '.format(index) + \
+        CASE = '\t\t\t\t\tcase {}: '.format(index if index is not None else 0) + \
                '{\n' + \
                '\t\t\t\t\t\t// {} -> {}\n'.format(key[0], key[1])
         VARIABLES = []
+        iter = 1
         for token in tokens:
-            if token[0:3] == "NTS" or token in ['TS_TERM', 'TS_IDENTIFIER']:
+            if token[0:3] == "NTS" or token in ['TS_TERM', 'TS_IDENTIFIER', 'TS_TRIPLE_EQUALS', 'TS_DOUBLE_EQUALS',
+                                                'TS_GREATER_THAN_EQUALS', 'TS_GREATER_THAN', 'TS_LESS_THAN_EQUALS',
+                                                'TS_LESS_THAN', 'TS_NEGATION']:
                 ttype = convert_to_ttype(token).lower()
+                if ttype in VARIABLES:
+                    ttype = ttype + str(iter)
+                    iter += 1
                 VARIABLES.append(ttype)
                 CASE += "\t\t\t\t\t\tNode {}".format(ttype) + \
                         " = node_stack.back(); \n" + \
@@ -120,9 +126,15 @@ def export_node_definitions():
         tokens = rhs.split(' ')
 
         VARIABLES = []
+        iter = 1
         for token in tokens:
-            if token[0:3] == "NTS" or token in ['TS_TERM', 'TS_IDENTIFIER']:
+            if token[0:3] == "NTS" or token in ['TS_TERM', 'TS_IDENTIFIER', 'TS_TRIPLE_EQUALS', 'TS_DOUBLE_EQUALS',
+                                                'TS_GREATER_THAN_EQUALS', 'TS_GREATER_THAN', 'TS_LESS_THAN_EQUALS',
+                                                'TS_LESS_THAN', 'TS_NEGATION']:
                 ttype = convert_to_ttype(token).lower()
+                if ttype in VARIABLES:
+                    ttype = ttype + str(iter)
+                    iter += 1
                 VARIABLES.append(ttype)
         node_name = 'Node' + convert_to_ttype(key[0])
 
@@ -136,7 +148,7 @@ def export_node_definitions():
 
         STRUCT = '// {} -> {}\n'.format(key[0], key[1])
         STRUCT += 'struct {} : public Node '.format(node_name) + "{\n" \
-                                                                'public:\n'
+                                                                 'public:\n'
         for var in VARIABLES:
             STRUCT += "\tNode {};\n".format(var)
         STRUCT += '\n\tNode eval() override {\n' \

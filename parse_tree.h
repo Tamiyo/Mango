@@ -1,6 +1,4 @@
-//
-// Created by Matt on 8/11/2019.
-//
+// Nodes for the parse tree
 
 #ifndef MANGO_V2_CPP_PARSER_TREE_H
 #define MANGO_V2_CPP_PARSER_TREE_H
@@ -8,652 +6,909 @@
 #include "core.h"
 #include "common.h"
 
+// NTS_MANGO -> NTS_STATEMENT_SUITE
 struct NodeMango : public Node {
 public:
-    Node statement_suite;
+    Node statementsuite;
 
     Node eval() override {
-        return statement_suite.eval();
-    };
-
-    explicit NodeMango(Node statement_suite) {
-        this->statement_suite = std::move(statement_suite);
-    }
-};
-
-struct NodeStatementSuite : public Node {
-public:
-    Node statement_list;
-
-    Node eval() override {
-        return statement_list.eval();
-    };
-
-    explicit NodeStatementSuite(Node statement_list) {
-        this->statement_list = std::move(statement_list);
-    }
-};
-
-struct NodeStatementSuiteFunction : public Node {
-public:
-    Node statement_list_function;
-
-    Node eval() override {
-        return statement_list_function.eval();
-    };
-
-    explicit NodeStatementSuiteFunction(Node statement_list_function) {
-        this->statement_list_function = std::move(statement_list_function);
-    }
-};
-
-struct NodeStatementSuiteClass : public Node {
-public:
-    Node statement_list_class;
-
-    Node eval() override {
-        return statement_list_class.eval();
-    };
-
-    explicit NodeStatementSuiteClass(Node statement_list_class) {
-        this->statement_list_class = std::move(statement_list_class);
-    }
-};
-
-struct NodeStatementListRecursive : public Node {
-public:
-    Node statement;
-    Node statement_list;
-
-    Node eval() override {
-        statement.eval();
-        statement_list.eval();
         return {};
     };
 
-    explicit NodeStatementListRecursive(Node statement, Node statement_list) {
-        this->statement = std::move(statement);
-        this->statement_list = std::move(statement_list);
+    explicit NodeMango(Node statementsuite) {
+        this->statementsuite = std::move(statementsuite);
     }
 };
 
+// NTS_STATEMENT_SUITE -> NTS_STATEMENT_LIST
+struct NodeStatementSuite : public Node {
+public:
+    Node statementlist;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementSuite(Node statementlist) {
+        this->statementlist = std::move(statementlist);
+    }
+};
+
+// NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION
+struct NodeStatementSuiteFunction : public Node {
+public:
+    Node statementlistfunction;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementSuiteFunction(Node statementlistfunction) {
+        this->statementlistfunction = std::move(statementlistfunction);
+    }
+};
+
+// NTS_STATEMENT_SUITE_CLASS -> NTS_STATEMENT_LIST_CLASS
+struct NodeStatementSuiteClass : public Node {
+public:
+    Node statementlistclass;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementSuiteClass(Node statementlistclass) {
+        this->statementlistclass = std::move(statementlistclass);
+    }
+};
+
+// NTS_STATEMENT_LIST -> NTS_STATEMENT TS_NEWLINE NTS_STATEMENT_LIST
 struct NodeStatementList : public Node {
 public:
     Node statement;
+    Node statementlist;
 
     Node eval() override {
-        return statement.eval();
+        return {};
     };
 
-    explicit NodeStatementList(Node statement) {
+    explicit NodeStatementList(Node statement, Node statementlist) {
+        this->statement = std::move(statement);
+        this->statementlist = std::move(statementlist);
+    }
+};
+
+// NTS_STATEMENT_LIST -> NTS_STATEMENT
+struct NodeStatementList_Production1 : public Node {
+public:
+    Node statement;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementList_Production1(Node statement) {
         this->statement = std::move(statement);
     }
 };
 
-struct NodeStatementListFunctionRecursive : public Node {
-public:
-    Node statement_limited;
-    Node statement_list_function;
-
-    Node eval() override {
-        statement_limited.eval();
-        statement_list_function.eval();
-        return {};
-    };
-
-    explicit NodeStatementListFunctionRecursive(Node statement_limited, Node statement_list_function) {
-        this->statement_limited = std::move(statement_limited);
-        this->statement_list_function = std::move(statement_list_function);
-    }
-};
-
+// NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED NTS_STATEMENT_LIST_FUNCTION
 struct NodeStatementListFunction : public Node {
 public:
-    Node statement_limited;
+    Node statementlimited;
+    Node statementlistfunction;
 
     Node eval() override {
-        return statement_limited.eval();
-    };
-
-    explicit NodeStatementListFunction(Node statement_limited) {
-        this->statement_limited = std::move(statement_limited);
-    }
-};
-
-struct NodeStatementListClassRecursive : public Node {
-public:
-    Node statement_restricted;
-    Node statement_list_class;
-
-    Node eval() override {
-        statement_restricted.eval();
-        statement_list_class.eval();
         return {};
     };
 
-    explicit NodeStatementListClassRecursive(Node statement_restricted, Node statement_list_class) {
-        this->statement_restricted = std::move(statement_restricted);
-        this->statement_list_class = std::move(statement_list_class);
+    explicit NodeStatementListFunction(Node statementlimited, Node statementlistfunction) {
+        this->statementlimited = std::move(statementlimited);
+        this->statementlistfunction = std::move(statementlistfunction);
     }
 };
 
+// NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED
+struct NodeStatementListFunction_Production1 : public Node {
+public:
+    Node statementlimited;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementListFunction_Production1(Node statementlimited) {
+        this->statementlimited = std::move(statementlimited);
+    }
+};
+
+// NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED NTS_STATEMENT_LIST_CLASS
 struct NodeStatementListClass : public Node {
 public:
-    Node statement_restricted;
+    Node statementrestricted;
+    Node statementlistclass;
 
     Node eval() override {
-        return statement_restricted.eval();
+        return {};
     };
 
-    explicit NodeStatementListClass(Node statement_restricted) {
-        this->statement_restricted = std::move(statement_restricted);
+    explicit NodeStatementListClass(Node statementrestricted, Node statementlistclass) {
+        this->statementrestricted = std::move(statementrestricted);
+        this->statementlistclass = std::move(statementlistclass);
     }
 };
 
+// NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED
+struct NodeStatementListClass_Production1 : public Node {
+public:
+    Node statementrestricted;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementListClass_Production1(Node statementrestricted) {
+        this->statementrestricted = std::move(statementrestricted);
+    }
+};
+
+// NTS_STATEMENT -> NTS_STATEMENT_SIMPLE
 struct NodeStatement : public Node {
 public:
-    Node statement_x;
+    Node statementsimple;
 
     Node eval() override {
-        return statement_x.eval();
+        return {};
     };
 
-    explicit NodeStatement(Node statement_x) {
-        this->statement_x = std::move(statement_x);
+    explicit NodeStatement(Node statementsimple) {
+        this->statementsimple = std::move(statementsimple);
     }
 };
 
+// NTS_STATEMENT -> NTS_STATEMENT_COMPLEX
+struct NodeStatement_Production1 : public Node {
+public:
+    Node statementcomplex;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatement_Production1(Node statementcomplex) {
+        this->statementcomplex = std::move(statementcomplex);
+    }
+};
+
+// NTS_STATEMENT -> NTS_STATEMENT_FUNCTION
+struct NodeStatement_Production2 : public Node {
+public:
+    Node statementfunction;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatement_Production2(Node statementfunction) {
+        this->statementfunction = std::move(statementfunction);
+    }
+};
+
+// NTS_STATEMENT -> NTS_STATEMENT_CLASS
+struct NodeStatement_Production3 : public Node {
+public:
+    Node statementclass;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatement_Production3(Node statementclass) {
+        this->statementclass = std::move(statementclass);
+    }
+};
+
+// NTS_STATEMENT_LIMITED -> NTS_STATEMENT_SIMPLE
 struct NodeStatementLimited : public Node {
 public:
-    Node statement_x;
+    Node statementsimple;
 
     Node eval() override {
-        return statement_x.eval();
+        return {};
     };
 
-    explicit NodeStatementLimited(Node statement_x) {
-        this->statement_x = std::move(statement_x);
+    explicit NodeStatementLimited(Node statementsimple) {
+        this->statementsimple = std::move(statementsimple);
     }
 };
 
+// NTS_STATEMENT_LIMITED -> NTS_STATEMENT_COMPLEX
+struct NodeStatementLimited_Production1 : public Node {
+public:
+    Node statementcomplex;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementLimited_Production1(Node statementcomplex) {
+        this->statementcomplex = std::move(statementcomplex);
+    }
+};
+
+// NTS_STATEMENT_RESTRICTED -> NTS_STATEMENT_FUNCTION
 struct NodeStatementRestricted : public Node {
 public:
-    Node statement_x;
+    Node statementfunction;
 
     Node eval() override {
-        return statement_x.eval();
+        return {};
     };
 
-    explicit NodeStatementRestricted(Node statement_x) {
-        this->statement_x = std::move(statement_x);
+    explicit NodeStatementRestricted(Node statementfunction) {
+        this->statementfunction = std::move(statementfunction);
     }
 };
 
+// NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_EXPRESSION
 struct NodeStatementSimple : public Node {
 public:
-    Node statement_x;
+    Node statementexpression;
 
     Node eval() override {
-        return statement_x.eval();
+        return {};
     };
 
-    explicit NodeStatementSimple(Node statement_x) {
-        this->statement_x = std::move(statement_x);
+    explicit NodeStatementSimple(Node statementexpression) {
+        this->statementexpression = std::move(statementexpression);
     }
 };
 
+// NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_ASSIGNMENT
+struct NodeStatementSimple_Production1 : public Node {
+public:
+    Node statementassignment;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementSimple_Production1(Node statementassignment) {
+        this->statementassignment = std::move(statementassignment);
+    }
+};
+
+// NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_CONDITIONAL
+struct NodeStatementSimple_Production2 : public Node {
+public:
+    Node statementconditional;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementSimple_Production2(Node statementconditional) {
+        this->statementconditional = std::move(statementconditional);
+    }
+};
+
+// NTS_STATEMENT_COMPLEX -> NTS_STATEMENT_LOOP
 struct NodeStatementComplex : public Node {
 public:
-    Node statement_x;
+    Node statementloop;
 
     Node eval() override {
-        return statement_x.eval();
+        return {};
     };
 
-    explicit NodeStatementComplex(Node statement_x) {
-        this->statement_x = std::move(statement_x);
+    explicit NodeStatementComplex(Node statementloop) {
+        this->statementloop = std::move(statementloop);
     }
 };
 
+// NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 struct NodeStatementFunction : public Node {
 public:
     Node identifier;
-    Node function_params;
-    Node statement_suite_function;
+    Node functionparams;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementFunction(Node identifier, Node function_params, Node statement_suite_function) {
+    explicit NodeStatementFunction(Node identifier, Node functionparams, Node statementsuitefunction) {
         this->identifier = std::move(identifier);
-        this->function_params = std::move(function_params);
-        this->statement_suite_function = std::move(statement_suite_function);
+        this->functionparams = std::move(functionparams);
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
 
-struct NodeFunctionParamsRecursive : public Node {
-public:
-    Node function_params;
-    Node identifier;
-
-    Node eval() override {
-        return {};
-    };
-
-    explicit NodeFunctionParamsRecursive(Node function_params, Node identifier) {
-        this->function_params = std::move(function_params);
-        this->identifier = std::move(identifier);
-    }
-};
-
+// NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA NTS_STATEMENT_EXPRESSION
 struct NodeFunctionParams : public Node {
 public:
-    Node identifier;
+    Node functionparams;
+    Node statementexpression;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeFunctionParams(Node identifier) {
-        this->identifier = std::move(identifier);
+    explicit NodeFunctionParams(Node functionparams, Node statementexpression) {
+        this->functionparams = std::move(functionparams);
+        this->statementexpression = std::move(statementexpression);
     }
 };
 
+// NTS_FUNCTION_PARAMS -> NTS_STATEMENT_EXPRESSION
+struct NodeFunctionParams_Production1 : public Node {
+public:
+    Node statementexpression;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeFunctionParams_Production1(Node statementexpression) {
+        this->statementexpression = std::move(statementexpression);
+    }
+};
+
+// NTS_STATEMENT_CLASS -> TS_AT TS_IDENTIFIER TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_CLASS TS_RIGHT_CURLY_BRACE
 struct NodeStatementClass : public Node {
 public:
     Node identifier;
-    Node statement_suite_class;
+    Node statementsuiteclass;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementClass(Node identifier, Node statement_suite_class) {
+    explicit NodeStatementClass(Node identifier, Node statementsuiteclass) {
         this->identifier = std::move(identifier);
-        this->statement_suite_class = std::move(statement_suite_class);
+        this->statementsuiteclass = std::move(statementsuiteclass);
     }
 };
 
-struct NodeStatementExpressionRecursive : public Node {
-public:
-    Node statement_expression_2;
-    Node statement_expression_p;
-
-    Node eval() override {
-        return {};
-    };
-
-    explicit NodeStatementExpressionRecursive(Node statement_expression_2, Node statement_expression_p) {
-        this->statement_expression_2 = std::move(statement_expression_2);
-        this->statement_expression_p = std::move(statement_expression_p);
-    }
-};
-
+// NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2 NTS_STATEMENT_EXPRESSION_P
 struct NodeStatementExpression : public Node {
 public:
-    Node statement_expression_2;
+    Node statementexpression2;
+    Node statementexpressionp;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression(Node statement_expression_2) {
-        this->statement_expression_2 = std::move(statement_expression_2);
+    explicit NodeStatementExpression(Node statementexpression2, Node statementexpressionp) {
+        this->statementexpression2 = std::move(statementexpression2);
+        this->statementexpressionp = std::move(statementexpressionp);
     }
 };
 
+// NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2
+struct NodeStatementExpression_Production1 : public Node {
+public:
+    Node statementexpression2;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementExpression_Production1(Node statementexpression2) {
+        this->statementexpression2 = std::move(statementexpression2);
+    }
+};
+
+// NTS_STATEMENT_EXPRESSION_P -> TS_ADD NTS_STATEMENT_EXPRESSION
 struct NodeStatementExpressionP : public Node {
 public:
-    Node statement_expression;
-    TokenType op;
+    Node statementexpression;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpressionP(Node statement_expression, TokenType op) {
-        this->statement_expression = std::move(statement_expression);
-        this->op = op;
+    explicit NodeStatementExpressionP(Node statementexpression) {
+        this->statementexpression = std::move(statementexpression);
     }
 };
 
-struct NodeStatementExpression2Recursive : public Node {
+// NTS_STATEMENT_EXPRESSION_P -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION
+struct NodeStatementExpressionP_Production1 : public Node {
 public:
-    Node statement_expression_3;
-    Node statement_expression_2p;
+    Node statementexpression;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression2Recursive(Node statement_expression_3, Node statement_expression_2p) {
-        this->statement_expression_3 = std::move(statement_expression_3);
-        this->statement_expression_2p = std::move(statement_expression_2p);
+    explicit NodeStatementExpressionP_Production1(Node statementexpression) {
+        this->statementexpression = std::move(statementexpression);
     }
 };
 
+// NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3 NTS_STATEMENT_EXPRESSION_2P
 struct NodeStatementExpression2 : public Node {
 public:
-    Node statement_expression_3;
+    Node statementexpression3;
+    Node statementexpression2p;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression2(Node statement_expression_3) {
-        this->statement_expression_3 = std::move(statement_expression_3);
+    explicit NodeStatementExpression2(Node statementexpression3, Node statementexpression2p) {
+        this->statementexpression3 = std::move(statementexpression3);
+        this->statementexpression2p = std::move(statementexpression2p);
     }
 };
 
-struct NodeStatementExpression2P : public Node {
+// NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3
+struct NodeStatementExpression2_Production1 : public Node {
 public:
-    Node statement_expression_2;
-    TokenType op;
+    Node statementexpression3;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression2P(Node statement_expression_2, TokenType op) {
-        this->statement_expression_2 = std::move(statement_expression_2);
-        this->op = op;
+    explicit NodeStatementExpression2_Production1(Node statementexpression3) {
+        this->statementexpression3 = std::move(statementexpression3);
     }
 };
 
-struct NodeStatementExpression3Negation : public Node {
+// NTS_STATEMENT_EXPRESSION_2P -> TS_MULTIPLY NTS_STATEMENT_EXPRESSION_2
+struct NodeStatementExpression2p : public Node {
 public:
-    Node statement_expression_3;
+    Node statementexpression2;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression3Negation(Node statement_expression_3) {
-        this->statement_expression_3 = std::move(statement_expression_3);
+    explicit NodeStatementExpression2p(Node statementexpression2) {
+        this->statementexpression2 = std::move(statementexpression2);
     }
 };
 
-struct NodeStatementExpression3Paren : public Node {
+// NTS_STATEMENT_EXPRESSION_2P -> TS_DIVIDE NTS_STATEMENT_EXPRESSION_2
+struct NodeStatementExpression2p_Production1 : public Node {
 public:
-    Node statement_expression;
+    Node statementexpression2;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression3Paren(Node statement_expression) {
-        this->statement_expression = std::move(statement_expression);
+    explicit NodeStatementExpression2p_Production1(Node statementexpression2) {
+        this->statementexpression2 = std::move(statementexpression2);
     }
 };
 
+// NTS_STATEMENT_EXPRESSION_2P -> TS_MODULO NTS_STATEMENT_EXPRESSION_2
+struct NodeStatementExpression2p_Production2 : public Node {
+public:
+    Node statementexpression2;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementExpression2p_Production2(Node statementexpression2) {
+        this->statementexpression2 = std::move(statementexpression2);
+    }
+};
+
+// NTS_STATEMENT_EXPRESSION_3 -> TS_TERM
 struct NodeStatementExpression3 : public Node {
 public:
-    Node statement_x;
+    Node term;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression3(Node statement_x) {
-        this->statement_x = std::move(statement_x);
+    explicit NodeStatementExpression3(Node term) {
+        this->term = std::move(term);
     }
 };
 
-struct NodeStatementExpression3Function : public Node {
+// NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER
+struct NodeStatementExpression3_Production1 : public Node {
 public:
-    Node function_params;
     Node identifier;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementExpression3Function(Node function_params, Node identifier) {
-        this->function_params = std::move(function_params);
+    explicit NodeStatementExpression3_Production1(Node identifier) {
         this->identifier = std::move(identifier);
     }
 };
 
+// NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS
+struct NodeStatementExpression3_Production2 : public Node {
+public:
+    Node identifier;
+    Node functionparams;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementExpression3_Production2(Node identifier, Node functionparams) {
+        this->identifier = std::move(identifier);
+        this->functionparams = std::move(functionparams);
+    }
+};
+
+// NTS_STATEMENT_EXPRESSION_3 -> TS_LEFT_PARENTHESIS NTS_STATEMENT_EXPRESSION TS_RIGHT_PARENTHESIS
+struct NodeStatementExpression3_Production3 : public Node {
+public:
+    Node statementexpression;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementExpression3_Production3(Node statementexpression) {
+        this->statementexpression = std::move(statementexpression);
+    }
+};
+
+// NTS_STATEMENT_EXPRESSION_3 -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION_3
+struct NodeStatementExpression3_Production4 : public Node {
+public:
+    Node statementexpression3;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementExpression3_Production4(Node statementexpression3) {
+        this->statementexpression3 = std::move(statementexpression3);
+    }
+};
+
+// NTS_STATEMENT_ASSIGNMENT -> TS_IDENTIFIER TS_EQUALS NTS_STATEMENT_EXPRESSION
 struct NodeStatementAssignment : public Node {
 public:
     Node identifier;
-    Node statement_expression;
+    Node statementexpression;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementAssignment(Node identifier, Node statement_expression) {
+    explicit NodeStatementAssignment(Node identifier, Node statementexpression) {
         this->identifier = std::move(identifier);
-        this->statement_expression = std::move(statement_expression);
+        this->statementexpression = std::move(statementexpression);
     }
 };
 
+// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 struct NodeStatementConditional : public Node {
 public:
-    Node conditional_expression;
-    Node statement_suite_function;
+    Node conditionalexpression;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementConditional(Node conditional_expression, Node statement_suite_function) {
-        this->conditional_expression = std::move(conditional_expression);
-        this->statement_suite_function = std::move(statement_suite_function);
+    explicit NodeStatementConditional(Node conditionalexpression, Node statementsuitefunction) {
+        this->conditionalexpression = std::move(conditionalexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
 
-struct NodeStatementConditionalW2 : public Node {
+// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_2
+struct NodeStatementConditional_Production1 : public Node {
 public:
-    Node conditional_expression;
-    Node statement_suite_function;
-    Node statement_conditional_2;
+    Node conditionalexpression;
+    Node statementsuitefunction;
+    Node statementconditional2;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementConditionalW2(Node conditional_expression, Node statement_suite_function,
-                                        Node statement_conditional_2) {
-        this->conditional_expression = std::move(conditional_expression);
-        this->statement_suite_function = std::move(statement_suite_function);
-        this->statement_conditional_2 = std::move(statement_conditional_2);
+    explicit NodeStatementConditional_Production1(Node conditionalexpression, Node statementsuitefunction,
+                                                  Node statementconditional2) {
+        this->conditionalexpression = std::move(conditionalexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
+        this->statementconditional2 = std::move(statementconditional2);
     }
 };
 
-struct NodeStatementConditionalW3 : public Node {
+// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
+struct NodeStatementConditional_Production2 : public Node {
 public:
-    Node conditional_expression;
-    Node statement_suite_function;
-    Node statement_conditional_3;
+    Node conditionalexpression;
+    Node statementsuitefunction;
+    Node statementconditional3;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementConditionalW3(Node conditional_expression, Node statement_suite_function,
-                                        Node statement_conditional_3) {
-        this->conditional_expression = std::move(conditional_expression);
-        this->statement_suite_function = std::move(statement_suite_function);
-        this->statement_conditional_3 = std::move(statement_conditional_3);
+    explicit NodeStatementConditional_Production2(Node conditionalexpression, Node statementsuitefunction,
+                                                  Node statementconditional3) {
+        this->conditionalexpression = std::move(conditionalexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
+        this->statementconditional3 = std::move(statementconditional3);
     }
 };
 
-struct NodeStatementConditional2Recursive : public Node {
-public:
-    Node statement_conditional_2;
-    Node conditional_expression;
-    Node statement_suite_function;
-
-    Node eval() override {
-        return {};
-    };
-
-    explicit NodeStatementConditional2Recursive(Node statement_conditional_2, Node conditional_expression,
-                                                Node statement_suite_function) {
-        this->statement_conditional_2 = std::move(statement_conditional_2);
-        this->conditional_expression = std::move(conditional_expression);
-        this->statement_suite_function = std::move(statement_suite_function);
-    }
-};
-
+// NTS_STATEMENT_CONDITIONAL_2 -> NTS_STATEMENT_CONDITIONAL_2 TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 struct NodeStatementConditional2 : public Node {
 public:
-    Node conditional_expression;
-    Node statement_suite_function;
-    Node statement_conditional_3;
+    Node statementconditional2;
+    Node conditionalexpression;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementConditional2(Node conditional_expression, Node statement_suite_function,
-                                       Node statement_conditional_3) {
-        this->conditional_expression = std::move(conditional_expression);
-        this->statement_suite_function = std::move(statement_suite_function);
-        this->statement_conditional_3 = std::move(statement_conditional_3);
+    explicit NodeStatementConditional2(Node statementconditional2, Node conditionalexpression,
+                                       Node statementsuitefunction) {
+        this->statementconditional2 = std::move(statementconditional2);
+        this->conditionalexpression = std::move(conditionalexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
 
+// NTS_STATEMENT_CONDITIONAL_2 -> TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
+struct NodeStatementConditional2_Production1 : public Node {
+public:
+    Node conditionalexpression;
+    Node statementsuitefunction;
+    Node statementconditional3;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementConditional2_Production1(Node conditionalexpression, Node statementsuitefunction,
+                                                   Node statementconditional3) {
+        this->conditionalexpression = std::move(conditionalexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
+        this->statementconditional3 = std::move(statementconditional3);
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL_3 -> TS_ELSE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 struct NodeStatementConditional3 : public Node {
 public:
-    Node statement_suite_function;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementConditional3(Node statement_suite_function) {
-        this->statement_suite_function = std::move(statement_suite_function);
+    explicit NodeStatementConditional3(Node statementsuitefunction) {
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
 
-struct NodeConditionalOperator : public Node {
-public:
-    Node term;
-
-    Node eval() override {
-        return {};
-    };
-
-    explicit NodeConditionalOperator(Node term) {
-        this->term = std::move(term);
-    }
-};
-
+// NTS_CONDITIONAL_EXPRESSION -> NTS_STATEMENT_EXPRESSION NTS_COMPARISON_OPERATOR NTS_STATEMENT_EXPRESSION
 struct NodeConditionalExpression : public Node {
 public:
-    Node term1;
-    Node comparison_operator;
-    Node term2;
+    Node statementexpression;
+    Node comparisonoperator;
+    Node statementexpression1;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeConditionalExpression(Node term1, Node comparison_operator,
-                                       Node term2) {
-        this->term1 = std::move(term1);
-        this->comparison_operator = std::move(comparison_operator);
-        this->term2 = std::move(term2);
+    explicit NodeConditionalExpression(Node statementexpression, Node comparisonoperator, Node statementexpression1) {
+        this->statementexpression = std::move(statementexpression);
+        this->comparisonoperator = std::move(comparisonoperator);
+        this->statementexpression1 = std::move(statementexpression1);
     }
 };
 
-struct NodeConditionalExpressionUnary : public Node {
+// NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY NTS_STATEMENT_EXPRESSION
+struct NodeConditionalExpression_Production1 : public Node {
 public:
-    Node comparison_operator_unary;
-    Node term;
+    Node comparisonoperatorunary;
+    Node statementexpression;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeConditionalExpressionUnary(Node comparison_operator_unary, Node term) {
-        this->comparison_operator_unary = std::move(comparison_operator_unary);
-        this->term = std::move(term);
+    explicit NodeConditionalExpression_Production1(Node comparisonoperatorunary, Node statementexpression) {
+        this->comparisonoperatorunary = std::move(comparisonoperatorunary);
+        this->statementexpression = std::move(statementexpression);
     }
 };
 
+// NTS_COMPARISON_OPERATOR -> TS_LESS_THAN
+struct NodeComparisonOperator : public Node {
+public:
+    Node lessthan;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeComparisonOperator(Node lessthan) {
+        this->lessthan = std::move(lessthan);
+    }
+};
+
+// NTS_COMPARISON_OPERATOR -> TS_LESS_THAN_EQUALS
+struct NodeComparisonOperator_Production1 : public Node {
+public:
+    Node lessthanequals;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeComparisonOperator_Production1(Node lessthanequals) {
+        this->lessthanequals = std::move(lessthanequals);
+    }
+};
+
+// NTS_COMPARISON_OPERATOR -> TS_GREATER_THAN
+struct NodeComparisonOperator_Production2 : public Node {
+public:
+    Node greaterthan;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeComparisonOperator_Production2(Node greaterthan) {
+        this->greaterthan = std::move(greaterthan);
+    }
+};
+
+// NTS_COMPARISON_OPERATOR -> TS_GREATER_THAN_EQUALS
+struct NodeComparisonOperator_Production3 : public Node {
+public:
+    Node greaterthanequals;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeComparisonOperator_Production3(Node greaterthanequals) {
+        this->greaterthanequals = std::move(greaterthanequals);
+    }
+};
+
+// NTS_COMPARISON_OPERATOR -> TS_DOUBLE_EQUALS
+struct NodeComparisonOperator_Production4 : public Node {
+public:
+    Node doubleequals;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeComparisonOperator_Production4(Node doubleequals) {
+        this->doubleequals = std::move(doubleequals);
+    }
+};
+
+// NTS_COMPARISON_OPERATOR -> TS_TRIPLE_EQUALS
+struct NodeComparisonOperator_Production5 : public Node {
+public:
+    Node tripleequals;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeComparisonOperator_Production5(Node tripleequals) {
+        this->tripleequals = std::move(tripleequals);
+    }
+};
+
+// NTS_COMPARISON_OPERATOR_UNARY -> TS_NEGATION
 struct NodeComparisonOperatorUnary : public Node {
 public:
-    Node op;
+    Node negation;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeComparisonOperatorUnary(Node op) {
-        this->op = std::move(op);
+    explicit NodeComparisonOperatorUnary(Node negation) {
+        this->negation = std::move(negation);
     }
 };
 
+// NTS_STATEMENT_LOOP -> NTS_STATEMENT_LOOP_FOR
 struct NodeStatementLoop : public Node {
 public:
-    Node statement_loop;
+    Node statementloopfor;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementLoop(Node statement_loop) {
-        this->statement_loop = std::move(statement_loop);
+    explicit NodeStatementLoop(Node statementloopfor) {
+        this->statementloopfor = std::move(statementloopfor);
     }
 };
 
+// NTS_STATEMENT_LOOP -> NTS_STATEMENT_LOOP_WHILE
+struct NodeStatementLoop_Production1 : public Node {
+public:
+    Node statementloopwhile;
+
+    Node eval() override {
+        return {};
+    };
+
+    explicit NodeStatementLoop_Production1(Node statementloopwhile) {
+        this->statementloopwhile = std::move(statementloopwhile);
+    }
+};
+
+// NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON NTS_STATEMENT_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 struct NodeStatementLoopFor : public Node {
 public:
     Node identifier;
-    Node term;
-    Node statement_suite_function;
+    Node statementexpression;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementLoopFor(Node identifier, Node term,
-                                  Node statement_suite_function) {
+    explicit NodeStatementLoopFor(Node identifier, Node statementexpression, Node statementsuitefunction) {
         this->identifier = std::move(identifier);
-        this->term = std::move(term);
-        this->statement_suite_function = std::move(statement_suite_function);
+        this->statementexpression = std::move(statementexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
 
-struct NodeStatementLoopFor2 : public Node {
+// NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON NTS_STATEMENT_EXPRESSION TS_ELLIPSIS NTS_STATEMENT_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+struct NodeStatementLoopFor_Production1 : public Node {
 public:
     Node identifier;
-    Node term1;
-    Node term2;
-    Node statement_suite_function;
+    Node statementexpression;
+    Node statementexpression1;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementLoopFor2(Node identifier, Node term1,
-                                   Node term2, Node statement_suite_function) {
+    explicit NodeStatementLoopFor_Production1(Node identifier, Node statementexpression, Node statementexpression1,
+                                              Node statementsuitefunction) {
         this->identifier = std::move(identifier);
-        this->term1 = std::move(term1);
-        this->term2 = std::move(term2);
-        this->statement_suite_function = std::move(statement_suite_function);
+        this->statementexpression = std::move(statementexpression);
+        this->statementexpression1 = std::move(statementexpression1);
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
 
+// NTS_STATEMENT_LOOP_WHILE -> TS_WHILE NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 struct NodeStatementLoopWhile : public Node {
 public:
-    Node conditional_expression;
-    Node statement_suite_function;
+    Node conditionalexpression;
+    Node statementsuitefunction;
 
     Node eval() override {
         return {};
     };
 
-    explicit NodeStatementLoopWhile(Node conditional_expression, Node statement_suite_function) {
-        this->conditional_expression = std::move(conditional_expression);
-        this->statement_suite_function = std::move(statement_suite_function);
+    explicit NodeStatementLoopWhile(Node conditionalexpression, Node statementsuitefunction) {
+        this->conditionalexpression = std::move(conditionalexpression);
+        this->statementsuitefunction = std::move(statementsuitefunction);
     }
 };
+
 
 struct NodeTerm : public Node {
 public:
