@@ -19,18 +19,23 @@ extern int SCOPE_LEVEL;
 extern int SCOPE_LIMIT;
 
 // The (scoped) symbol table of compiler
-extern map<int, map<string, struct Node>> SCOPED_SYMBOL_TABLE;
+extern map<int, map<string, struct Node*>> SCOPED_SYMBOL_TABLE;
 
 // Abstract struct used for the parse_tree.h
+
+
 struct Node {
 public:
-    virtual Node eval() {
+    virtual ~Node() {};
+
+    virtual Node *eval() {
         return {};
     }
 
-    Node debug() {
+    virtual Node debug() {
         return {};
     }
 };
+
 
 #endif //MANGO_V2_CPP_COMMON_H

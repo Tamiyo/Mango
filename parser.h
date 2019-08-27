@@ -3456,7 +3456,7 @@ public:
 
     }
 
-    Node parse() {
+    Node* parse() {
         initialize();
 
         printf("Beginning Parse...\n");
@@ -3464,7 +3464,7 @@ public:
         vector<int> stack;
         stack.push_back(0);
 
-        vector<Node> node_stack;
+        vector<Node*> node_stack;
 
         int iterator = 0;
 
@@ -3506,10 +3506,12 @@ public:
                     token.token_type == TokenType::GreaterThanEquals || token.token_type == TokenType::LessThanEquals ||
                     token.token_type == TokenType::DoubleEquals ||
                     token.token_type == TokenType::TripleEquals) {
-                    NodeTerm node = {token.token, token.inferred_type, token.token_type};
+                    cout << "added term for: " << token.token << endl;
+                    NodeTerm* node = new NodeTerm{token.token, token.inferred_type, token.token_type};
                     node_stack.push_back(node);
                 } else if (token.token_type == TokenType::Identifier) {
-                    NodeIdentifier node = {token.token, token.inferred_type, token.token_type};
+                    cout << "added ident for: " << token.token << endl;
+                    NodeIdentifier* node = new NodeIdentifier{token.token, token.inferred_type, token.token_type};
                     node_stack.push_back(node);
                 } else {}
                 token = token_stack.at(iterator++);
@@ -3523,580 +3525,552 @@ public:
                 stack.push_back(goto_action.value);
 
                 switch (action_node.value) {
-                    case : {
+                    case 0: {
                         // NTS_MANGO -> NTS_STATEMENT_SUITE
-                        Node statementsuite = node_stack.back();
+                        Node* statementsuite = node_stack.back();
                         node_stack.pop_back();
-                        NodeMango node = NodeMango{statementsuite};
-                        node_stack.push_back(node);
+                        NodeMango *node = new NodeMango{statementsuite};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 1: {
                         // NTS_STATEMENT_SUITE -> NTS_STATEMENT_LIST
-                        Node statementlist = node_stack.back();
+                        Node* statementlist = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementSuite node = NodeStatementSuite{statementlist};
-                        node_stack.push_back(node);
+                        NodeStatementSuite *node = new NodeStatementSuite{statementlist};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 2: {
                         // NTS_STATEMENT_SUITE_FUNCTION -> NTS_STATEMENT_LIST_FUNCTION
-                        Node statementlistfunction = node_stack.back();
+                        Node* statementlistfunction = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementSuiteFunction node = NodeStatementSuiteFunction{statementlistfunction};
-                        node_stack.push_back(node);
+                        NodeStatementSuiteFunction *node = new NodeStatementSuiteFunction{statementlistfunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 3: {
                         // NTS_STATEMENT_SUITE_CLASS -> NTS_STATEMENT_LIST_CLASS
-                        Node statementlistclass = node_stack.back();
+                        Node* statementlistclass = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementSuiteClass node = NodeStatementSuiteClass{statementlistclass};
-                        node_stack.push_back(node);
+                        NodeStatementSuiteClass *node = new NodeStatementSuiteClass{statementlistclass};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 4: {
                         // NTS_STATEMENT_LIST -> NTS_STATEMENT TS_NEWLINE NTS_STATEMENT_LIST
-                        Node statementlist = node_stack.back();
+                        Node* statementlist = node_stack.back();
                         node_stack.pop_back();
-                        Node statement = node_stack.back();
+                        Node* statement = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementList node = NodeStatementList{statement, statementlist};
-                        node_stack.push_back(node);
+                        NodeStatementList *node = new NodeStatementList{statement, statementlist};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 5: {
                         // NTS_STATEMENT_LIST -> NTS_STATEMENT
-                        Node statement = node_stack.back();
+                        Node* statement = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementList_Production1 node = NodeStatementList_Production1{statement};
-                        node_stack.push_back(node);
+                        NodeStatementList_Production1 *node = new NodeStatementList_Production1{statement};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 6: {
                         // NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED NTS_STATEMENT_LIST_FUNCTION
-                        Node statementlistfunction = node_stack.back();
+                        Node* statementlistfunction = node_stack.back();
                         node_stack.pop_back();
-                        Node statementlimited = node_stack.back();
+                        Node* statementlimited = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementListFunction node = NodeStatementListFunction{statementlimited,
-                                                                                   statementlistfunction};
-                        node_stack.push_back(node);
+                        NodeStatementListFunction *node = new NodeStatementListFunction{statementlimited, statementlistfunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 7: {
                         // NTS_STATEMENT_LIST_FUNCTION -> NTS_STATEMENT_LIMITED
-                        Node statementlimited = node_stack.back();
+                        Node* statementlimited = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementListFunction_Production1 node = NodeStatementListFunction_Production1{
-                                statementlimited};
-                        node_stack.push_back(node);
+                        NodeStatementListFunction_Production1 *node = new NodeStatementListFunction_Production1{statementlimited};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 8: {
                         // NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED NTS_STATEMENT_LIST_CLASS
-                        Node statementlistclass = node_stack.back();
+                        Node* statementlistclass = node_stack.back();
                         node_stack.pop_back();
-                        Node statementrestricted = node_stack.back();
+                        Node* statementrestricted = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementListClass node = NodeStatementListClass{statementrestricted, statementlistclass};
-                        node_stack.push_back(node);
+                        NodeStatementListClass *node = new NodeStatementListClass{statementrestricted, statementlistclass};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 9: {
                         // NTS_STATEMENT_LIST_CLASS -> NTS_STATEMENT_RESTRICTED
-                        Node statementrestricted = node_stack.back();
+                        Node* statementrestricted = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementListClass_Production1 node = NodeStatementListClass_Production1{
-                                statementrestricted};
-                        node_stack.push_back(node);
+                        NodeStatementListClass_Production1 *node = new NodeStatementListClass_Production1{statementrestricted};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 10: {
                         // NTS_STATEMENT -> NTS_STATEMENT_SIMPLE
-                        Node statementsimple = node_stack.back();
+                        Node* statementsimple = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatement node = NodeStatement{statementsimple};
-                        node_stack.push_back(node);
+                        NodeStatement *node = new NodeStatement{statementsimple};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 11: {
                         // NTS_STATEMENT -> NTS_STATEMENT_COMPLEX
-                        Node statementcomplex = node_stack.back();
+                        Node* statementcomplex = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatement_Production1 node = NodeStatement_Production1{statementcomplex};
-                        node_stack.push_back(node);
+                        NodeStatement_Production1 *node = new NodeStatement_Production1{statementcomplex};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 12: {
                         // NTS_STATEMENT -> NTS_STATEMENT_FUNCTION
-                        Node statementfunction = node_stack.back();
+                        Node* statementfunction = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatement_Production2 node = NodeStatement_Production2{statementfunction};
-                        node_stack.push_back(node);
+                        NodeStatement_Production2 *node = new NodeStatement_Production2{statementfunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 13: {
                         // NTS_STATEMENT -> NTS_STATEMENT_CLASS
-                        Node statementclass = node_stack.back();
+                        Node* statementclass = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatement_Production3 node = NodeStatement_Production3{statementclass};
-                        node_stack.push_back(node);
+                        NodeStatement_Production3 *node = new NodeStatement_Production3{statementclass};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 14: {
                         // NTS_STATEMENT_LIMITED -> NTS_STATEMENT_SIMPLE
-                        Node statementsimple = node_stack.back();
+                        Node* statementsimple = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLimited node = NodeStatementLimited{statementsimple};
-                        node_stack.push_back(node);
+                        NodeStatementLimited *node = new NodeStatementLimited{statementsimple};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 15: {
                         // NTS_STATEMENT_LIMITED -> NTS_STATEMENT_COMPLEX
-                        Node statementcomplex = node_stack.back();
+                        Node* statementcomplex = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLimited_Production1 node = NodeStatementLimited_Production1{statementcomplex};
-                        node_stack.push_back(node);
+                        NodeStatementLimited_Production1 *node = new NodeStatementLimited_Production1{statementcomplex};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 16: {
                         // NTS_STATEMENT_RESTRICTED -> NTS_STATEMENT_FUNCTION
-                        Node statementfunction = node_stack.back();
+                        Node* statementfunction = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementRestricted node = NodeStatementRestricted{statementfunction};
-                        node_stack.push_back(node);
+                        NodeStatementRestricted *node = new NodeStatementRestricted{statementfunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 17: {
                         // NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementSimple node = NodeStatementSimple{statementexpression};
-                        node_stack.push_back(node);
+                        NodeStatementSimple *node = new NodeStatementSimple{statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 18: {
                         // NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_ASSIGNMENT
-                        Node statementassignment = node_stack.back();
+                        Node* statementassignment = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementSimple_Production1 node = NodeStatementSimple_Production1{statementassignment};
-                        node_stack.push_back(node);
+                        NodeStatementSimple_Production1 *node = new NodeStatementSimple_Production1{statementassignment};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 19: {
                         // NTS_STATEMENT_SIMPLE -> NTS_STATEMENT_CONDITIONAL
-                        Node statementconditional = node_stack.back();
+                        Node* statementconditional = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementSimple_Production2 node = NodeStatementSimple_Production2{statementconditional};
-                        node_stack.push_back(node);
+                        NodeStatementSimple_Production2 *node = new NodeStatementSimple_Production2{statementconditional};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 20: {
                         // NTS_STATEMENT_COMPLEX -> NTS_STATEMENT_LOOP
-                        Node statementloop = node_stack.back();
+                        Node* statementloop = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementComplex node = NodeStatementComplex{statementloop};
-                        node_stack.push_back(node);
+                        NodeStatementComplex *node = new NodeStatementComplex{statementloop};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 21: {
                         // NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node functionparams = node_stack.back();
+                        Node* functionparams = node_stack.back();
                         node_stack.pop_back();
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementFunction node = NodeStatementFunction{identifier, functionparams,
-                                                                           statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementFunction *node = new NodeStatementFunction{identifier, functionparams, statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 22: {
                         // NTS_FUNCTION_PARAMS -> NTS_FUNCTION_PARAMS TS_COMMA NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node functionparams = node_stack.back();
+                        Node* functionparams = node_stack.back();
                         node_stack.pop_back();
-                        NodeFunctionParams node = NodeFunctionParams{functionparams, statementexpression};
-                        node_stack.push_back(node);
+                        NodeFunctionParams *node = new NodeFunctionParams{functionparams, statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 23: {
                         // NTS_FUNCTION_PARAMS -> NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeFunctionParams_Production1 node = NodeFunctionParams_Production1{statementexpression};
-                        node_stack.push_back(node);
+                        NodeFunctionParams_Production1 *node = new NodeFunctionParams_Production1{statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 24: {
                         // NTS_STATEMENT_CLASS -> TS_AT TS_IDENTIFIER TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_CLASS TS_RIGHT_CURLY_BRACE
-                        Node statementsuiteclass = node_stack.back();
+                        Node* statementsuiteclass = node_stack.back();
                         node_stack.pop_back();
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementClass node = NodeStatementClass{identifier, statementsuiteclass};
-                        node_stack.push_back(node);
+                        NodeStatementClass *node = new NodeStatementClass{identifier, statementsuiteclass};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 25: {
                         // NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2 NTS_STATEMENT_EXPRESSION_P
-                        Node statementexpressionp = node_stack.back();
+                        Node* statementexpressionp = node_stack.back();
                         node_stack.pop_back();
-                        Node statementexpression2 = node_stack.back();
+                        Node* statementexpression2 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression node = NodeStatementExpression{statementexpression2,
-                                                                               statementexpressionp};
-                        node_stack.push_back(node);
+                        NodeStatementExpression *node = new NodeStatementExpression{statementexpression2, statementexpressionp};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 26: {
                         // NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2
-                        Node statementexpression2 = node_stack.back();
+                        Node* statementexpression2 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression_Production1 node = NodeStatementExpression_Production1{
-                                statementexpression2};
-                        node_stack.push_back(node);
+                        NodeStatementExpression_Production1 *node = new NodeStatementExpression_Production1{statementexpression2};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 27: {
                         // NTS_STATEMENT_EXPRESSION_P -> TS_ADD NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpressionP node = NodeStatementExpressionP{statementexpression};
-                        node_stack.push_back(node);
+                        NodeStatementExpressionP *node = new NodeStatementExpressionP{statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 28: {
                         // NTS_STATEMENT_EXPRESSION_P -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpressionP_Production1 node = NodeStatementExpressionP_Production1{
-                                statementexpression};
-                        node_stack.push_back(node);
+                        NodeStatementExpressionP_Production1 *node = new NodeStatementExpressionP_Production1{statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 29: {
                         // NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3 NTS_STATEMENT_EXPRESSION_2P
-                        Node statementexpression2p = node_stack.back();
+                        Node* statementexpression2p = node_stack.back();
                         node_stack.pop_back();
-                        Node statementexpression3 = node_stack.back();
+                        Node* statementexpression3 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression2 node = NodeStatementExpression2{statementexpression3,
-                                                                                 statementexpression2p};
-                        node_stack.push_back(node);
+                        NodeStatementExpression2 *node = new NodeStatementExpression2{statementexpression3, statementexpression2p};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 30: {
                         // NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3
-                        Node statementexpression3 = node_stack.back();
+                        Node* statementexpression3 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression2_Production1 node = NodeStatementExpression2_Production1{
-                                statementexpression3};
-                        node_stack.push_back(node);
+                        NodeStatementExpression2_Production1 *node = new NodeStatementExpression2_Production1{statementexpression3};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 31: {
                         // NTS_STATEMENT_EXPRESSION_2P -> TS_MULTIPLY NTS_STATEMENT_EXPRESSION_2
-                        Node statementexpression2 = node_stack.back();
+                        Node* statementexpression2 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression2p node = NodeStatementExpression2p{statementexpression2};
-                        node_stack.push_back(node);
+                        NodeStatementExpression2p *node = new NodeStatementExpression2p{statementexpression2};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 32: {
                         // NTS_STATEMENT_EXPRESSION_2P -> TS_DIVIDE NTS_STATEMENT_EXPRESSION_2
-                        Node statementexpression2 = node_stack.back();
+                        Node* statementexpression2 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression2p_Production1 node = NodeStatementExpression2p_Production1{
-                                statementexpression2};
-                        node_stack.push_back(node);
+                        NodeStatementExpression2p_Production1 *node = new NodeStatementExpression2p_Production1{statementexpression2};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 33: {
                         // NTS_STATEMENT_EXPRESSION_2P -> TS_MODULO NTS_STATEMENT_EXPRESSION_2
-                        Node statementexpression2 = node_stack.back();
+                        Node* statementexpression2 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression2p_Production2 node = NodeStatementExpression2p_Production2{
-                                statementexpression2};
-                        node_stack.push_back(node);
+                        NodeStatementExpression2p_Production2 *node = new NodeStatementExpression2p_Production2{statementexpression2};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 34: {
                         // NTS_STATEMENT_EXPRESSION_3 -> TS_TERM
-                        Node term = node_stack.back();
+                        Node* term = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression3 node = NodeStatementExpression3{term};
-                        node_stack.push_back(node);
+                        NodeStatementExpression3 *node = new NodeStatementExpression3{term};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 35: {
                         // NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression3_Production1 node = NodeStatementExpression3_Production1{identifier};
-                        node_stack.push_back(node);
+                        NodeStatementExpression3_Production1 *node = new NodeStatementExpression3_Production1{identifier};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 36: {
                         // NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS
-                        Node functionparams = node_stack.back();
+                        Node* functionparams = node_stack.back();
                         node_stack.pop_back();
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression3_Production2 node = NodeStatementExpression3_Production2{identifier,
-                                                                                                         functionparams};
-                        node_stack.push_back(node);
+                        NodeStatementExpression3_Production2 *node = new NodeStatementExpression3_Production2{identifier, functionparams};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 37: {
                         // NTS_STATEMENT_EXPRESSION_3 -> TS_LEFT_PARENTHESIS NTS_STATEMENT_EXPRESSION TS_RIGHT_PARENTHESIS
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression3_Production3 node = NodeStatementExpression3_Production3{
-                                statementexpression};
-                        node_stack.push_back(node);
+                        NodeStatementExpression3_Production3 *node = new NodeStatementExpression3_Production3{statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 38: {
                         // NTS_STATEMENT_EXPRESSION_3 -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION_3
-                        Node statementexpression3 = node_stack.back();
+                        Node* statementexpression3 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementExpression3_Production4 node = NodeStatementExpression3_Production4{
-                                statementexpression3};
-                        node_stack.push_back(node);
+                        NodeStatementExpression3_Production4 *node = new NodeStatementExpression3_Production4{statementexpression3};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 39: {
                         // NTS_STATEMENT_ASSIGNMENT -> TS_IDENTIFIER TS_EQUALS NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementAssignment node = NodeStatementAssignment{identifier, statementexpression};
-                        node_stack.push_back(node);
+                        NodeStatementAssignment *node = new NodeStatementAssignment{identifier, statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 40: {
                         // NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node conditionalexpression = node_stack.back();
+                        Node* conditionalexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementConditional node = NodeStatementConditional{conditionalexpression,
-                                                                                 statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementConditional *node = new NodeStatementConditional{conditionalexpression, statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 41: {
                         // NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_2
-                        Node statementconditional2 = node_stack.back();
+                        Node* statementconditional2 = node_stack.back();
                         node_stack.pop_back();
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node conditionalexpression = node_stack.back();
+                        Node* conditionalexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementConditional_Production1 node = NodeStatementConditional_Production1{
-                                conditionalexpression, statementsuitefunction, statementconditional2};
-                        node_stack.push_back(node);
+                        NodeStatementConditional_Production1 *node = new NodeStatementConditional_Production1{conditionalexpression, statementsuitefunction, statementconditional2};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 42: {
                         // NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
-                        Node statementconditional3 = node_stack.back();
+                        Node* statementconditional3 = node_stack.back();
                         node_stack.pop_back();
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node conditionalexpression = node_stack.back();
+                        Node* conditionalexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementConditional_Production2 node = NodeStatementConditional_Production2{
-                                conditionalexpression, statementsuitefunction, statementconditional3};
-                        node_stack.push_back(node);
+                        NodeStatementConditional_Production2 *node = new NodeStatementConditional_Production2{conditionalexpression, statementsuitefunction, statementconditional3};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 43: {
                         // NTS_STATEMENT_CONDITIONAL_2 -> NTS_STATEMENT_CONDITIONAL_2 TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node conditionalexpression = node_stack.back();
+                        Node* conditionalexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node statementconditional2 = node_stack.back();
+                        Node* statementconditional2 = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementConditional2 node = NodeStatementConditional2{statementconditional2,
-                                                                                   conditionalexpression,
-                                                                                   statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementConditional2 *node = new NodeStatementConditional2{statementconditional2, conditionalexpression, statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 44: {
                         // NTS_STATEMENT_CONDITIONAL_2 -> TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
-                        Node statementconditional3 = node_stack.back();
+                        Node* statementconditional3 = node_stack.back();
                         node_stack.pop_back();
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node conditionalexpression = node_stack.back();
+                        Node* conditionalexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementConditional2_Production1 node = NodeStatementConditional2_Production1{
-                                conditionalexpression, statementsuitefunction, statementconditional3};
-                        node_stack.push_back(node);
+                        NodeStatementConditional2_Production1 *node = new NodeStatementConditional2_Production1{conditionalexpression, statementsuitefunction, statementconditional3};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 45: {
                         // NTS_STATEMENT_CONDITIONAL_3 -> TS_ELSE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementConditional3 node = NodeStatementConditional3{statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementConditional3 *node = new NodeStatementConditional3{statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 46: {
                         // NTS_CONDITIONAL_EXPRESSION -> NTS_STATEMENT_EXPRESSION NTS_COMPARISON_OPERATOR NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node comparisonoperator = node_stack.back();
+                        Node* comparisonoperator = node_stack.back();
                         node_stack.pop_back();
-                        Node statementexpression1 = node_stack.back();
+                        Node* statementexpression1 = node_stack.back();
                         node_stack.pop_back();
-                        NodeConditionalExpression node = NodeConditionalExpression{statementexpression1,
-                                                                                   comparisonoperator,
-                                                                                   statementexpression};
-                        node_stack.push_back(node);
+                        NodeConditionalExpression *node = new NodeConditionalExpression{statementexpression1, comparisonoperator, statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 47: {
                         // NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY NTS_STATEMENT_EXPRESSION
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node comparisonoperatorunary = node_stack.back();
+                        Node* comparisonoperatorunary = node_stack.back();
                         node_stack.pop_back();
-                        NodeConditionalExpression_Production1 node = NodeConditionalExpression_Production1{
-                                comparisonoperatorunary, statementexpression};
-                        node_stack.push_back(node);
+                        NodeConditionalExpression_Production1 *node = new NodeConditionalExpression_Production1{comparisonoperatorunary, statementexpression};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 48: {
                         // NTS_COMPARISON_OPERATOR -> TS_LESS_THAN
-                        Node lessthan = node_stack.back();
+                        Node* lessthan = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperator node = NodeComparisonOperator{lessthan};
-                        node_stack.push_back(node);
+                        NodeComparisonOperator *node = new NodeComparisonOperator{lessthan};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 49: {
                         // NTS_COMPARISON_OPERATOR -> TS_LESS_THAN_EQUALS
-                        Node lessthanequals = node_stack.back();
+                        Node* lessthanequals = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperator_Production1 node = NodeComparisonOperator_Production1{lessthanequals};
-                        node_stack.push_back(node);
+                        NodeComparisonOperator_Production1 *node = new NodeComparisonOperator_Production1{lessthanequals};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 50: {
                         // NTS_COMPARISON_OPERATOR -> TS_GREATER_THAN
-                        Node greaterthan = node_stack.back();
+                        Node* greaterthan = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperator_Production2 node = NodeComparisonOperator_Production2{greaterthan};
-                        node_stack.push_back(node);
+                        NodeComparisonOperator_Production2 *node = new NodeComparisonOperator_Production2{greaterthan};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 51: {
                         // NTS_COMPARISON_OPERATOR -> TS_GREATER_THAN_EQUALS
-                        Node greaterthanequals = node_stack.back();
+                        Node* greaterthanequals = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperator_Production3 node = NodeComparisonOperator_Production3{greaterthanequals};
-                        node_stack.push_back(node);
+                        NodeComparisonOperator_Production3 *node = new NodeComparisonOperator_Production3{greaterthanequals};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 52: {
                         // NTS_COMPARISON_OPERATOR -> TS_DOUBLE_EQUALS
-                        Node doubleequals = node_stack.back();
+                        Node* doubleequals = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperator_Production4 node = NodeComparisonOperator_Production4{doubleequals};
-                        node_stack.push_back(node);
+                        NodeComparisonOperator_Production4 *node = new NodeComparisonOperator_Production4{doubleequals};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 53: {
                         // NTS_COMPARISON_OPERATOR -> TS_TRIPLE_EQUALS
-                        Node tripleequals = node_stack.back();
+                        Node* tripleequals = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperator_Production5 node = NodeComparisonOperator_Production5{tripleequals};
-                        node_stack.push_back(node);
+                        NodeComparisonOperator_Production5 *node = new NodeComparisonOperator_Production5{tripleequals};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 54: {
                         // NTS_COMPARISON_OPERATOR_UNARY -> TS_NEGATION
-                        Node negation = node_stack.back();
+                        Node* negation = node_stack.back();
                         node_stack.pop_back();
-                        NodeComparisonOperatorUnary node = NodeComparisonOperatorUnary{negation};
-                        node_stack.push_back(node);
+                        NodeComparisonOperatorUnary *node = new NodeComparisonOperatorUnary{negation};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 55: {
                         // NTS_STATEMENT_LOOP -> NTS_STATEMENT_LOOP_FOR
-                        Node statementloopfor = node_stack.back();
+                        Node* statementloopfor = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLoop node = NodeStatementLoop{statementloopfor};
-                        node_stack.push_back(node);
+                        NodeStatementLoop *node = new NodeStatementLoop{statementloopfor};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 56: {
                         // NTS_STATEMENT_LOOP -> NTS_STATEMENT_LOOP_WHILE
-                        Node statementloopwhile = node_stack.back();
+                        Node* statementloopwhile = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLoop_Production1 node = NodeStatementLoop_Production1{statementloopwhile};
-                        node_stack.push_back(node);
+                        NodeStatementLoop_Production1 *node = new NodeStatementLoop_Production1{statementloopwhile};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 57: {
                         // NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON NTS_STATEMENT_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLoopFor node = NodeStatementLoopFor{identifier, statementexpression,
-                                                                         statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementLoopFor *node = new NodeStatementLoopFor{identifier, statementexpression, statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 58: {
                         // NTS_STATEMENT_LOOP_FOR -> TS_FOR TS_IDENTIFIER TS_COLON NTS_STATEMENT_EXPRESSION TS_ELLIPSIS NTS_STATEMENT_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node statementexpression = node_stack.back();
+                        Node* statementexpression = node_stack.back();
                         node_stack.pop_back();
-                        Node statementexpression1 = node_stack.back();
+                        Node* statementexpression1 = node_stack.back();
                         node_stack.pop_back();
-                        Node identifier = node_stack.back();
+                        Node* identifier = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLoopFor_Production1 node = NodeStatementLoopFor_Production1{identifier,
-                                                                                                 statementexpression1,
-                                                                                                 statementexpression,
-                                                                                                 statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementLoopFor_Production1 *node = new NodeStatementLoopFor_Production1{identifier, statementexpression1, statementexpression, statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
                     case 59: {
                         // NTS_STATEMENT_LOOP_WHILE -> TS_WHILE NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-                        Node statementsuitefunction = node_stack.back();
+                        Node* statementsuitefunction = node_stack.back();
                         node_stack.pop_back();
-                        Node conditionalexpression = node_stack.back();
+                        Node* conditionalexpression = node_stack.back();
                         node_stack.pop_back();
-                        NodeStatementLoopWhile node = NodeStatementLoopWhile{conditionalexpression,
-                                                                             statementsuitefunction};
-                        node_stack.push_back(node);
+                        NodeStatementLoopWhile *node = new NodeStatementLoopWhile{conditionalexpression, statementsuitefunction};
+                        node_stack.push_back(dynamic_cast<Node *>(node));
                         break;
                     }
 
                 }
             } else if (action_node.action == ParserAction::Accept) {
                 printf("Parse Accepted!\n");
-                Node t_node = node_stack.front();
+                Node* t_node = node_stack.front();
                 node_stack.pop_back();
 
-                NodeMango node = NodeMango{t_node};
+                NodeMango* node = new NodeMango{t_node};
                 return node;
             } else {
                 printf("Parse Error!\n");

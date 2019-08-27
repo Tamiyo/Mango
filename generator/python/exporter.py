@@ -87,7 +87,7 @@ def export_reduce_statements():
                     ttype = ttype + str(iter)
                     iter += 1
                 VARIABLES.append(ttype)
-                CASE += "\t\t\t\t\t\tNode {}".format(ttype) + \
+                CASE += "\t\t\t\t\t\tNode* {}".format(ttype) + \
                         " = node_stack.back(); \n" + \
                         "\t\t\t\t\t\tnode_stack.pop_back(); \n"
         VARIABLES.reverse()
@@ -101,11 +101,11 @@ def export_reduce_statements():
             dup_counter = 0
             name_prev = node_name
 
-        CASE += "\t\t\t\t\t\t{0} node = {0}".format(node_name) + \
+        CASE += "\t\t\t\t\t\t{0} *node = new {0}".format(node_name) + \
                 "{" + \
                 "{}".format(', '.join(VARIABLES)) + \
                 "};\n"
-        CASE += "\t\t\t\t\t\tnode_stack.push_back(node);\n" + \
+        CASE += "\t\t\t\t\t\tnode_stack.push_back(dynamic_cast<Node *>(node));\n" + \
                 "\t\t\t\t\t\tbreak;\n" + \
                 "\t\t\t\t\t}\n"
         REDUCE_STATEMENTS += CASE
@@ -147,20 +147,20 @@ def export_node_definitions():
             name_prev = node_name
 
         STRUCT = '// {} -> {}\n'.format(key[0], key[1])
-        STRUCT += 'struct {} : public Node '.format(node_name) + "{\n" \
+        STRUCT += 'struct {} : virtual Node '.format(node_name) + "{\n" \
                                                                  'public:\n'
         for var in VARIABLES:
-            STRUCT += "\tNode {};\n".format(var)
-        STRUCT += '\n\tNode eval() override {\n' \
+            STRUCT += "\tNode* {};\n".format(var)
+        STRUCT += '\n\tNode* eval() override {\n' \
                   '\t\treturn {};\n' \
                   '\t};\n\n'
         STRUCT += '\texplicit {} ('.format(node_name)
         for var in VARIABLES:
-            STRUCT += "Node {}, ".format(var)
+            STRUCT += "Node* {}, ".format(var)
         STRUCT = STRUCT[:STRUCT.rfind(',')] + ") {\n"
 
         for var in VARIABLES:
-            STRUCT += "\t\tthis->{0} = std::move({0});\n".format(var)
+            STRUCT += "\t\tthis->{0} = {0};\n".format(var)
         STRUCT += "\t}\n};\n\n"
         NODE_DEFINITIONS += STRUCT
 

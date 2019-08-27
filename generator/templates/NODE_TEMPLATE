@@ -6,17 +6,19 @@
 #include "core.h"
 #include "common.h"
 
-@@NODE_DEFINITIONS@@
-
-struct NodeTerm : public Node {
+struct NodeTerm : virtual Node {
 public:
     string token;
     PrimitiveType inferred_type;
     TokenType token_type;
 
-    Node eval() override {
-        return *static_cast<Node *>(this);
+    Node *eval() override {
+        return static_cast<Node *>(this);
     };
+
+    Node debug() override {
+        printf("%s", this->token.c_str());
+    }
 
     NodeTerm() {
         this->token = "";
@@ -31,14 +33,14 @@ public:
     }
 };
 
-struct NodeIdentifier : public Node {
+struct NodeIdentifier : virtual Node {
 public:
     string token;
     PrimitiveType inferred_type;
     TokenType token_type;
 
-    Node eval() override {
-        return *static_cast<Node *>(this);
+    Node *eval() override {
+        return static_cast<Node *>(this);
     };
 
     NodeIdentifier() {
@@ -53,5 +55,7 @@ public:
         this->token_type = token_type;
     }
 };
+
+@@NODE_DEFINITIONS@@
 
 #endif //MANGO_V2_CPP_PARSER_TREE_H

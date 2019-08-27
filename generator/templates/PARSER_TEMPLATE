@@ -33,7 +33,7 @@ public:
 @@PARSE_TABLE_INSERTION@@
     }
 
-    Node parse() {
+    Node* parse() {
         initialize();
 
         printf("Beginning Parse...\n");
@@ -41,7 +41,7 @@ public:
         vector<int> stack;
         stack.push_back(0);
 
-        vector<Node> node_stack;
+        vector<Node*> node_stack;
 
         int iterator = 0;
 
@@ -83,10 +83,10 @@ public:
                     token.token_type == TokenType::GreaterThanEquals || token.token_type == TokenType::LessThanEquals ||
                     token.token_type == TokenType::DoubleEquals ||
                     token.token_type == TokenType::TripleEquals) {
-                    NodeTerm node = {token.token, token.inferred_type, token.token_type};
+                    NodeTerm* node = new NodeToken{token.token, token.inferred_type, token.token_type};
                     node_stack.push_back(node);
                 } else if (token.token_type == TokenType::Identifier) {
-                    NodeIdentifier node = {token.token, token.inferred_type, token.token_type};
+                    NodeIdentifier* node = new NodeIdentifier{token.token, token.inferred_type, token.token_type};
                     node_stack.push_back(node);
                 } else {}
                 token = token_stack.at(iterator++);
@@ -104,10 +104,10 @@ public:
                 }
             } else if (action_node.action == ParserAction::Accept) {
                 printf("Parse Accepted!\n");
-                Node t_node = node_stack.front();
+                Node* t_node = node_stack.front();
                 node_stack.pop_back();
 
-                NodeMango node = NodeMango{t_node};
+                NodeMango* node = new NodeMango{t_node};
                 return node;
             } else {
                 printf("Parse Error!\n");
