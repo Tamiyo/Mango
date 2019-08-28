@@ -90,7 +90,7 @@ public:
     Node *statementlistfunction;
 
     Node *eval() override {
-        return {};
+        return statementlistfunction->eval();
     };
 
     explicit NodeStatementSuiteFunction(Node *statementlistfunction) {
@@ -104,7 +104,7 @@ public:
     Node *statementlistclass;
 
     Node *eval() override {
-        return {};
+        return statementlistclass->eval();
     };
 
     explicit NodeStatementSuiteClass(Node *statementlistclass) {
@@ -119,6 +119,8 @@ public:
     Node *statementlist;
 
     Node *eval() override {
+        statement->eval();
+        statementlist->eval();
         return {};
     };
 
@@ -149,6 +151,8 @@ public:
     Node *statementlistfunction;
 
     Node *eval() override {
+        statementlimited->eval();
+        statementlistfunction->eval();
         return {};
     };
 
@@ -164,7 +168,7 @@ public:
     Node *statementlimited;
 
     Node *eval() override {
-        return {};
+        return statementlimited->eval();
     };
 
     explicit NodeStatementListFunction_Production1(Node *statementlimited) {
@@ -179,6 +183,8 @@ public:
     Node *statementlistclass;
 
     Node *eval() override {
+        statementrestricted->eval();
+        statementlistclass->eval();
         return {};
     };
 
@@ -194,7 +200,7 @@ public:
     Node *statementrestricted;
 
     Node *eval() override {
-        return {};
+        return statementrestricted->eval();
     };
 
     explicit NodeStatementListClass_Production1(Node *statementrestricted) {
@@ -236,7 +242,7 @@ public:
     Node *statementfunction;
 
     Node *eval() override {
-        return {};
+        return statementfunction->eval();
     };
 
     explicit NodeStatement_Production2(Node *statementfunction) {
@@ -250,7 +256,7 @@ public:
     Node *statementclass;
 
     Node *eval() override {
-        return {};
+        return statementclass->eval();
     };
 
     explicit NodeStatement_Production3(Node *statementclass) {
@@ -264,7 +270,7 @@ public:
     Node *statementsimple;
 
     Node *eval() override {
-        return {};
+        return statementsimple->eval();
     };
 
     explicit NodeStatementLimited(Node *statementsimple) {
@@ -278,7 +284,7 @@ public:
     Node *statementcomplex;
 
     Node *eval() override {
-        return {};
+        return statementcomplex->eval();
     };
 
     explicit NodeStatementLimited_Production1(Node *statementcomplex) {
@@ -292,7 +298,7 @@ public:
     Node *statementfunction;
 
     Node *eval() override {
-        return {};
+        return statementfunction->eval();
     };
 
     explicit NodeStatementRestricted(Node *statementfunction) {
@@ -334,7 +340,7 @@ public:
     Node *statementconditional;
 
     Node *eval() override {
-        return {};
+        return statementconditional->eval();
     };
 
     explicit NodeStatementSimple_Production2(Node *statementconditional) {

@@ -16,7 +16,7 @@ using std::string;
 // The current scope level that the compiler is at. Defined in main.cpp
 extern int SCOPE_LEVEL;
 // The maximum scope level of the compiler. Defined in main.cpp
-extern int SCOPE_LIMIT;
+extern int SCOPE_DEPTH_LIMIT;
 
 // The (scoped) symbol table of compiler
 extern map<int, map<string, struct Node*>> SCOPED_SYMBOL_TABLE;

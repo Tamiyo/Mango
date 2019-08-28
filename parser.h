@@ -9,7 +9,7 @@
 
 #include "core.h"
 #include "common.h"
-#include "parse_tree.h"
+#include "ast.h"
 
 using std::map;
 using std::pair;

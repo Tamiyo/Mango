@@ -189,7 +189,7 @@ def export_parser():
     CONTENTS = CONTENTS.replace("@@NODE_DEFINITIONS@@", NODE_DEFINITIONS)
 
     # Write the exported contents to the respective file
-    parse_tree_file = open(PATH + "../target/src/parse_tree.h", 'w+')
+    parse_tree_file = open(PATH + "../target/src/ast.h", 'w+')
     parse_tree_file.write(CONTENTS)
 
     # Close the files
