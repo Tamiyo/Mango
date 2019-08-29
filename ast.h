@@ -5,6 +5,9 @@
 
 #include "core.h"
 #include "common.h"
+#include "semantic_analyzer.h"
+
+using std::count;
 
 class NodeTerm : public virtual Node {
 public:
@@ -426,22 +429,6 @@ public:
     }
 };
 
-// NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2 NTS_STATEMENT_EXPRESSION_P
-class NodeStatementExpression : public virtual Node {
-public:
-    Node *statementexpression2;
-    Node *statementexpressionp;
-
-    Node *eval() override {
-        return {};
-    };
-
-    explicit NodeStatementExpression(Node *statementexpression2, Node *statementexpressionp) {
-        this->statementexpression2 = statementexpression2;
-        this->statementexpressionp = statementexpressionp;
-    }
-};
-
 // NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2
 class NodeStatementExpression_Production1 : public virtual Node {
 public:
@@ -462,7 +449,7 @@ public:
     Node *statementexpression;
 
     Node *eval() override {
-        return {};
+        return statementexpression->eval();
     };
 
     explicit NodeStatementExpressionP(Node *statementexpression) {
@@ -476,13 +463,88 @@ public:
     Node *statementexpression;
 
     Node *eval() override {
-        return {};
+        return statementexpression->eval();
     };
 
     explicit NodeStatementExpressionP_Production1(Node *statementexpression) {
         this->statementexpression = statementexpression;
     }
 };
+
+// NTS_STATEMENT_EXPRESSION -> NTS_STATEMENT_EXPRESSION_2 NTS_STATEMENT_EXPRESSION_P
+class NodeStatementExpression : public virtual Node {
+public:
+    Node *statementexpression2;
+    Node *statementexpressionp;
+
+//    NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
+
+    Node *eval() override {
+        // This is an add operator
+        if (auto *addNode = dynamic_cast<NodeStatementExpressionP *>(statementexpressionp)) {
+            cout << "Add op?" << endl;
+            auto *statementexpression2Eval = dynamic_cast<NodeTerm *>(statementexpression2->eval());
+            auto *addNodeEval = dynamic_cast<NodeTerm *>(addNode->eval());
+
+            PrimitiveType type1 = statementexpression2Eval->inferred_type;
+            PrimitiveType type2 = addNodeEval->inferred_type;
+            if (type1 == type2) {
+                string result = doArithmetic(statementexpression2Eval->token, addNodeEval->token, type1, "+");
+
+                if (result != "") {
+                    return new NodeTerm{result, addNodeEval->inferred_type, addNodeEval->token_type};
+                } else {
+                    // Throw Error
+                    return {};
+                }
+            } else if (count(primitive_type_conversions[type1].begin(),
+                             primitive_type_conversions[type1].end(),
+                             type2)) {
+                // Convert to the new type
+                // Do the arithmetic
+                return {};
+            } else {
+                return {};
+                // Type Error
+            }
+        }
+            // This is an sub operator
+        else if (auto *subNode = dynamic_cast<NodeStatementExpressionP_Production1 *>(statementexpressionp)) {
+            cout << "Sub op?" << endl;
+            auto *statementexpression2Eval = dynamic_cast<NodeTerm *>(statementexpression2->eval());
+            auto *subNodeEval = dynamic_cast<NodeTerm *>(subNode->eval());
+
+            PrimitiveType type1 = statementexpression2Eval->inferred_type;
+            PrimitiveType type2 = subNodeEval->inferred_type;
+            if (type1 == type2) {
+                string result = doArithmetic(statementexpression2Eval->token, subNodeEval->token, type1, "-");
+                if (result != "") {
+                    return new NodeTerm{result, subNodeEval->inferred_type, subNodeEval->token_type};
+                } else {
+                    // Throw Error
+                    return {};
+                }
+            } else if (count(primitive_type_conversions[type1].begin(),
+                             primitive_type_conversions[type1].end(),
+                             type2)) {
+                // Convert to the new type
+                // Do the arithmetic
+                return {};
+            } else {
+                return {};
+                // Type Error
+            }
+        }
+
+        return {};
+    };
+
+    explicit NodeStatementExpression(Node *statementexpression2, Node *statementexpressionp) {
+        this->statementexpression2 = statementexpression2;
+        this->statementexpressionp = statementexpressionp;
+    }
+};
+
 
 // NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3 NTS_STATEMENT_EXPRESSION_2P
 class NodeStatementExpression2 : public virtual Node {
@@ -635,12 +697,13 @@ public:
     Node *statementexpression;
 
     Node *eval() override {
+        statementexpression->debug();
         // Need to add error handling
         NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
         NodeTerm *statementexpressionEval = dynamic_cast<NodeTerm *>(statementexpression->eval());
 
         cout << "Ident: " << nodeIdentifierEval->token << endl;
-        cout << "Value: " << nodeIdentifierEval->token << endl;
+        cout << "Value: " << statementexpressionEval->token << endl;
 
         SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = statementexpressionEval;
         return {};

@@ -19,7 +19,7 @@ int SCOPE_DEPTH_LIMIT = 256;
 map<int, map<string, Node *>> SCOPED_SYMBOL_TABLE = {};
 
 int main() {
-    string input = "myident = 12.0\nmyident2 = 2$";
+    string input = "myident = 12 - 4\nmyident2 = \"department\" + \" store\"$";
     Lexer lexer = {input};
     vector<LexerResult> tokens = lexer.lex();
 
@@ -27,9 +27,11 @@ int main() {
     NodeMango *root = dynamic_cast<NodeMango *>(parser.parse());
     root->eval();
 
-    std::cout << "Scoped Table at \"Level 1\" Items..." << std::endl;
-    std::for_each(SCOPED_SYMBOL_TABLE[1].begin(), SCOPED_SYMBOL_TABLE[1].end(), [](const std::pair<string, Node *> &p) {
-        std::cout << p.first << std::endl;
+    cout << "Scoped Table at \"Level 1\" Items..." << endl;
+    std::for_each(SCOPED_SYMBOL_TABLE[1].begin(), SCOPED_SYMBOL_TABLE[1].end(), [](const pair<string, Node *> &p) {
+        cout << p.first << ": ";
+        auto *pItem = dynamic_cast<NodeTerm *>(p.second);
+        cout << pItem->token << endl;
     });
 
 }
