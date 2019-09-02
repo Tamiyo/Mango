@@ -136,6 +136,7 @@ def export_node_definitions():
                     ttype = ttype + str(iter)
                     iter += 1
                 VARIABLES.append(ttype)
+        VARIABLES.reverse()
         node_name = 'Node' + convert_to_ttype(key[0])
 
         if node_name == name_prev:

@@ -19,7 +19,7 @@ int SCOPE_DEPTH_LIMIT = 256;
 map<int, map<string, Node *>> SCOPED_SYMBOL_TABLE = {};
 
 int main() {
-    string input = "myident = 12 - 4\nmyident2 = \"department\" + \" store\"$";
+    string input = "@function: x { y = 2\nz = x }$";
     Lexer lexer = {input};
     vector<LexerResult> tokens = lexer.lex();
 

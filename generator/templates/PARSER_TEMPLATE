@@ -83,7 +83,7 @@ public:
                     token.token_type == TokenType::GreaterThanEquals || token.token_type == TokenType::LessThanEquals ||
                     token.token_type == TokenType::DoubleEquals ||
                     token.token_type == TokenType::TripleEquals) {
-                    NodeTerm* node = new NodeToken{token.token, token.inferred_type, token.token_type};
+                    NodeTerm* node = new NodeTerm{token.token, token.inferred_type, token.token_type};
                     node_stack.push_back(node);
                 } else if (token.token_type == TokenType::Identifier) {
                     NodeIdentifier* node = new NodeIdentifier{token.token, token.inferred_type, token.token_type};

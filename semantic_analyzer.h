@@ -24,6 +24,16 @@ map<PrimitiveType, vector<PrimitiveType>> primitive_type_conversions = {
         {PrimitiveType::Function, {}},
 };
 
+string convert(const string &a, const string &b, PrimitiveType typeA, PrimitiveType typeB) {
+    if (typeA == PrimitiveType::String) {
+        return a;
+    } else if (typeA == PrimitiveType::Integer && typeB == PrimitiveType::Float) {
+        return b.substr(0, a.find('.'));
+    } else if (typeA == PrimitiveType::Float && typeB == PrimitiveType::Integer) {
+        return b + ".0";
+    }
+}
+
 
 string floatArithmetic(const string &a, const string &b, const string &op) {
     float float_a = strtod(a.c_str(), nullptr);

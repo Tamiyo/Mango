@@ -365,21 +365,36 @@ public:
     }
 };
 
-// NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-class NodeStatementFunction : public virtual Node {
+// NTS_FUNCTION_PARAMS_DEFINE -> NTS_FUNCTION_PARAMS_DEFINE TS_COMMA TS_IDENTIFIER
+struct NodeFunctionParamsDefine : virtual Node {
 public:
     Node *identifier;
-    Node *functionparams;
-    Node *statementsuitefunction;
+    Node *functionparamsdefine;
 
-    Node *eval() override {
-        return {};
+    vector<Node *> eval(vector<Node *> parameters) {
+        NodeFunctionParamsDefine *nodeFunctionParamsDefine = dynamic_cast<NodeFunctionParamsDefine *>(functionparamsdefine);
+        nodeFunctionParamsDefine->eval(parameters);
+        parameters.emplace_back(identifier);
+        return parameters;
     };
 
-    explicit NodeStatementFunction(Node *identifier, Node *functionparams, Node *statementsuitefunction) {
+    explicit NodeFunctionParamsDefine(Node *identifier, Node *functionparamsdefine) {
         this->identifier = identifier;
-        this->functionparams = functionparams;
-        this->statementsuitefunction = statementsuitefunction;
+        this->functionparamsdefine = functionparamsdefine;
+    }
+};
+
+// NTS_FUNCTION_PARAMS_DEFINE -> TS_IDENTIFIER
+struct NodeFunctionParamsDefine_Production1 : virtual Node {
+public:
+    Node *identifier;
+
+    void eval(vector<Node *> parameters) {
+        parameters.emplace_back(identifier);
+    };
+
+    explicit NodeFunctionParamsDefine_Production1(Node *identifier) {
+        this->identifier = identifier;
     }
 };
 
@@ -389,8 +404,10 @@ public:
     Node *functionparams;
     Node *statementexpression;
 
-    Node *eval() override {
-        return {};
+    void eval(vector<Node *> parameters) {
+        NodeFunctionParams *nodeFunctionParams = dynamic_cast<NodeFunctionParams *>(functionparams);
+        nodeFunctionParams->eval(parameters);
+        parameters.emplace_back(statementexpression->eval());
     };
 
     explicit NodeFunctionParams(Node *functionparams, Node *statementexpression) {
@@ -404,14 +421,36 @@ class NodeFunctionParams_Production1 : public virtual Node {
 public:
     Node *statementexpression;
 
-    Node *eval() override {
-        return {};
+    void eval(vector<Node *> parameters) {
+        parameters.emplace_back(statementexpression->eval());
     };
 
     explicit NodeFunctionParams_Production1(Node *statementexpression) {
         this->statementexpression = statementexpression;
     }
 };
+
+// NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS_DEFINE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+class NodeStatementFunction : public virtual Node {
+public:
+    Node *identifier;
+    Node *functionparamsdefine;
+    Node *statementsuitefunction;
+
+    Node *eval() override {
+        NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
+
+        SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = static_cast<Node *>(this);
+        return {};
+    };
+
+    explicit NodeStatementFunction(Node *identifier, Node *functionparamsdefine, Node *statementsuitefunction) {
+        this->identifier = identifier;
+        this->functionparamsdefine = functionparamsdefine;
+        this->statementsuitefunction = statementsuitefunction;
+    }
+};
+
 
 // NTS_STATEMENT_CLASS -> TS_AT TS_IDENTIFIER TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_CLASS TS_RIGHT_CURLY_BRACE
 class NodeStatementClass : public virtual Node {
@@ -482,7 +521,6 @@ public:
     Node *eval() override {
         // This is an add operator
         if (auto *addNode = dynamic_cast<NodeStatementExpressionP *>(statementexpressionp)) {
-            cout << "Add op?" << endl;
             auto *statementexpression2Eval = dynamic_cast<NodeTerm *>(statementexpression2->eval());
             auto *addNodeEval = dynamic_cast<NodeTerm *>(addNode->eval());
 
@@ -490,27 +528,32 @@ public:
             PrimitiveType type2 = addNodeEval->inferred_type;
             if (type1 == type2) {
                 string result = doArithmetic(statementexpression2Eval->token, addNodeEval->token, type1, "+");
-
                 if (result != "") {
-                    return new NodeTerm{result, addNodeEval->inferred_type, addNodeEval->token_type};
+                    return new NodeTerm{result, type1, addNodeEval->token_type};
                 } else {
-                    // Throw Error
+                    throw "Conversion Exception: Operation not defined.";
                     return {};
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
                              type2)) {
-                // Convert to the new type
-                // Do the arithmetic
+
+                string converted_string = convert(statementexpression2Eval->token, addNodeEval->token, type1, type2);
+                string result = doArithmetic(statementexpression2Eval->token, converted_string, type1, "+");
+                if (result != "") {
+                    return new NodeTerm{result, type1, addNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
                 return {};
             } else {
+                throw "Conversion Exception: Cannot convert expression to different type.";
                 return {};
-                // Type Error
             }
         }
             // This is an sub operator
         else if (auto *subNode = dynamic_cast<NodeStatementExpressionP_Production1 *>(statementexpressionp)) {
-            cout << "Sub op?" << endl;
             auto *statementexpression2Eval = dynamic_cast<NodeTerm *>(statementexpression2->eval());
             auto *subNodeEval = dynamic_cast<NodeTerm *>(subNode->eval());
 
@@ -519,20 +562,27 @@ public:
             if (type1 == type2) {
                 string result = doArithmetic(statementexpression2Eval->token, subNodeEval->token, type1, "-");
                 if (result != "") {
-                    return new NodeTerm{result, subNodeEval->inferred_type, subNodeEval->token_type};
+                    return new NodeTerm{result, type1, subNodeEval->token_type};
                 } else {
-                    // Throw Error
+                    throw "Conversion Exception: Operation not defined.";
                     return {};
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
                              type2)) {
-                // Convert to the new type
-                // Do the arithmetic
+
+                string converted_string = convert(statementexpression2Eval->token, subNodeEval->token, type1, type2);
+                string result = doArithmetic(statementexpression2Eval->token, converted_string, type1, "-");
+                if (result != "") {
+                    return new NodeTerm{result, type1, subNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
                 return {};
             } else {
+                throw "Conversion Exception: Cannot convert expression to different type.";
                 return {};
-                // Type Error
             }
         }
 
@@ -545,22 +595,6 @@ public:
     }
 };
 
-
-// NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3 NTS_STATEMENT_EXPRESSION_2P
-class NodeStatementExpression2 : public virtual Node {
-public:
-    Node *statementexpression3;
-    Node *statementexpression2p;
-
-    Node *eval() override {
-        return {};
-    };
-
-    explicit NodeStatementExpression2(Node *statementexpression3, Node *statementexpression2p) {
-        this->statementexpression3 = statementexpression3;
-        this->statementexpression2p = statementexpression2p;
-    }
-};
 
 // NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3
 class NodeStatementExpression2_Production1 : public virtual Node {
@@ -582,7 +616,7 @@ public:
     Node *statementexpression2;
 
     Node *eval() override {
-        return {};
+        return statementexpression2->eval();
     };
 
     explicit NodeStatementExpression2p(Node *statementexpression2) {
@@ -596,7 +630,7 @@ public:
     Node *statementexpression2;
 
     Node *eval() override {
-        return {};
+        return statementexpression2->eval();
     };
 
     explicit NodeStatementExpression2p_Production1(Node *statementexpression2) {
@@ -610,13 +644,131 @@ public:
     Node *statementexpression2;
 
     Node *eval() override {
-        return {};
+        return statementexpression2->eval();
     };
 
     explicit NodeStatementExpression2p_Production2(Node *statementexpression2) {
         this->statementexpression2 = statementexpression2;
     }
 };
+
+// NTS_STATEMENT_EXPRESSION_2 -> NTS_STATEMENT_EXPRESSION_3 NTS_STATEMENT_EXPRESSION_2P
+class NodeStatementExpression2 : public virtual Node {
+public:
+    Node *statementexpression3;
+    Node *statementexpression2p;
+
+    Node *eval() override {
+        // This is an mult operator
+        if (auto *multNode = dynamic_cast<NodeStatementExpression2p *>(statementexpression2p)) {
+            auto *statementexpression3Eval = dynamic_cast<NodeTerm *>(statementexpression3->eval());
+            auto *multNodeEval = dynamic_cast<NodeTerm *>(multNode->eval());
+
+            PrimitiveType type1 = statementexpression3Eval->inferred_type;
+            PrimitiveType type2 = multNodeEval->inferred_type;
+            if (type1 == type2) {
+                string result = doArithmetic(statementexpression3Eval->token, multNodeEval->token, type1, "*");
+                if (result != "") {
+                    return new NodeTerm{result, type1, multNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
+            } else if (count(primitive_type_conversions[type1].begin(),
+                             primitive_type_conversions[type1].end(),
+                             type2)) {
+
+                string converted_string = convert(statementexpression3Eval->token, multNodeEval->token, type1, type2);
+                string result = doArithmetic(statementexpression3Eval->token, converted_string, type1, "*");
+                if (result != "") {
+                    return new NodeTerm{result, type1, multNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
+                return {};
+            } else {
+                throw "Conversion Exception: Cannot convert expression to different type.";
+                return {};
+            }
+        }
+            // This is an div operator
+
+        else if (auto *divNode = dynamic_cast<NodeStatementExpression2p_Production1 *>(statementexpression2p)) {
+            auto *statementexpression3Eval = dynamic_cast<NodeTerm *>(statementexpression3->eval());
+            auto *divNodeEval = dynamic_cast<NodeTerm *>(divNode->eval());
+
+            PrimitiveType type1 = statementexpression3Eval->inferred_type;
+            PrimitiveType type2 = divNodeEval->inferred_type;
+            if (type1 == type2) {
+                string result = doArithmetic(statementexpression3Eval->token, divNodeEval->token, type1, "/");
+                if (result != "") {
+                    return new NodeTerm{result, type1, divNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
+            } else if (count(primitive_type_conversions[type1].begin(),
+                             primitive_type_conversions[type1].end(),
+                             type2)) {
+
+                string converted_string = convert(statementexpression3Eval->token, divNodeEval->token, type1, type2);
+                string result = doArithmetic(statementexpression3Eval->token, converted_string, type1, "/");
+                if (result != "") {
+                    return new NodeTerm{result, type1, divNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
+                return {};
+            } else {
+                throw "Conversion Exception: Cannot convert expression to different type.";
+                return {};
+            }
+        }
+
+            // This is a mod operation
+        else if (auto *modNode = dynamic_cast<NodeStatementExpression2p_Production2 *>(statementexpression2p)) {
+            auto *statementexpression3Eval = dynamic_cast<NodeTerm *>(statementexpression3->eval());
+            auto *modNodeEval = dynamic_cast<NodeTerm *>(modNode->eval());
+
+            PrimitiveType type1 = statementexpression3Eval->inferred_type;
+            PrimitiveType type2 = modNodeEval->inferred_type;
+            if (type1 == type2) {
+                string result = doArithmetic(statementexpression3Eval->token, modNodeEval->token, type1, "%");
+                if (result != "") {
+                    return new NodeTerm{result, type1, modNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
+            } else if (count(primitive_type_conversions[type1].begin(),
+                             primitive_type_conversions[type1].end(),
+                             type2)) {
+
+                string converted_string = convert(statementexpression3Eval->token, modNodeEval->token, type1, type2);
+                string result = doArithmetic(statementexpression3Eval->token, converted_string, type1, "%");
+                if (result != "") {
+                    return new NodeTerm{result, type1, modNodeEval->token_type};
+                } else {
+                    throw "Conversion Exception: Operation not defined.";
+                    return {};
+                }
+                return {};
+            } else {
+                throw "Conversion Exception: Cannot convert expression to different type.";
+                return {};
+            }
+        }
+        return {};
+    };
+
+    explicit NodeStatementExpression2(Node *statementexpression3, Node *statementexpression2p) {
+        this->statementexpression3 = statementexpression3;
+        this->statementexpression2p = statementexpression2p;
+    }
+};
+
 
 // NTS_STATEMENT_EXPRESSION_3 -> TS_TERM
 class NodeStatementExpression3 : public virtual Node {
@@ -646,13 +798,45 @@ public:
     }
 };
 
-// NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS
+// NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER TS_LEFT_PARENTHESIS NTS_FUNCTION_PARAMS TS_RIGHT_PARENTHESIS
 class NodeStatementExpression3_Production2 : public virtual Node {
 public:
     Node *identifier;
     Node *functionparams;
 
     Node *eval() override {
+
+        auto *nodeIdentifier = dynamic_cast<NodeIdentifier *>(identifier->eval());
+        auto *nodeFunctonParams = dynamic_cast<NodeFunctionParams *>(functionparams->eval());
+
+        if (SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].find(nodeIdentifier->token) != SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].end()) {
+
+            auto *nodeFunction = dynamic_cast<NodeStatementFunction *>(SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifier->token]);
+            auto *nodeFunctionDefine = dynamic_cast<NodeFunctionParamsDefine* >(nodeFunction->functionparamsdefine);
+
+            vector<Node *> givenParamters;
+            nodeFunctonParams->eval(givenParamters);
+
+            vector<Node *> expectedParameters;
+            nodeFunctionDefine->eval(expectedParameters);
+
+            for(int i = 0; i < expectedParameters.size(); i++) {
+            }
+
+            if (givenParamters.size() == expectedParameters.size()) {
+                return nodeFunction->statementsuitefunction->eval();
+            } else {
+                throw "Number of parameters doesn't match function definition for " + nodeIdentifier->token;
+            }
+        } else {
+            throw "Function not defined: " + nodeIdentifier->token;
+        }
+
+        /*
+         * If the item of key identifier exists within the symbol table
+         *      If the number of function params is equal to the number of function params provided...
+         */
+
         return {};
     };
 
@@ -668,7 +852,7 @@ public:
     Node *statementexpression;
 
     Node *eval() override {
-        return {};
+        return statementexpression->eval();
     };
 
     explicit NodeStatementExpression3_Production3(Node *statementexpression) {
@@ -682,7 +866,9 @@ public:
     Node *statementexpression3;
 
     Node *eval() override {
-        return {};
+        auto *nodeTerm = dynamic_cast<NodeTerm *>(statementexpression3->eval());
+        nodeTerm->token = "-" + nodeTerm->token;
+        return nodeTerm;
     };
 
     explicit NodeStatementExpression3_Production4(Node *statementexpression3) {
@@ -701,9 +887,6 @@ public:
         // Need to add error handling
         NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
         NodeTerm *statementexpressionEval = dynamic_cast<NodeTerm *>(statementexpression->eval());
-
-        cout << "Ident: " << nodeIdentifierEval->token << endl;
-        cout << "Value: " << statementexpressionEval->token << endl;
 
         SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = statementexpressionEval;
         return {};

@@ -3,3 +3,12 @@
 
 ### NOTE
 Currently moving to C++ to prototype some features, I might be considering using C++ fulltime until I research Rust more.
+
+@func: a, b {
+    print a + b
+}
+
+@func2: {
+    print "hello!"
+}
+

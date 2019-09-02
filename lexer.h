@@ -157,7 +157,7 @@ public:
 
                     // if the token is  '+' | '-' | '*' | '/' | '%' | '^' | '!' | '{' | '}' | '(' | ')' | ',' | ':' | ';' | '\n' | '$' | '=' | '>' | '<' | '.'
                     if ((token_char_value >= 36 && token_char_value <= 47) ||
-                        (token_char_value >= 58 && token_char_value <= 62) || token_char_value == 10 ||
+                        (token_char_value >= 58 && token_char_value <= 64) || token_char_value == 10 ||
                         token_char_value == 94 || token_char_value == 123 || token_char_value == 125) {
                         string temp = token;
                         temp.push_back(*input_iter);

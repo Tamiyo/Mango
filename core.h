@@ -35,6 +35,7 @@ enum TokenType {
     GreaterThan,
     GreaterThanEquals,
     Negation,
+    QuestionMark,
 
     LeftCurlyBrace,
     RightCurlyBrace,
@@ -85,6 +86,7 @@ enum TokenType {
     StatementConditional,
     StatementConditional2,
     StatementConditional3,
+    FunctionParamsDefine,
     StatementConditionalElif,
     StatementConditionalElse,
     StatementConditionalTest,
@@ -193,6 +195,7 @@ TokenType symbol_to_enum(const string &symbol) {
     if (symbol == "&&") { return TokenType::And; }
     if (symbol == "..") { return TokenType::Ellipsis; }
     if (symbol == "$") { return TokenType::EndOfFile; }
+    if (symbol == "?") { return TokenType::QuestionMark; }
     return TokenType::None;
 }
 
