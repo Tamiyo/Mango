@@ -122,4 +122,4 @@ print z
 ```
 
 ### NOTE
-I would like to investigate __Rust__ as a potenttional option to convert the language to, but for now I will continue with __C++__.
+I would like to investigate __Rust__ as a potential option to convert the compiler to, but for now I will continue with __C++__.
