@@ -29,7 +29,7 @@ This parser uses __Shift-Reduce Parsing__, in particular __CLR Parsing__ (Throug
 - The compiler uses dynamic typing.
 
 ### Syntax Examples
-##### Variable Assignment
+#### Variable Assignment
 ```
 myvariable = "Hello World!"
 print myvariable
@@ -41,7 +41,7 @@ print myvariable
 15
 ```
 
-##### Looping Constructs
+#### Looping Constructs
 ###### For Loop Iteration Based
 ```
 for i: 2 {
@@ -84,7 +84,7 @@ while x > 0 {
 1
 ```
 
-##### Function Declaration and Usage
+#### Function Declaration and Usage
 ```
 @myaddfunction: x, y {
     return x + y
@@ -102,7 +102,7 @@ myprintfunction()
 You got me!
 ```
 
-##### Class Declaration and Usage
+#### Class Declaration and Usage
 Class variables are created as they are called. You do not have to pre-declare the variables. Once you declare the variable, it is avaliable within the entire encompassing scope (not the global scope).
 ```
 @myclass {
