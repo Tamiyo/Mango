@@ -17,7 +17,7 @@ The lexer helps identify lexemes defined by the regular expressions below:
 | SYMBOL     | [+-*/%^=<>!(){}-,:;@.'"&$?] |
 
 ### Grammar
-The __grammar__ is defined in [this file](python/grammar) using Backus-Naur Form Notation.
+The __grammar__ is defined in [this file](generator/grammar) using Backus-Naur Form Notation.
 
 ### Parser
 This parser uses __Shift-Reduce Parsing__, in particular __CLR Parsing__ (Through there are plans to change it to SLR Parsing for a smaller parse table).
