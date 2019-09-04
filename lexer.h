@@ -4,6 +4,11 @@
 
 // Lexer, performs lexigraphic analysis
 
+/*
+ * TODO - Make lexer ignore lines of pattern #[.]+\n
+ */
+
+
 #ifndef MANGO_V2_CPP_LEXER_H
 #define MANGO_V2_CPP_LEXER_H
 
@@ -48,7 +53,7 @@ public:
                         token.push_back(*input_iter);
                         input_iter++;
                     }
-                    // if the token is '.'
+                        // if the token is '.'
                     else if (token_char_value == 46) {
                         if (!has_decimal) {
                             has_decimal = true;
@@ -88,7 +93,7 @@ public:
                         token.push_back(*input_iter);
                         input_iter++;
                     }
-                    // if the token is 0 ... 9 || _
+                        // if the token is 0 ... 9 || _
                     else if ((token_char_value >= 48 && token_char_value <= 57) || token_char_value == 95) {
                         if (past_first) {
                             token.push_back(*input_iter);
@@ -117,7 +122,7 @@ public:
                 string token;
                 bool inside_quotes = false;
 
-                 // continue looping until we reach our ending criteria
+                // continue looping until we reach our ending criteria
                 while (*input_iter) {
                     token_char_value = *input_iter;
 
@@ -141,11 +146,11 @@ public:
                 cout << "Found String!: " << token << endl;
             }
 
-            // ignore whitespace \t \s
+                // ignore whitespace \t \s
             else if (token_char_value == 9 || token_char_value == 32) {
                 input_iter++;
             }
-            // if it is anything else _, it might be a symbol.
+                // if it is anything else _, it might be a symbol.
             else {
                 string token;
                 int length = 0;
