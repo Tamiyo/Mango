@@ -49,7 +49,7 @@ enum TokenType {
 
     For,
     While,
-    Define,
+    Return,
     If,
     Elif,
     Else,
@@ -77,6 +77,7 @@ enum TokenType {
     StatementFunction,
     StatementClass,
     StatementListFunction,
+    StatementReturn,
     StatementExpression,
     StatementExpressionP,
     StatementExpression2,
@@ -161,6 +162,7 @@ TokenType identifier_to_enum(const string &symbol) {
     if (symbol == "else") { return TokenType::Else; }
     if (symbol == "for") { return TokenType::For; }
     if (symbol == "while") { return TokenType::While; }
+    if (symbol == "return") { return TokenType::Return; }
     return TokenType::None;
 }
 

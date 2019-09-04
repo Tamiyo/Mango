@@ -3,11 +3,18 @@
 #ifndef MANGO_V2_CPP_PARSER_TREE_H
 #define MANGO_V2_CPP_PARSER_TREE_H
 
+#include <algorithm>
+
 #include "core.h"
 #include "common.h"
 #include "semantic_analyzer.h"
 
 using std::count;
+using std::string;
+using std::vector;
+using std::pair;
+using std::cout;
+using std::endl;
 
 class NodeTerm : public virtual Node {
 public:
@@ -93,7 +100,11 @@ public:
     Node *statementlistfunction;
 
     Node *eval() override {
-        return statementlistfunction->eval();
+        SCOPE_LEVEL++;
+        Node *tmp = statementlistfunction->eval();
+        SCOPE_LEVEL--;
+        cout << "done with function call" << endl;
+        return tmp;
     };
 
     explicit NodeStatementSuiteFunction(Node *statementlistfunction) {
@@ -107,7 +118,9 @@ public:
     Node *statementlistclass;
 
     Node *eval() override {
-        return statementlistclass->eval();
+        Node *tmp = statementlistclass->eval();
+        SCOPE_LEVEL--;
+        return tmp;
     };
 
     explicit NodeStatementSuiteClass(Node *statementlistclass) {
@@ -124,7 +137,7 @@ public:
     Node *eval() override {
         statement->eval();
         statementlist->eval();
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementList(Node *statement, Node *statementlist) {
@@ -153,10 +166,17 @@ public:
     Node *statementlimited;
     Node *statementlistfunction;
 
+    // TODO - Apply this to the other recursive statement blocks
     Node *eval() override {
-        statementlimited->eval();
-        statementlistfunction->eval();
-        return {};
+        Node *a = statementlimited->eval();
+        Node *b = statementlistfunction->eval();
+        if (a) {
+            return a;
+        } else if (b) {
+            return b;
+        } else {
+            return nullptr;
+        }
     };
 
     explicit NodeStatementListFunction(Node *statementlimited, Node *statementlistfunction) {
@@ -188,7 +208,7 @@ public:
     Node *eval() override {
         statementrestricted->eval();
         statementlistclass->eval();
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementListClass(Node *statementrestricted, Node *statementlistclass) {
@@ -231,7 +251,7 @@ public:
     Node *statementcomplex;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatement_Production1(Node *statementcomplex) {
@@ -292,6 +312,34 @@ public:
 
     explicit NodeStatementLimited_Production1(Node *statementcomplex) {
         this->statementcomplex = statementcomplex;
+    }
+};
+
+// NTS_STATEMENT_LIMITED -> NTS_STATEMENT_RETURN
+struct NodeStatementLimited_Production2 : virtual Node {
+public:
+    Node *statementreturn;
+
+    Node *eval() override {
+        return statementreturn->eval();
+    };
+
+    explicit NodeStatementLimited_Production2(Node *statementreturn) {
+        this->statementreturn = statementreturn;
+    }
+};
+
+// NTS_STATEMENT_RETURN -> TS_RETURN NTS_STATEMENT_EXPRESSION
+struct NodeStatementReturn : virtual Node {
+public:
+    Node *statementexpression;
+
+    Node *eval() override {
+        return statementexpression->eval();
+    };
+
+    explicit NodeStatementReturn(Node *statementexpression) {
+        this->statementexpression = statementexpression;
     }
 };
 
@@ -357,30 +405,11 @@ public:
     Node *statementloop;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementComplex(Node *statementloop) {
         this->statementloop = statementloop;
-    }
-};
-
-// NTS_FUNCTION_PARAMS_DEFINE -> NTS_FUNCTION_PARAMS_DEFINE TS_COMMA TS_IDENTIFIER
-struct NodeFunctionParamsDefine : virtual Node {
-public:
-    Node *identifier;
-    Node *functionparamsdefine;
-
-    vector<Node *> eval(vector<Node *> parameters) {
-        NodeFunctionParamsDefine *nodeFunctionParamsDefine = dynamic_cast<NodeFunctionParamsDefine *>(functionparamsdefine);
-        nodeFunctionParamsDefine->eval(parameters);
-        parameters.emplace_back(identifier);
-        return parameters;
-    };
-
-    explicit NodeFunctionParamsDefine(Node *identifier, Node *functionparamsdefine) {
-        this->identifier = identifier;
-        this->functionparamsdefine = functionparamsdefine;
     }
 };
 
@@ -389,12 +418,59 @@ struct NodeFunctionParamsDefine_Production1 : virtual Node {
 public:
     Node *identifier;
 
-    void eval(vector<Node *> parameters) {
-        parameters.emplace_back(identifier);
+    vector<Node *> eval(vector<Node *> parameters) {
+        cout << "in singular defined paramter, stop" << endl;
+        parameters.push_back(identifier);
+        return parameters;
     };
 
     explicit NodeFunctionParamsDefine_Production1(Node *identifier) {
         this->identifier = identifier;
+    }
+};
+
+// NTS_FUNCTION_PARAMS_DEFINE -> NTS_FUNCTION_PARAMS_DEFINE TS_COMMA TS_IDENTIFIER
+struct NodeFunctionParamsDefine : public virtual Node {
+public:
+    Node *identifier;
+    Node *functionparamsdefine;
+
+    vector<Node *> eval(vector<Node *> parameters) {
+        cout << "In defined params" << endl;
+        if (auto *nodeFunctionParamsDefine = dynamic_cast<NodeFunctionParamsDefine *>(functionparamsdefine)) {
+            cout << "Recursive?" << endl;
+            vector<Node *> tmp = nodeFunctionParamsDefine->eval(parameters);
+            tmp.push_back(identifier);
+            return tmp;
+        } else if (auto *nodeFunctionParamsDefine = dynamic_cast<NodeFunctionParamsDefine_Production1 *>(functionparamsdefine)) {
+            cout << "Non-Recursive?" << endl;
+            vector<Node *> tmp = nodeFunctionParamsDefine->eval(parameters);
+            tmp.push_back(identifier);
+            return tmp;
+        } else {
+            throw "AST function parameter defined error";
+        }
+    };
+
+    explicit NodeFunctionParamsDefine(Node *identifier, Node *functionparamsdefine) {
+        this->identifier = identifier;
+        this->functionparamsdefine = functionparamsdefine;
+    }
+};
+
+
+// NTS_FUNCTION_PARAMS -> NTS_STATEMENT_EXPRESSION
+class NodeFunctionParams_Production1 : public virtual Node {
+public:
+    Node *statementexpression;
+
+    vector<Node *> eval(vector<Node *> parameters) {
+        parameters.push_back(statementexpression->eval());
+        return parameters;
+    };
+
+    explicit NodeFunctionParams_Production1(Node *statementexpression) {
+        this->statementexpression = statementexpression;
     }
 };
 
@@ -404,10 +480,17 @@ public:
     Node *functionparams;
     Node *statementexpression;
 
-    void eval(vector<Node *> parameters) {
-        NodeFunctionParams *nodeFunctionParams = dynamic_cast<NodeFunctionParams *>(functionparams);
-        nodeFunctionParams->eval(parameters);
-        parameters.emplace_back(statementexpression->eval());
+    vector<Node *> eval(vector<Node *> parameters) {
+        cout << "in params" << endl;
+        if (auto *nodeFunctionParams = dynamic_cast<NodeFunctionParams *>(functionparams)) {
+            vector<Node *> tmp = nodeFunctionParams->eval(parameters);
+            tmp.push_back(statementexpression->eval());
+            return tmp;
+        } else if (auto *nodeFunctionParams = dynamic_cast<NodeFunctionParams_Production1 *>(functionparams)) {
+            vector<Node *> tmp = nodeFunctionParams->eval(parameters);
+            tmp.push_back(statementexpression->eval());
+            return tmp;
+        }
     };
 
     explicit NodeFunctionParams(Node *functionparams, Node *statementexpression) {
@@ -416,19 +499,6 @@ public:
     }
 };
 
-// NTS_FUNCTION_PARAMS -> NTS_STATEMENT_EXPRESSION
-class NodeFunctionParams_Production1 : public virtual Node {
-public:
-    Node *statementexpression;
-
-    void eval(vector<Node *> parameters) {
-        parameters.emplace_back(statementexpression->eval());
-    };
-
-    explicit NodeFunctionParams_Production1(Node *statementexpression) {
-        this->statementexpression = statementexpression;
-    }
-};
 
 // NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON NTS_FUNCTION_PARAMS_DEFINE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
 class NodeStatementFunction : public virtual Node {
@@ -439,14 +509,32 @@ public:
 
     Node *eval() override {
         NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
-
-        SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = static_cast<Node *>(this);
-        return {};
+        SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = this;
+        return nullptr;
     };
 
     explicit NodeStatementFunction(Node *identifier, Node *functionparamsdefine, Node *statementsuitefunction) {
         this->identifier = identifier;
         this->functionparamsdefine = functionparamsdefine;
+        this->statementsuitefunction = statementsuitefunction;
+    }
+};
+
+// NTS_STATEMENT_FUNCTION -> TS_AT TS_IDENTIFIER TS_COLON TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+struct NodeStatementFunction_Production1 : public virtual Node {
+public:
+    Node *identifier;
+    Node *statementsuitefunction;
+
+    Node *eval() override {
+        NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
+
+        SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = this;
+        return nullptr;
+    };
+
+    explicit NodeStatementFunction_Production1(Node *identifier, Node *statementsuitefunction) {
+        this->identifier = identifier;
         this->statementsuitefunction = statementsuitefunction;
     }
 };
@@ -459,7 +547,7 @@ public:
     Node *statementsuiteclass;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementClass(Node *identifier, Node *statementsuiteclass) {
@@ -474,6 +562,7 @@ public:
     Node *statementexpression2;
 
     Node *eval() override {
+        cout << "called expr to expr2" << endl;
         return statementexpression2->eval();
     };
 
@@ -516,8 +605,6 @@ public:
     Node *statementexpression2;
     Node *statementexpressionp;
 
-//    NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
-
     Node *eval() override {
         // This is an add operator
         if (auto *addNode = dynamic_cast<NodeStatementExpressionP *>(statementexpressionp)) {
@@ -532,7 +619,7 @@ public:
                     return new NodeTerm{result, type1, addNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
@@ -544,12 +631,12 @@ public:
                     return new NodeTerm{result, type1, addNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
-                return {};
+                return nullptr;
             } else {
                 throw "Conversion Exception: Cannot convert expression to different type.";
-                return {};
+                return nullptr;
             }
         }
             // This is an sub operator
@@ -565,7 +652,7 @@ public:
                     return new NodeTerm{result, type1, subNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
@@ -577,16 +664,16 @@ public:
                     return new NodeTerm{result, type1, subNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
-                return {};
+                return nullptr;
             } else {
                 throw "Conversion Exception: Cannot convert expression to different type.";
-                return {};
+                return nullptr;
             }
         }
 
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementExpression(Node *statementexpression2, Node *statementexpressionp) {
@@ -602,6 +689,7 @@ public:
     Node *statementexpression3;
 
     Node *eval() override {
+        cout << "called expr2 to expr3" << endl;
         return statementexpression3->eval();
     };
 
@@ -672,7 +760,7 @@ public:
                     return new NodeTerm{result, type1, multNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
@@ -684,12 +772,12 @@ public:
                     return new NodeTerm{result, type1, multNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
-                return {};
+                return nullptr;
             } else {
                 throw "Conversion Exception: Cannot convert expression to different type.";
-                return {};
+                return nullptr;
             }
         }
             // This is an div operator
@@ -706,7 +794,7 @@ public:
                     return new NodeTerm{result, type1, divNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
@@ -718,12 +806,12 @@ public:
                     return new NodeTerm{result, type1, divNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
-                return {};
+                return nullptr;
             } else {
                 throw "Conversion Exception: Cannot convert expression to different type.";
-                return {};
+                return nullptr;
             }
         }
 
@@ -740,7 +828,7 @@ public:
                     return new NodeTerm{result, type1, modNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
             } else if (count(primitive_type_conversions[type1].begin(),
                              primitive_type_conversions[type1].end(),
@@ -752,15 +840,15 @@ public:
                     return new NodeTerm{result, type1, modNodeEval->token_type};
                 } else {
                     throw "Conversion Exception: Operation not defined.";
-                    return {};
+                    return nullptr;
                 }
-                return {};
+                return nullptr;
             } else {
                 throw "Conversion Exception: Cannot convert expression to different type.";
-                return {};
+                return nullptr;
             }
         }
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementExpression2(Node *statementexpression3, Node *statementexpression2p) {
@@ -790,7 +878,10 @@ public:
     Node *identifier;
 
     Node *eval() override {
-        return identifier->eval();
+        auto *nodeIdentifier = dynamic_cast<NodeIdentifier *>(identifier->eval());
+
+        cout << "Grabbing Value in expression for: " << nodeIdentifier->token << endl;
+        return SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifier->token];
     };
 
     explicit NodeStatementExpression3_Production1(Node *identifier) {
@@ -805,29 +896,177 @@ public:
     Node *functionparams;
 
     Node *eval() override {
-
+        cout << "evaluating a function" << endl;
         auto *nodeIdentifier = dynamic_cast<NodeIdentifier *>(identifier->eval());
-        auto *nodeFunctonParams = dynamic_cast<NodeFunctionParams *>(functionparams->eval());
+        cout << "nodeIdentifier (non-void): " << nodeIdentifier << endl;
+
+        if (NodeFunctionParams_Production1 *nodeFunctionParams = dynamic_cast<NodeFunctionParams_Production1 *>(functionparams)) {
+            if (SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].find(nodeIdentifier->token) !=
+                SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].end()) {
+                auto *nodeFunction = dynamic_cast<NodeStatementFunction *>(SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifier->token]);
+
+                if (auto *nodeFunctionDefine = dynamic_cast<NodeFunctionParamsDefine * >(nodeFunction->functionparamsdefine)) {
+                    cout << "Begin gathering parameters" << endl;
+
+                    vector<Node *> givenParameters;
+                    givenParameters = nodeFunctionParams->eval(givenParameters);
+                    cout << "givenParameters.size: " << givenParameters.size() << endl;
+
+                    vector<Node *> expectedParameters;
+                    expectedParameters = nodeFunctionDefine->eval(expectedParameters);
+                    cout << "expectedParameters.size: " << expectedParameters.size() << endl;
+
+                    cout << "Done gathering parameters" << endl;
+
+                    if (givenParameters.size() == expectedParameters.size()) {
+                        cout << "parameters match function" << endl;
+                        for (int i = 0; i < expectedParameters.size(); i++) {
+                            cout << "in loop" << endl;
+                            auto *nodeTerm = dynamic_cast<NodeTerm *>(givenParameters.at(i));
+                            cout << "nodeTerm: " << nodeTerm << endl;
+                            auto *expectedTerm = dynamic_cast<NodeIdentifier *>(expectedParameters.at(i));
+                            cout << "expectedTerm: " << expectedTerm << endl;
+                            SCOPED_SYMBOL_TABLE[SCOPE_LEVEL + 1][expectedTerm->token] = nodeTerm;
+                        }
+                        return nodeFunction->statementsuitefunction->eval();
+                    } else {
+                        throw "Number of parameters doesn't match function definition for " + nodeIdentifier->token;
+                    }
+                } else if (auto *nodeFunctionDefine = dynamic_cast<NodeFunctionParamsDefine_Production1 * >(nodeFunction->functionparamsdefine)) {
+                    cout << "Begin gathering parameters" << endl;
+
+                    vector<Node *> givenParameters;
+                    givenParameters = nodeFunctionParams->eval(givenParameters);
+                    cout << "givenParameters.size: " << givenParameters.size() << endl;
+
+                    vector<Node *> expectedParameters;
+                    expectedParameters = nodeFunctionDefine->eval(expectedParameters);
+                    cout << "expectedParameters.size: " << expectedParameters.size() << endl;
+
+                    cout << "Done gathering parameters" << endl;
+
+                    if (givenParameters.size() == expectedParameters.size()) {
+                        cout << "parameters match function" << endl;
+                        for (int i = 0; i < expectedParameters.size(); i++) {
+                            cout << "in loop" << endl;
+                            auto *nodeTerm = dynamic_cast<NodeTerm *>(givenParameters.at(i));
+                            cout << "nodeTerm: " << nodeTerm << endl;
+                            auto *expectedTerm = dynamic_cast<NodeIdentifier *>(expectedParameters.at(i));
+                            cout << "expectedTerm: " << expectedTerm << endl;
+                            SCOPED_SYMBOL_TABLE[SCOPE_LEVEL + 1][expectedTerm->token] = nodeTerm;
+                        }
+                        return nodeFunction->statementsuitefunction->eval();
+                    } else {
+                        throw "Number of parameters doesn't match function definition for " + nodeIdentifier->token;
+                    }
+                } else {
+                    throw "AST error, inner function parameters";
+                }
+            } else {
+                throw "Function not defined: " + nodeIdentifier->token;
+            }
+        } else if (NodeFunctionParams *nodeFunctionParams = dynamic_cast<NodeFunctionParams *>(functionparams)) {
+            if (SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].find(nodeIdentifier->token) !=
+                SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].end()) {
+                auto *nodeFunction = dynamic_cast<NodeStatementFunction *>(SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifier->token]);
+
+                if (auto *nodeFunctionDefine = dynamic_cast<NodeFunctionParamsDefine * >(nodeFunction->functionparamsdefine)) {
+                    cout << "Begin gathering parameters (recursive)" << endl;
+
+                    vector<Node *> givenParameters;
+                    givenParameters = nodeFunctionParams->eval(givenParameters);
+                    cout << "givenParameters.size: " << givenParameters.size() << endl;
+
+                    vector<Node *> expectedParameters;
+                    expectedParameters = nodeFunctionDefine->eval(expectedParameters);
+                    cout << "expectedParameters.size: " << expectedParameters.size() << endl;
+
+                    cout << "Done gathering parameters" << endl;
+
+                    if (givenParameters.size() == expectedParameters.size()) {
+                        cout << "parameters match function" << endl;
+                        for (int i = 0; i < expectedParameters.size(); i++) {
+                            cout << "in loop" << endl;
+                            auto *nodeTerm = dynamic_cast<NodeTerm *>(givenParameters.at(i));
+                            cout << "nodeTerm: " << nodeTerm << endl;
+                            auto *expectedTerm = dynamic_cast<NodeIdentifier *>(expectedParameters.at(i));
+                            cout << "expectedTerm: " << expectedTerm << endl;
+                            SCOPED_SYMBOL_TABLE[SCOPE_LEVEL + 1][expectedTerm->token] = nodeTerm;
+                        }
+                        return nodeFunction->statementsuitefunction->eval();
+                    } else {
+                        throw "Number of parameters doesn't match function definition for " + nodeIdentifier->token;
+                    }
+                } else if (auto *nodeFunctionDefine = dynamic_cast<NodeFunctionParamsDefine_Production1 * >(nodeFunction->functionparamsdefine)) {
+                    cout << "Begin gathering parameters" << endl;
+
+                    vector<Node *> givenParameters;
+                    givenParameters = nodeFunctionParams->eval(givenParameters);
+                    cout << "givenParameters.size: " << givenParameters.size() << endl;
+
+                    vector<Node *> expectedParameters;
+                    expectedParameters = nodeFunctionDefine->eval(expectedParameters);
+                    cout << "expectedParameters.size: " << expectedParameters.size() << endl;
+
+                    cout << "Done gathering parameters" << endl;
+
+                    if (givenParameters.size() == expectedParameters.size()) {
+                        cout << "parameters match function" << endl;
+                        for (int i = 0; i < expectedParameters.size(); i++) {
+                            cout << "in loop" << endl;
+                            auto *nodeTerm = dynamic_cast<NodeTerm *>(givenParameters.at(i));
+                            cout << "nodeTerm: " << nodeTerm << endl;
+                            auto *expectedTerm = dynamic_cast<NodeIdentifier *>(expectedParameters.at(i));
+                            cout << "expectedTerm: " << expectedTerm << endl;
+                            SCOPED_SYMBOL_TABLE[SCOPE_LEVEL + 1][expectedTerm->token] = nodeTerm;
+                        }
+                        return nodeFunction->statementsuitefunction->eval();
+                    } else {
+                        throw "Number of parameters doesn't match function definition for " + nodeIdentifier->token;
+                    }
+                } else {
+                    throw "AST error, inner function parameters";
+                }
+            } else {
+                throw "Function not defined: " + nodeIdentifier->token;
+            }
+        } else {
+            throw "Parameters cannot be cast AST error";
+        }
+
+        /*
+         * If the item of key identifier exists within the symbol table
+         *      If the number of function params is equal to the number of function params provided...
+         */
+
+        return nullptr;
+    };
+
+    explicit NodeStatementExpression3_Production2(Node *identifier, Node *functionparams) {
+        this->identifier = identifier;
+        this->functionparams = functionparams;
+    }
+};
+
+// NTS_STATEMENT_EXPRESSION_3 -> TS_IDENTIFIER TS_LEFT_PARENTHESIS TS_RIGHT_PARENTHESIS
+struct NodeStatementExpression3_Production3 : public virtual Node {
+public:
+    Node *identifier;
+
+    Node *eval() override {
+        auto *nodeIdentifier = dynamic_cast<NodeIdentifier *>(identifier->eval());
+        cout << "evaluating a function (void): " << nodeIdentifier->token << endl;
 
         if (SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].find(nodeIdentifier->token) != SCOPED_SYMBOL_TABLE[SCOPE_LEVEL].end()) {
 
-            auto *nodeFunction = dynamic_cast<NodeStatementFunction *>(SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifier->token]);
-            auto *nodeFunctionDefine = dynamic_cast<NodeFunctionParamsDefine* >(nodeFunction->functionparamsdefine);
+            auto *nodeStatementFunction_Production1 = dynamic_cast<NodeStatementFunction_Production1 *> (SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifier->token]);
+            cout << "nodeStatementFunction: " << nodeStatementFunction_Production1 << endl;
 
-            vector<Node *> givenParamters;
-            nodeFunctonParams->eval(givenParamters);
+            auto *nodeStatementSuiteFunction = dynamic_cast<NodeStatementSuiteFunction *> (nodeStatementFunction_Production1->statementsuitefunction);
+            cout << "nodeStatementSuiteFunction: " << nodeStatementSuiteFunction << endl;
 
-            vector<Node *> expectedParameters;
-            nodeFunctionDefine->eval(expectedParameters);
-
-            for(int i = 0; i < expectedParameters.size(); i++) {
-            }
-
-            if (givenParamters.size() == expectedParameters.size()) {
-                return nodeFunction->statementsuitefunction->eval();
-            } else {
-                throw "Number of parameters doesn't match function definition for " + nodeIdentifier->token;
-            }
+            cout << "parameters match function (void): " << nodeIdentifier->token << endl;
+            return nodeStatementSuiteFunction->eval();
         } else {
             throw "Function not defined: " + nodeIdentifier->token;
         }
@@ -837,17 +1076,17 @@ public:
          *      If the number of function params is equal to the number of function params provided...
          */
 
-        return {};
+        return nullptr;
     };
 
-    explicit NodeStatementExpression3_Production2(Node *identifier, Node *functionparams) {
+    explicit NodeStatementExpression3_Production3(Node *identifier) {
         this->identifier = identifier;
-        this->functionparams = functionparams;
     }
 };
 
+
 // NTS_STATEMENT_EXPRESSION_3 -> TS_LEFT_PARENTHESIS NTS_STATEMENT_EXPRESSION TS_RIGHT_PARENTHESIS
-class NodeStatementExpression3_Production3 : public virtual Node {
+class NodeStatementExpression3_Production4 : public virtual Node {
 public:
     Node *statementexpression;
 
@@ -855,13 +1094,13 @@ public:
         return statementexpression->eval();
     };
 
-    explicit NodeStatementExpression3_Production3(Node *statementexpression) {
+    explicit NodeStatementExpression3_Production4(Node *statementexpression) {
         this->statementexpression = statementexpression;
     }
 };
 
 // NTS_STATEMENT_EXPRESSION_3 -> TS_SUBTRACT NTS_STATEMENT_EXPRESSION_3
-class NodeStatementExpression3_Production4 : public virtual Node {
+class NodeStatementExpression3_Production5 : public virtual Node {
 public:
     Node *statementexpression3;
 
@@ -871,7 +1110,7 @@ public:
         return nodeTerm;
     };
 
-    explicit NodeStatementExpression3_Production4(Node *statementexpression3) {
+    explicit NodeStatementExpression3_Production5(Node *statementexpression3) {
         this->statementexpression3 = statementexpression3;
     }
 };
@@ -888,8 +1127,10 @@ public:
         NodeIdentifier *nodeIdentifierEval = dynamic_cast<NodeIdentifier *>(identifier->eval());
         NodeTerm *statementexpressionEval = dynamic_cast<NodeTerm *>(statementexpression->eval());
 
+        cout << "Called Assignment for:  " << nodeIdentifierEval->token << endl;
+
         SCOPED_SYMBOL_TABLE[SCOPE_LEVEL][nodeIdentifierEval->token] = statementexpressionEval;
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementAssignment(Node *identifier, Node *statementexpression) {
@@ -905,7 +1146,7 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementConditional(Node *conditionalexpression, Node *statementsuitefunction) {
@@ -922,7 +1163,7 @@ public:
     Node *statementconditional2;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementConditional_Production1(Node *conditionalexpression, Node *statementsuitefunction,
@@ -941,7 +1182,7 @@ public:
     Node *statementconditional3;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementConditional_Production2(Node *conditionalexpression, Node *statementsuitefunction,
@@ -960,7 +1201,7 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementConditional2(Node *statementconditional2, Node *conditionalexpression,
@@ -979,7 +1220,7 @@ public:
     Node *statementconditional3;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementConditional2_Production1(Node *conditionalexpression, Node *statementsuitefunction,
@@ -996,7 +1237,7 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementConditional3(Node *statementsuitefunction) {
@@ -1012,7 +1253,7 @@ public:
     Node *statementexpression1;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeConditionalExpression(Node *statementexpression, Node *comparisonoperator,
@@ -1030,7 +1271,7 @@ public:
     Node *statementexpression;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeConditionalExpression_Production1(Node *comparisonoperatorunary, Node *statementexpression) {
@@ -1045,7 +1286,7 @@ public:
     Node *lessthan;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperator(Node *lessthan) {
@@ -1059,7 +1300,7 @@ public:
     Node *lessthanequals;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperator_Production1(Node *lessthanequals) {
@@ -1073,7 +1314,7 @@ public:
     Node *greaterthan;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperator_Production2(Node *greaterthan) {
@@ -1087,7 +1328,7 @@ public:
     Node *greaterthanequals;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperator_Production3(Node *greaterthanequals) {
@@ -1101,7 +1342,7 @@ public:
     Node *doubleequals;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperator_Production4(Node *doubleequals) {
@@ -1115,7 +1356,7 @@ public:
     Node *tripleequals;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperator_Production5(Node *tripleequals) {
@@ -1129,7 +1370,7 @@ public:
     Node *negation;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeComparisonOperatorUnary(Node *negation) {
@@ -1143,7 +1384,7 @@ public:
     Node *statementloopfor;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementLoop(Node *statementloopfor) {
@@ -1157,7 +1398,7 @@ public:
     Node *statementloopwhile;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementLoop_Production1(Node *statementloopwhile) {
@@ -1173,7 +1414,7 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementLoopFor(Node *identifier, Node *statementexpression, Node *statementsuitefunction) {
@@ -1192,7 +1433,7 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementLoopFor_Production1(Node *identifier, Node *statementexpression, Node *statementexpression1,
@@ -1211,7 +1452,7 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
-        return {};
+        return nullptr;
     };
 
     explicit NodeStatementLoopWhile(Node *conditionalexpression, Node *statementsuitefunction) {

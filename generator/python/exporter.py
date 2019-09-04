@@ -148,7 +148,7 @@ def export_node_definitions():
             name_prev = node_name
 
         STRUCT = '// {} -> {}\n'.format(key[0], key[1])
-        STRUCT += 'struct {} : virtual Node '.format(node_name) + "{\n" \
+        STRUCT += 'struct {} : public virtual Node '.format(node_name) + "{\n" \
                                                                  'public:\n'
         for var in VARIABLES:
             STRUCT += "\tNode* {};\n".format(var)

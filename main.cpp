@@ -18,8 +18,9 @@ int SCOPE_LEVEL = 1;
 int SCOPE_DEPTH_LIMIT = 256;
 map<int, map<string, Node *>> SCOPED_SYMBOL_TABLE = {};
 
+// TODO - Tooling broken? Check it out before compiling again!!!!!
 int main() {
-    string input = "@function: x { y = 2\nz = x }$";
+    string input = "@function: x, y { z = x * 3\nreturn z * y }\nmyvariable = function(2, 3)$";
     Lexer lexer = {input};
     vector<LexerResult> tokens = lexer.lex();
 
@@ -30,8 +31,11 @@ int main() {
     cout << "Scoped Table at \"Level 1\" Items..." << endl;
     std::for_each(SCOPED_SYMBOL_TABLE[1].begin(), SCOPED_SYMBOL_TABLE[1].end(), [](const pair<string, Node *> &p) {
         cout << p.first << ": ";
-        auto *pItem = dynamic_cast<NodeTerm *>(p.second);
-        cout << pItem->token << endl;
+        if (auto *pItem = dynamic_cast<NodeTerm *>(p.second)) {
+            cout << pItem->token << endl;
+        } else {
+            cout << endl;
+        }
     });
 
 }
