@@ -110,13 +110,13 @@ Class variables are created as they are called. You do not have to pre-declare t
         my.x = x
     }
     
-    @printer() {
+    @printer: {
         print my.x
     }
 }
 
 z = myclass(2)
-print z
+z.printer()
 
 >> 2
 ```
