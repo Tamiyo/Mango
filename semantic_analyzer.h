@@ -48,7 +48,17 @@ string floatArithmetic(const string &a, const string &b, const string &op) {
     } else if (op == "/") {
         return to_string(float_a / float_b);
     } else if (op == "%") {
-        return "";
+        throw "Operation not defined exception";
+    } else if (op == "<") {
+        return to_string(float_a < float_b);
+    } else if (op == "<=") {
+        return to_string(float_a <= float_b);
+    } else if (op == ">") {
+        return to_string(float_a > float_b);
+    } else if (op == ">=") {
+        return to_string(float_a >= float_b);
+    } else if (op == "==") {
+        return to_string(float_a == float_b);
     }
 }
 
@@ -66,20 +76,41 @@ string integerArithmetic(const string &a, const string &b, const string &op) {
         return to_string(integer_a / integer_b);
     } else if (op == "%") {
         return to_string(integer_a % integer_b);
+    } else if (op == "<") {
+        return to_string(integer_a < integer_b);
+    } else if (op == "<=") {
+        return to_string(integer_a <= integer_b);
+    } else if (op == ">") {
+        return to_string(integer_a > integer_b);
+    } else if (op == ">=") {
+        return to_string(integer_a >= integer_b);
+    } else if (op == "==") {
+        return to_string(integer_a == integer_b);
     }
+
 }
 
 string stringArithmetic(const string &a, const string &b, const string &op) {
     if (op == "+") {
         return a + b;
     } else if (op == "-") {
-        return "";
+        throw "Operation not defined exception";
     } else if (op == "*") {
-        return "";
+        throw "Operation not defined exception";
     } else if (op == "/") {
-        return "";
+        throw "Operation not defined exception";
     } else if (op == "%") {
-        return "";
+        throw "Operation not defined exception";
+    } else if (op == "<") {
+        throw "Operation not defined exception";
+    } else if (op == "<=") {
+        throw "Operation not defined exception";
+    } else if (op == ">") {
+        throw "Operation not defined exception";
+    } else if (op == ">=") {
+        throw "Operation not defined exception";
+    } else if (op == "==") {
+        return to_string(a == b);
     }
 }
 

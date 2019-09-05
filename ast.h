@@ -1245,41 +1245,6 @@ public:
     }
 };
 
-// NTS_CONDITIONAL_EXPRESSION -> NTS_STATEMENT_EXPRESSION NTS_COMPARISON_OPERATOR NTS_STATEMENT_EXPRESSION
-class NodeConditionalExpression : public virtual Node {
-public:
-    Node *statementexpression;
-    Node *comparisonoperator;
-    Node *statementexpression1;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeConditionalExpression(Node *statementexpression, Node *comparisonoperator,
-                                       Node *statementexpression1) {
-        this->statementexpression = statementexpression;
-        this->comparisonoperator = comparisonoperator;
-        this->statementexpression1 = statementexpression1;
-    }
-};
-
-// NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY NTS_STATEMENT_EXPRESSION
-class NodeConditionalExpression_Production1 : public virtual Node {
-public:
-    Node *comparisonoperatorunary;
-    Node *statementexpression;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeConditionalExpression_Production1(Node *comparisonoperatorunary, Node *statementexpression) {
-        this->comparisonoperatorunary = comparisonoperatorunary;
-        this->statementexpression = statementexpression;
-    }
-};
-
 // NTS_COMPARISON_OPERATOR -> TS_LESS_THAN
 class NodeComparisonOperator : public virtual Node {
 public:
@@ -1361,6 +1326,70 @@ public:
 
     explicit NodeComparisonOperator_Production5(Node *tripleequals) {
         this->tripleequals = tripleequals;
+    }
+};
+
+
+// NTS_CONDITIONAL_EXPRESSION -> NTS_STATEMENT_EXPRESSION NTS_COMPARISON_OPERATOR NTS_STATEMENT_EXPRESSION
+class NodeConditionalExpression : public virtual Node {
+public:
+    Node *statementexpression;
+    Node *comparisonoperator;
+    Node *statementexpression1;
+
+    Node *eval() override {
+
+        // Less Than
+        if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator *> (comparisonoperator)) {
+
+        }
+            // Less than equals
+        else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production1 *> (comparisonoperator)) {
+
+        }
+            // Greater than
+        else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production2 *> (comparisonoperator)) {
+
+        }
+            // Greater than equals
+        else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production3 *> (comparisonoperator)) {
+
+        }
+            // Double Equals
+        else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production4 *> (comparisonoperator)) {
+
+        }
+            // Triple Equals
+        else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production5 *> (comparisonoperator)) {
+
+        } else {
+            throw "Undefined Operator Exception";
+        }
+
+        return nullptr;
+    };
+
+    explicit NodeConditionalExpression(Node *statementexpression, Node *comparisonoperator,
+                                       Node *statementexpression1) {
+        this->statementexpression = statementexpression;
+        this->comparisonoperator = comparisonoperator;
+        this->statementexpression1 = statementexpression1;
+    }
+};
+
+// NTS_CONDITIONAL_EXPRESSION -> NTS_COMPARISON_OPERATOR_UNARY NTS_STATEMENT_EXPRESSION
+class NodeConditionalExpression_Production1 : public virtual Node {
+public:
+    Node *comparisonoperatorunary;
+    Node *statementexpression;
+
+    Node *eval() override {
+        return nullptr;
+    };
+
+    explicit NodeConditionalExpression_Production1(Node *comparisonoperatorunary, Node *statementexpression) {
+        this->comparisonoperatorunary = comparisonoperatorunary;
+        this->statementexpression = statementexpression;
     }
 };
 

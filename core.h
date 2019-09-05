@@ -29,7 +29,6 @@ enum TokenType {
 
     Equals,
     DoubleEquals,
-    TripleEquals,
     LessThan,
     LessThanEquals,
     GreaterThan,
@@ -175,7 +174,6 @@ TokenType symbol_to_enum(const string &symbol) {
     if (symbol == "^") { return TokenType::Exponent; }
     if (symbol == "=") { return TokenType::Equals; }
     if (symbol == "==") { return TokenType::DoubleEquals; }
-    if (symbol == "===") { return TokenType::TripleEquals; }
     if (symbol == "<") { return TokenType::LessThan; }
     if (symbol == "<=") { return TokenType::LessThanEquals; }
     if (symbol == ">") { return TokenType::GreaterThan; }
