@@ -102,7 +102,7 @@ myprintfunction()
 You got me!
 ```
 
-#### Class Declaration and Usage
+#### Class Declaration and Usage (TODO)
 Class variables are created as they are called. You do not have to pre-declare the variables. Once you declare the variable, it is avaliable within the entire encompassing scope (not the global scope).
 ```
 @myclass {
