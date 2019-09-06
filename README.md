@@ -1,5 +1,5 @@
 # Mango
-[Early Development] Mango is an imperative programming language written in Rust. This is my first language that I have written, and I am building the compiler from the ground up.
+[Early Development] Mango is an imperative programming language written in C++. This is my first language that I have written, and I am building the compiler from the ground up.
 
 ## Breakdown
 
