@@ -100,9 +100,7 @@ public:
     Node *statementlistfunction;
 
     Node *eval() override {
-        SCOPE_LEVEL++;
         Node *tmp = statementlistfunction->eval();
-        SCOPE_LEVEL--;
         cout << "done with function call" << endl;
         return tmp;
     };
@@ -251,7 +249,7 @@ public:
     Node *statementcomplex;
 
     Node *eval() override {
-        return nullptr;
+        return statementcomplex->eval();
     };
 
     explicit NodeStatement_Production1(Node *statementcomplex) {
@@ -405,7 +403,7 @@ public:
     Node *statementloop;
 
     Node *eval() override {
-        return nullptr;
+        return statementloop->eval();
     };
 
     explicit NodeStatementComplex(Node *statementloop) {
@@ -1066,7 +1064,12 @@ public:
             cout << "nodeStatementSuiteFunction: " << nodeStatementSuiteFunction << endl;
 
             cout << "parameters match function (void): " << nodeIdentifier->token << endl;
-            return nodeStatementSuiteFunction->eval();
+
+            SCOPE_LEVEL++;
+            Node *result = nodeStatementSuiteFunction->eval();
+            SCOPE_LEVEL--;
+
+            return result;
         } else {
             throw "Function not defined: " + nodeIdentifier->token;
         }
@@ -1136,112 +1139,6 @@ public:
     explicit NodeStatementAssignment(Node *identifier, Node *statementexpression) {
         this->identifier = identifier;
         this->statementexpression = statementexpression;
-    }
-};
-
-// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-class NodeStatementConditional : public virtual Node {
-public:
-    Node *conditionalexpression;
-    Node *statementsuitefunction;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeStatementConditional(Node *conditionalexpression, Node *statementsuitefunction) {
-        this->conditionalexpression = conditionalexpression;
-        this->statementsuitefunction = statementsuitefunction;
-    }
-};
-
-// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_2
-class NodeStatementConditional_Production1 : public virtual Node {
-public:
-    Node *conditionalexpression;
-    Node *statementsuitefunction;
-    Node *statementconditional2;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeStatementConditional_Production1(Node *conditionalexpression, Node *statementsuitefunction,
-                                                  Node *statementconditional2) {
-        this->conditionalexpression = conditionalexpression;
-        this->statementsuitefunction = statementsuitefunction;
-        this->statementconditional2 = statementconditional2;
-    }
-};
-
-// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
-class NodeStatementConditional_Production2 : public virtual Node {
-public:
-    Node *conditionalexpression;
-    Node *statementsuitefunction;
-    Node *statementconditional3;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeStatementConditional_Production2(Node *conditionalexpression, Node *statementsuitefunction,
-                                                  Node *statementconditional3) {
-        this->conditionalexpression = conditionalexpression;
-        this->statementsuitefunction = statementsuitefunction;
-        this->statementconditional3 = statementconditional3;
-    }
-};
-
-// NTS_STATEMENT_CONDITIONAL_2 -> NTS_STATEMENT_CONDITIONAL_2 TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-class NodeStatementConditional2 : public virtual Node {
-public:
-    Node *statementconditional2;
-    Node *conditionalexpression;
-    Node *statementsuitefunction;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeStatementConditional2(Node *statementconditional2, Node *conditionalexpression,
-                                       Node *statementsuitefunction) {
-        this->statementconditional2 = statementconditional2;
-        this->conditionalexpression = conditionalexpression;
-        this->statementsuitefunction = statementsuitefunction;
-    }
-};
-
-// NTS_STATEMENT_CONDITIONAL_2 -> TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
-class NodeStatementConditional2_Production1 : public virtual Node {
-public:
-    Node *conditionalexpression;
-    Node *statementsuitefunction;
-    Node *statementconditional3;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeStatementConditional2_Production1(Node *conditionalexpression, Node *statementsuitefunction,
-                                                   Node *statementconditional3) {
-        this->conditionalexpression = conditionalexpression;
-        this->statementsuitefunction = statementsuitefunction;
-        this->statementconditional3 = statementconditional3;
-    }
-};
-
-// NTS_STATEMENT_CONDITIONAL_3 -> TS_ELSE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
-class NodeStatementConditional3 : public virtual Node {
-public:
-    Node *statementsuitefunction;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeStatementConditional3(Node *statementsuitefunction) {
-        this->statementsuitefunction = statementsuitefunction;
     }
 };
 
@@ -1315,21 +1212,6 @@ public:
     }
 };
 
-// NTS_COMPARISON_OPERATOR -> TS_TRIPLE_EQUALS
-class NodeComparisonOperator_Production5 : public virtual Node {
-public:
-    Node *tripleequals;
-
-    Node *eval() override {
-        return nullptr;
-    };
-
-    explicit NodeComparisonOperator_Production5(Node *tripleequals) {
-        this->tripleequals = tripleequals;
-    }
-};
-
-
 // NTS_CONDITIONAL_EXPRESSION -> NTS_STATEMENT_EXPRESSION NTS_COMPARISON_OPERATOR NTS_STATEMENT_EXPRESSION
 class NodeConditionalExpression : public virtual Node {
 public:
@@ -1337,36 +1219,38 @@ public:
     Node *comparisonoperator;
     Node *statementexpression1;
 
-    Node *eval() override {
+    Node *eval() {
+        return {};
+    }
+
+    string eval_() {
+
+        NodeTerm *term1 = dynamic_cast<NodeTerm *>(statementexpression->eval());
+        NodeTerm *term2 = dynamic_cast<NodeTerm *>(statementexpression1->eval());
 
         // Less Than
         if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator *> (comparisonoperator)) {
-
+            return doArithmetic(term1->token, term2->token, term1->inferred_type, "<");
         }
             // Less than equals
         else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production1 *> (comparisonoperator)) {
-
+            return doArithmetic(term1->token, term2->token, term1->inferred_type, "<=");
         }
             // Greater than
         else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production2 *> (comparisonoperator)) {
-
+            return doArithmetic(term1->token, term2->token, term1->inferred_type, ">");
         }
             // Greater than equals
         else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production3 *> (comparisonoperator)) {
-
+            return doArithmetic(term1->token, term2->token, term1->inferred_type, ">=");
         }
             // Double Equals
         else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production4 *> (comparisonoperator)) {
-
-        }
-            // Triple Equals
-        else if (auto *comparisonOperatorEval = dynamic_cast<NodeComparisonOperator_Production5 *> (comparisonoperator)) {
-
+            return doArithmetic(term1->token, term2->token, term1->inferred_type, "==");
         } else {
             throw "Undefined Operator Exception";
         }
-
-        return nullptr;
+        return "";
     };
 
     explicit NodeConditionalExpression(Node *statementexpression, Node *comparisonoperator,
@@ -1407,13 +1291,183 @@ public:
     }
 };
 
+// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+class NodeStatementConditional : public virtual Node {
+public:
+    Node *conditionalexpression;
+    Node *statementsuitefunction;
+
+    Node *eval() override {
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            return statementsuitefunction->eval();
+        }
+
+        return nullptr;
+    };
+
+    explicit NodeStatementConditional(Node *conditionalexpression, Node *statementsuitefunction) {
+        this->conditionalexpression = conditionalexpression;
+        this->statementsuitefunction = statementsuitefunction;
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_2
+class NodeStatementConditional_Production1 : public virtual Node {
+public:
+    Node *conditionalexpression;
+    Node *statementsuitefunction;
+    Node *statementconditional2;
+
+    Node *eval() override {
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            return statementsuitefunction->eval();
+        }
+
+        statementconditional2->eval();
+        return nullptr;
+    };
+
+    explicit NodeStatementConditional_Production1(Node *conditionalexpression, Node *statementsuitefunction,
+                                                  Node *statementconditional2) {
+        this->conditionalexpression = conditionalexpression;
+        this->statementsuitefunction = statementsuitefunction;
+        this->statementconditional2 = statementconditional2;
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL -> TS_IF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
+class NodeStatementConditional_Production2 : public virtual Node {
+public:
+    Node *conditionalexpression;
+    Node *statementsuitefunction;
+    Node *statementconditional3;
+
+    Node *eval() override {
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            return statementsuitefunction->eval();
+        }
+
+        statementconditional3->eval();
+        return nullptr;
+    };
+
+    explicit NodeStatementConditional_Production2(Node *conditionalexpression, Node *statementsuitefunction,
+                                                  Node *statementconditional3) {
+        this->conditionalexpression = conditionalexpression;
+        this->statementsuitefunction = statementsuitefunction;
+        this->statementconditional3 = statementconditional3;
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL_2 -> NTS_STATEMENT_CONDITIONAL_2 TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+class NodeStatementConditional2 : public virtual Node {
+public:
+    Node *statementconditional2;
+    Node *conditionalexpression;
+    Node *statementsuitefunction;
+
+    Node *eval() override {
+
+        statementconditional2->eval();
+
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            return statementsuitefunction->eval();
+        }
+        return nullptr;
+    };
+
+    explicit NodeStatementConditional2(Node *statementconditional2, Node *conditionalexpression,
+                                       Node *statementsuitefunction) {
+        this->statementconditional2 = statementconditional2;
+        this->conditionalexpression = conditionalexpression;
+        this->statementsuitefunction = statementsuitefunction;
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL_2 -> TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE NTS_STATEMENT_CONDITIONAL_3
+class NodeStatementConditional2_Production1 : public virtual Node {
+public:
+    Node *conditionalexpression;
+    Node *statementsuitefunction;
+    Node *statementconditional3;
+
+    Node *eval() override {
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            return statementsuitefunction->eval();
+        }
+
+        statementconditional3->eval();
+        return nullptr;
+    };
+
+    explicit NodeStatementConditional2_Production1(Node *conditionalexpression, Node *statementsuitefunction,
+                                                   Node *statementconditional3) {
+        this->conditionalexpression = conditionalexpression;
+        this->statementsuitefunction = statementsuitefunction;
+        this->statementconditional3 = statementconditional3;
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL_2 -> TS_ELIF NTS_CONDITIONAL_EXPRESSION TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+struct NodeStatementConditional2_Production2 : public virtual Node {
+public:
+    Node *statementsuitefunction;
+    Node *conditionalexpression;
+
+    Node *eval() override {
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            return statementsuitefunction->eval();
+        }
+
+        return nullptr;
+    };
+
+    explicit NodeStatementConditional2_Production2(Node *statementsuitefunction, Node *conditionalexpression) {
+        this->statementsuitefunction = statementsuitefunction;
+        this->conditionalexpression = conditionalexpression;
+    }
+};
+
+// NTS_STATEMENT_CONDITIONAL_3 -> TS_ELSE TS_LEFT_CURLY_BRACE NTS_STATEMENT_SUITE_FUNCTION TS_RIGHT_CURLY_BRACE
+class NodeStatementConditional3 : public virtual Node {
+public:
+    Node *statementsuitefunction;
+
+    Node *eval() override {
+        return statementsuitefunction->eval();
+    };
+
+    explicit NodeStatementConditional3(Node *statementsuitefunction) {
+        this->statementsuitefunction = statementsuitefunction;
+    }
+};
+
+
 // NTS_STATEMENT_LOOP -> NTS_STATEMENT_LOOP_FOR
 class NodeStatementLoop : public virtual Node {
 public:
     Node *statementloopfor;
 
     Node *eval() override {
-        return nullptr;
+        return statementloopfor->eval();
     };
 
     explicit NodeStatementLoop(Node *statementloopfor) {
@@ -1427,7 +1481,7 @@ public:
     Node *statementloopwhile;
 
     Node *eval() override {
-        return nullptr;
+        return statementloopwhile->eval();
     };
 
     explicit NodeStatementLoop_Production1(Node *statementloopwhile) {
@@ -1481,6 +1535,17 @@ public:
     Node *statementsuitefunction;
 
     Node *eval() override {
+
+        loop_begin:
+
+        NodeConditionalExpression *nodeConditionalExpression = dynamic_cast<NodeConditionalExpression *>(conditionalexpression);
+        string output = nodeConditionalExpression->eval_();
+
+        if (output == "1") {
+            statementsuitefunction->eval();
+            goto loop_begin;
+        }
+
         return nullptr;
     };
 

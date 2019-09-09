@@ -20,7 +20,7 @@ map<int, map<string, Node *>> SCOPED_SYMBOL_TABLE = {};
 
 // TODO - Tooling broken? Check it out before compiling again!!!!!
 int main() {
-    string input = "@function: x, y { z = x * 3\nreturn z * y }\nmyvariable = function(2, 3)$";
+    string input = "x = 4\nwhile x < 6 { x = x + 1 }$";
     Lexer lexer = {input};
     vector<LexerResult> tokens = lexer.lex();
 
