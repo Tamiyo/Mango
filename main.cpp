@@ -1,41 +1,27 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
+#include "parsing/parser.h"
+#include "utilities/generator.h"
+#include "interpreter/interpreter.h"
 
-#include "lexer.h"
-#include "parser.h"
-
-#include "common.h"
-
-using std::string;
-using std::vector;
-using std::pair;
 using std::cout;
 using std::endl;
 
-int SCOPE_LEVEL = 1;
-int SCOPE_DEPTH_LIMIT = 256;
-map<int, map<string, Node *>> SCOPED_SYMBOL_TABLE = {};
-
-// TODO - Tooling broken? Check it out before compiling again!!!!!
 int main() {
-    string input = "x = 4\nwhile x < 6 { x = x + 1 }$";
-    Lexer lexer = {input};
-    vector<LexerResult> tokens = lexer.lex();
+    std::cout << "Hello, World!" << std::endl;
 
-    Parser parser = Parser(tokens);
-    NodeMango *root = dynamic_cast<NodeMango *>(parser.parse());
-    root->eval();
+    generator g;
+    g.generate();
+    cout << "# of itemsets: " << g.c.size() << endl;
 
-    cout << "Scoped Table at \"Level 1\" Items..." << endl;
-    std::for_each(SCOPED_SYMBOL_TABLE[1].begin(), SCOPED_SYMBOL_TABLE[1].end(), [](const pair<string, Node *> &p) {
-        cout << p.first << ": ";
-        if (auto *pItem = dynamic_cast<NodeTerm *>(p.second)) {
-            cout << pItem->token << endl;
-        } else {
-            cout << endl;
-        }
-    });
+//    lexer l;
+//    l.lex();
+//
+//    std::cout << l.tokens.print_state() << endl;
+//
+//    parser p(l.tokens);
+//    Mango1 *root = p.parse();
+//
+//    Interpreter I;
+//    I.visit(root);
 
+    return 0;
 }
