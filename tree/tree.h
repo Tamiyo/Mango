@@ -5,13 +5,19 @@
 
 using std::string;
 
-class Literal;
+class Identifier;
+class StringLiteral;
+class IntegerLiteral;
+class DoubleLiteral;
 class BaseExpression1;
 class BaseExpression2;
 class BaseExpression3;
 class Expression1;
 class Expression2;
 class Expression3;
+class Literal1;
+class Literal2;
+class Literal3;
 class Mango1;
 class MultiplicativeExpression1;
 class MultiplicativeExpression2;
@@ -28,43 +34,87 @@ class StatementSuite1;
 
 class Visitor {
 public:
-	virtual string visit(Literal *n) { return ""; };
-	virtual string visit(BaseExpression1* n) { return ""; };
-	virtual string visit(BaseExpression2* n) { return ""; };
-	virtual string visit(BaseExpression3* n) { return ""; };
-	virtual string visit(Expression1* n) { return ""; };
-	virtual string visit(Expression2* n) { return ""; };
-	virtual string visit(Expression3* n) { return ""; };
-	virtual string visit(Mango1* n) { return ""; };
-	virtual string visit(MultiplicativeExpression1* n) { return ""; };
-	virtual string visit(MultiplicativeExpression2* n) { return ""; };
-	virtual string visit(MultiplicativeExpression3* n) { return ""; };
-	virtual string visit(MultiplicativeExpression4* n) { return ""; };
-	virtual string visit(MultiplicativeExpression5* n) { return ""; };
-	virtual string visit(MultiplicativeExpression6* n) { return ""; };
-	virtual string visit(Print1* n) { return ""; };
-	virtual string visit(Statement1* n) { return ""; };
-	virtual string visit(Statement2* n) { return ""; };
-	virtual string visit(StatementList1* n) { return ""; };
-	virtual string visit(StatementList2* n) { return ""; };
-	virtual string visit(StatementSuite1* n) { return ""; };
+	virtual void visit(Identifier *n) { return; };
+	virtual void visit(StringLiteral *n) { return; };
+	virtual void visit(DoubleLiteral *n) { return; };
+	virtual void visit(IntegerLiteral *n) { return; };
+	virtual void visit(BaseExpression1* n) { return; };
+	virtual void visit(BaseExpression2* n) { return; };
+	virtual void visit(BaseExpression3* n) { return; };
+	virtual void visit(Expression1* n) { return; };
+	virtual void visit(Expression2* n) { return; };
+	virtual void visit(Expression3* n) { return; };
+	virtual void visit(Literal1* n) { return; };
+	virtual void visit(Literal2* n) { return; };
+	virtual void visit(Literal3* n) { return; };
+	virtual void visit(Mango1* n) { return; };
+	virtual void visit(MultiplicativeExpression1* n) { return; };
+	virtual void visit(MultiplicativeExpression2* n) { return; };
+	virtual void visit(MultiplicativeExpression3* n) { return; };
+	virtual void visit(MultiplicativeExpression4* n) { return; };
+	virtual void visit(MultiplicativeExpression5* n) { return; };
+	virtual void visit(MultiplicativeExpression6* n) { return; };
+	virtual void visit(Print1* n) { return; };
+	virtual void visit(Statement1* n) { return; };
+	virtual void visit(Statement2* n) { return; };
+	virtual void visit(StatementList1* n) { return; };
+	virtual void visit(StatementList2* n) { return; };
+	virtual void visit(StatementSuite1* n) { return; };
 };
 
 class Node {
 public:
-    virtual string accept(Visitor *v) = 0;
+    virtual void accept(Visitor *v) = 0;
 };
 
-class Literal : public Node {
+class Identifier : public Node {
 public:
     string f0;
 
-    explicit Literal(string n0) {
+    explicit Identifier(string n0) {
         f0 = std::move(n0);
     }
 
-    string accept(Visitor *v) override {
-        return v->visit(this);
+    void accept(Visitor *v) override {
+        v->visit(this);
+    }
+};
+class StringLiteral : public Node {
+public:
+    string f0;
+
+    explicit StringLiteral(string n0) {
+        f0 = std::move(n0);
+    }
+
+    void accept(Visitor *v) override {
+        v->visit(this);
+    }
+};
+
+class DoubleLiteral : public Node {
+public:
+    double f0;
+
+    explicit DoubleLiteral(string n0) {
+        f0 = std::stod(n0);
+    }
+
+    void accept(Visitor *v) override {
+        v->visit(this);
+    }
+};
+
+class IntegerLiteral : public Node {
+public:
+    int f0;
+
+    explicit IntegerLiteral(string n0) {
+        f0 = std::stoi(n0);
+    }
+
+    void accept(Visitor *v) override {
+        v->visit(this);
     }
 };
 
@@ -74,8 +124,8 @@ public:
 	explicit BaseExpression1(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -85,8 +135,8 @@ public:
 	explicit BaseExpression2(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -96,8 +146,8 @@ public:
 	explicit BaseExpression3(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -109,8 +159,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -122,8 +172,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -133,8 +183,41 @@ public:
 	explicit Expression3(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
+	}
+};
+
+class Literal1 : public Node {
+public:
+	Node* n1;
+	explicit Literal1(Node* a1) {
+		n1 = a1;
+	}
+	void accept(Visitor *v) override {
+		v->visit(this);
+	}
+};
+
+class Literal2 : public Node {
+public:
+	Node* n1;
+	explicit Literal2(Node* a1) {
+		n1 = a1;
+	}
+	void accept(Visitor *v) override {
+		v->visit(this);
+	}
+};
+
+class Literal3 : public Node {
+public:
+	Node* n1;
+	explicit Literal3(Node* a1) {
+		n1 = a1;
+	}
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -144,8 +227,8 @@ public:
 	explicit Mango1(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -157,8 +240,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -170,8 +253,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -183,8 +266,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -196,8 +279,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -209,8 +292,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -220,8 +303,8 @@ public:
 	explicit MultiplicativeExpression6(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -231,8 +314,8 @@ public:
 	explicit Print1(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -242,8 +325,8 @@ public:
 	explicit Statement1(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -253,8 +336,8 @@ public:
 	explicit Statement2(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -266,8 +349,8 @@ public:
 		n1 = a1;
 		n2 = a2;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -277,8 +360,8 @@ public:
 	explicit StatementList2(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 
@@ -288,8 +371,8 @@ public:
 	explicit StatementSuite1(Node* a1) {
 		n1 = a1;
 	}
-	string accept(Visitor *v) override {
-		return v->visit(this);
+	void accept(Visitor *v) override {
+		v->visit(this);
 	}
 };
 

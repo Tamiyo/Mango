@@ -4,8 +4,11 @@
 #include "string"
 #include "fstream"
 #include "algorithm"
+#include "queue"
+
 #include "../core/grammar.h"
-#include "parse_table.h"
+
+using std::queue;
 
 using std::string;
 using std::find;
@@ -25,7 +28,7 @@ public:
     }
 
     friend std::ostream &operator<<(std::ostream &os, const lexer_token &ltok) {
-        os << grammar::token_map[ltok.tok];
+        os << "[" << grammar::token_map[ltok.tok] << ", " << ltok.val << "]";
         return os;
     }
 
@@ -40,7 +43,7 @@ public:
 
     void lex();
 
-    stack<lexer_token> tokens;
+    queue<lexer_token> tokens;
 private:
     string contents;
 };

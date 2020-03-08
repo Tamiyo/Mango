@@ -15,7 +15,7 @@ void generator::generate() {
     gitems();
     gtable_action();
     gtable_goto();
-    gtable_file();
+    gtable_files();
 }
 
 void generator::gfirst() {
@@ -163,8 +163,8 @@ void generator::gtable_goto() {
     }
 }
 
-void generator::gtable_file() {
-    ofstream ofile("../parser/parse_table.h");
+void generator::gtable_files() {
+    ofstream ofile("../parsing/parse_table.h");
     ofile.clear();
 
     ostringstream ss;
@@ -173,59 +173,15 @@ void generator::gtable_file() {
           "#define MANGOREVISITEDCPPCLION_PARSE_TABLE_H\n"
           "\n"
           "#include \"map\"\n"
-          "#include \"iostream\"\n"
-          "#include \"sstream\"\n"
-          "#include \"algorithm\"\n"
+          "#include \"stack\"\n"
           "#include \"../core/grammar.h\"\n"
           "#include \"../tree/tree.h\"\n"
           "\n"
           "using std::map;\n"
-          "using grammar::token;\n"
           "using std::pair;\n"
-          "\n"
-          "template<typename T>\n"
-          "class stack {\n"
-          "public:\n"
-          "    explicit stack() {\n"
-          "        stk = {};\n"
-          "    }\n"
-          "\n"
-          "    std::vector<T> stk;\n"
-          "\n"
-          "    void push(T v) {\n"
-          "        stk.emplace_back(v);\n"
-          "    }\n"
-          "\n"
-          "    T pop() {\n"
-          "        T x = stk.back();\n"
-          "        stk.pop_back();\n"
-          "        return x;\n"
-          "    }\n"
-          "\n"
-          "    T peek() {\n"
-          "        return stk.back();\n"
-          "    }\n"
-          "\n"
-          "    bool empty() {\n"
-          "        return stk.empty();\n"
-          "    }\n"
-          "\n"
-          "    int size() {\n"
-          "        return stk.size();\n"
-          "    }\n"
-          "\n"
-          "    void reverse() {\n"
-          "        std::reverse(stk.begin(), stk.end());\n"
-          "    }\n"
-          "\n"
-          "    string print_state() {\n"
-          "        auto ss = std::ostringstream();\n"
-          "        for(const auto& elem : stk) {\n"
-          "            ss << elem << \" \";\n"
-          "        }\n"
-          "        return ss.str();\n"
-          "    }\n"
-          "};\n";
+          "using std::stack;\n\n"
+          "using namespace grammar;\n"
+          "\n";
 
     ss << "static map<pair<int, token>, int> taction = {\n";
     for (const auto &p : taction) {
@@ -258,14 +214,19 @@ void generator::gtable_file() {
             gindex++;
             i++;
             std::vector<string> tempvars = {};
-            for (const auto &sym : production) {
+            vector<token> production_reversed = production;
+            std::reverse(production_reversed.begin(), production_reversed.end());
+            for (const auto &sym : production_reversed) {
                 if (find(nonterminals.begin(), nonterminals.end(), sym) != nonterminals.end() ||
-                    sym == token::literal || sym == token::identifier) {
+                    sym == token::type_string || sym == token::type_int || sym == token::type_double ||
+                    sym == token::identifier) {
                     tempvars.emplace_back(grammar::token_map[sym]);
-                    ss << "\t\t\t" << "auto* " << grammar::token_map[sym] << " = value_stack->pop();\n";
+                    ss << "\t\t\t" << "auto* " << grammar::token_map[sym] << " = value_stack->top();\n";
+                    ss << "\t\t\t" << "value_stack->pop();\n";
                 }
             }
             ss << "\t\t\t" << "auto* node = new " << grammar::token_map[key] << i << " {";
+            std::reverse(tempvars.begin(), tempvars.end());
             node_pointer_map[grammar::token_map[key] + std::to_string(i)] = tempvars;
             for (int q = 0; q < (int) tempvars.size(); q++) {
                 if (q == tempvars.size() - 1) {
@@ -309,7 +270,10 @@ void generator::gtable_tree(const map<string, vector<string>> &node_pointer_map)
           "#include \"string\"\n"
           "\n"
           "using std::string;\n\n"
-          "class Literal;\n";
+          "class Identifier;\n"
+          "class StringLiteral;\n"
+          "class IntegerLiteral;\n"
+          "class DoubleLiteral;\n";
 
 
     for (const auto &p : node_pointer_map) {
@@ -318,28 +282,69 @@ void generator::gtable_tree(const map<string, vector<string>> &node_pointer_map)
 
     ss << "\nclass Visitor {\n"
           "public:\n"
-          "\tvirtual string visit(Literal *n) { return \"\"; };\n";
+          "\tvirtual void visit(Identifier *n) { return; };\n"
+          "\tvirtual void visit(StringLiteral *n) { return; };\n"
+          "\tvirtual void visit(DoubleLiteral *n) { return; };\n"
+          "\tvirtual void visit(IntegerLiteral *n) { return; };\n";
 
     for (const auto &p : node_pointer_map) {
-        ss << "\tvirtual string visit(" << p.first << "* n) { return \"\"; };" << "\n";
+        ss << "\tvirtual void visit(" << p.first << "* n) { return; };" << "\n";
     }
 
     ss << "};\n\n";
 
     ss << "class Node {\n"
           "public:\n"
-          "    virtual string accept(Visitor *v) = 0;\n"
+          "    virtual void accept(Visitor *v) = 0;\n"
           "};\n\n"
-          "class Literal : public Node {\n"
+          "class Identifier : public Node {\n"
           "public:\n"
           "    string f0;\n"
           "\n"
-          "    explicit Literal(string n0) {\n"
+          "    explicit Identifier(string n0) {\n"
           "        f0 = std::move(n0);\n"
           "    }\n"
           "\n"
-          "    string accept(Visitor *v) override {\n"
-          "        return v->visit(this);\n"
+          "    void accept(Visitor *v) override {\n"
+          "        v->visit(this);\n"
+          "    }\n"
+          "};\n"
+          "class StringLiteral : public Node {\n"
+          "public:\n"
+          "    string f0;\n"
+          "\n"
+          "    explicit StringLiteral(string n0) {\n"
+          "        f0 = std::move(n0);\n"
+          "    }\n"
+          "\n"
+          "    void accept(Visitor *v) override {\n"
+          "        v->visit(this);\n"
+          "    }\n"
+          "};\n"
+          "\n"
+          "class DoubleLiteral : public Node {\n"
+          "public:\n"
+          "    double f0;\n"
+          "\n"
+          "    explicit DoubleLiteral(string n0) {\n"
+          "        f0 = std::stod(n0);\n"
+          "    }\n"
+          "\n"
+          "    void accept(Visitor *v) override {\n"
+          "        v->visit(this);\n"
+          "    }\n"
+          "};\n"
+          "\n"
+          "class IntegerLiteral : public Node {\n"
+          "public:\n"
+          "    int f0;\n"
+          "\n"
+          "    explicit IntegerLiteral(string n0) {\n"
+          "        f0 = std::stoi(n0);\n"
+          "    }\n"
+          "\n"
+          "    void accept(Visitor *v) override {\n"
+          "        v->visit(this);\n"
           "    }\n"
           "};\n\n";
 
@@ -366,8 +371,8 @@ void generator::gtable_tree(const map<string, vector<string>> &node_pointer_map)
         }
         ss << "\t}\n";
 
-        ss << "\tstring accept(Visitor *v) override {\n"
-              "\t\treturn v->visit(this);\n"
+        ss << "\tvoid accept(Visitor *v) override {\n"
+              "\t\tv->visit(this);\n"
               "\t}\n";
         ss << "};\n\n";
     }
@@ -387,16 +392,27 @@ void generator::gtable_interpreter(const map<string, vector<string>> &node_point
     ss << "#ifndef MANGOREVISITEDCPPCLION_INTERPRETER_H\n"
           "#define MANGOREVISITEDCPPCLION_INTERPRETER_H\n"
           "\n"
+          "#include \"iostream\"\n"
+          "#include \"cmath\"\n\n"
           "#include \"../tree/tree.h\"\n"
-          "#include \"iostream\"\n\n";
+          "#include \"state.h\"\n\n"
+          "using std::cout;\n"
+          "using std::endl;\n\n";
 
     ss << "class Interpreter : public Visitor {\n"
           "public:\n"
-          "\tstring visit(Literal *n) override;\n";
+          "\tvoid visit(Identifier *n) override;\n"
+          "\tvoid visit(StringLiteral *n) override;\n"
+          "\tvoid visit(DoubleLiteral *n) override;\n"
+          "\tvoid visit(IntegerLiteral *n) override;\n";
 
     for (const auto &p : node_pointer_map) {
-        ss << "\tstring visit(" << p.first << "* n) override;\n";
+        ss << "\tvoid visit(" << p.first << "* n) override;\n";
     }
+
+    ss << "private:\n";
+    ss << "\tstate current_state;\n"
+          "\tstatic string get_type_debug(const variant<int, string, double>&);\n";
 
     ss << "};\n\n";
 

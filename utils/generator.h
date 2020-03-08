@@ -186,7 +186,7 @@ public:
 
     void gtable_goto();
 
-    void gtable_file();
+    void gtable_files();
     void gtable_tree(const map<string, vector<string>>&);
     void gtable_interpreter(const map<string, vector<string>>&);
 
