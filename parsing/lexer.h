@@ -28,7 +28,7 @@ public:
     }
 
     friend std::ostream &operator<<(std::ostream &os, const lexer_token &ltok) {
-        os << "[" << grammar::token_map[ltok.tok] << ", " << ltok.val << "]";
+        os << "[" << grammar::token_map[ltok.tok] << ", " << ((ltok.val == "\n") ? "newline" : ltok.val) << "]";
         return os;
     }
 

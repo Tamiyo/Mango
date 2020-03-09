@@ -39,6 +39,10 @@ Mango1 *parser::parse() {
                 auto *node = new StringLiteral{ltoken.val};
                 value_stack.push(node);
             }
+            if (ltoken.tok == token::identifier) {
+                auto *node = new Identifier{ltoken.val};
+                value_stack.push(node);
+            }
 
             ltokens.pop();
             state_stack.push(decision);

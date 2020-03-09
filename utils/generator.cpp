@@ -216,12 +216,13 @@ void generator::gtable_files() {
             std::vector<string> tempvars = {};
             vector<token> production_reversed = production;
             std::reverse(production_reversed.begin(), production_reversed.end());
+            int offset = 1;
             for (const auto &sym : production_reversed) {
                 if (find(nonterminals.begin(), nonterminals.end(), sym) != nonterminals.end() ||
                     sym == token::type_string || sym == token::type_int || sym == token::type_double ||
                     sym == token::identifier) {
-                    tempvars.emplace_back(grammar::token_map[sym]);
-                    ss << "\t\t\t" << "auto* " << grammar::token_map[sym] << " = value_stack->top();\n";
+                    tempvars.emplace_back(grammar::token_map[sym] + "_" + std::to_string(offset));
+                    ss << "\t\t\t" << "auto* " << grammar::token_map[sym] << "_" << offset++ << " = value_stack->top();\n";
                     ss << "\t\t\t" << "value_stack->pop();\n";
                 }
             }
@@ -393,9 +394,10 @@ void generator::gtable_interpreter(const map<string, vector<string>> &node_point
           "#define MANGOREVISITEDCPPCLION_INTERPRETER_H\n"
           "\n"
           "#include \"iostream\"\n"
+          "#include \"algorithm\"\n"
           "#include \"cmath\"\n\n"
           "#include \"../tree/tree.h\"\n"
-          "#include \"state.h\"\n\n"
+          "#include \"scope.h\"\n\n"
           "using std::cout;\n"
           "using std::endl;\n\n";
 
@@ -410,8 +412,9 @@ void generator::gtable_interpreter(const map<string, vector<string>> &node_point
         ss << "\tvoid visit(" << p.first << "* n) override;\n";
     }
 
-    ss << "private:\n";
-    ss << "\tstate current_state;\n"
+    ss << "\nprivate:\n"
+          "\tstack<scope> scope_stack;\n";
+    ss << "\tscope cur_scope;\n"
           "\tstatic string get_type_debug(const variant<int, string, double>&);\n";
 
     ss << "};\n\n";

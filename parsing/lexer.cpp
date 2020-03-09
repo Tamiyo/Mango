@@ -1,5 +1,7 @@
 #include "lexer.h"
 
+#include "iostream"
+
 lexer::lexer() {
     ifstream ifs(R"(D:\Documents\MangoRevisitedCppCLion\example.mg)");
     string content((istreambuf_iterator<char>(ifs)),
@@ -51,8 +53,7 @@ void lexer::lex() {
             index++;
         }
         // Operator
-
-        else if (operator_token_map.count(string(1, contents[index])) > 0) {
+        else if (operator_token_map.count(string(1, contents[index])) > 0 || operator_token_map.count(string(2, contents[index])) > 0) {
             if (index < maxSize && operator_token_map.count(contents.substr(index, 2)) > 0) {
                 string slice = contents.substr(index, 2);
                 tokens.push({operator_token_map[slice], slice});

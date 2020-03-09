@@ -13,11 +13,18 @@ namespace grammar {
     enum token {
         Mango,
         StatementSuite,
+        NewlineLoop,
         StatementList,
         Statement,
+        SimpleStatement,
+        ComplexStatement,
         Print,
+        Assignment,
+        ForLoop,
+        WhileLoop,
         Expression,
         MultiplicativeExpression,
+        ConditionalExpression,
         BaseExpression,
         Literal,
 
@@ -81,11 +88,18 @@ namespace grammar {
     static vector<token> nonterminals = {
             Mango,
             StatementSuite,
+            NewlineLoop,
             StatementList,
             Statement,
+            SimpleStatement,
+            ComplexStatement,
             Print,
+            Assignment,
+            ForLoop,
+            WhileLoop,
             Expression,
             MultiplicativeExpression,
+            ConditionalExpression,
             BaseExpression,
             Literal,
     };
@@ -150,11 +164,18 @@ namespace grammar {
     static map<token, string> token_map = {
             {Mango,                    "Mango"},
             {StatementSuite,           "StatementSuite"},
+            {NewlineLoop,              "NewlineLoop"},
             {StatementList,            "StatementList"},
             {Statement,                "Statement"},
+            {SimpleStatement,          "SimpleStatement"},
+            {ComplexStatement,         "ComplexStatement"},
             {Print,                    "Print"},
+            {Assignment,               "Assignment"},
+            {ForLoop,                  "ForLoop"},
+            {WhileLoop,                "WhileLoop"},
             {Expression,               "Expression"},
             {MultiplicativeExpression, "MultiplicativeExpression"},
+            {ConditionalExpression,    "ConditionalExpression"},
             {BaseExpression,           "BaseExpression"},
             {Literal,                  "Literal"},
             {op_plus,                  "op_plus"},
@@ -225,12 +246,12 @@ namespace grammar {
             {"//", op_idiv},
             {"%",  op_mod},
             {"^",  op_pow},
+            {"=",  op_equals},
             {"<",  cop_lt},
             {"<=", cop_lte},
             {">",  cop_gt},
             {">=", cop_gte},
             {"==", cop_equals},
-            {"=",  op_equals},
             {"!",  logical_not},
             {"&&", logical_and},
             {"||", logical_or},
@@ -283,48 +304,105 @@ namespace grammar {
             },
             {
                     StatementSuite,           {
+                                                      {NewlineLoop,              StatementList},
                                                       {StatementList}
                                               }
             },
             {
                     StatementList,            {
-                                                      {Statement,                newline,    StatementList},
-                                                      {Statement,                newline}
+                                                      {Statement,                NewlineLoop, StatementList},
+                                                      {Statement,                NewlineLoop},
+                                                      {Statement},
+                                              }
+            },
+            {
+                    NewlineLoop,              {
+                                                      {newline,                  NewlineLoop},
+                                                      {newline}
                                               }
             },
             {
                     Statement,                {
+                                                      {SimpleStatement},
+                                                      {ComplexStatement}
+                                              }
+            },
+            {
+                    SimpleStatement,          {
+                                                      {Expression},
+                                              }
+            },
+            {
+                    ComplexStatement,         {
                                                       {Print},
-                                                      {Expression}
+                                                      {Assignment},
+                                                      {ForLoop},
+                                                      {WhileLoop}
                                               }
             },
             {
                     Print,                    {
-                                                      {kw_print,                 open_paren, Expression, close_paren}
+                                                      {kw_print,                 open_paren,  SimpleStatement, close_paren}
+                                              }
+            },
+            {
+                    Assignment,               {
+                                                      {identifier,               op_equals,   SimpleStatement}
+                                              }
+            },
+            {
+                    ForLoop,                  {
+                                                      {kw_for,                   identifier,  colon,
+                                                                                                               type_int,   open_curly,    StatementSuite, close_curly},
+
+                                                      {kw_for,                   identifier, colon,
+                                                              type_int, comma, type_int,
+                                                              open_curly, StatementSuite, close_curly},
+                                              }
+            },
+            {
+                    WhileLoop,                {
+                                                      {kw_while,                 Expression,  colon,           open_curly, StatementList, close_curly}
                                               }
             },
             {
                     Expression,               {
-                                                      {MultiplicativeExpression, op_plus,    Expression},
-                                                      {MultiplicativeExpression, op_minus, Expression},
+                                                      {MultiplicativeExpression, op_plus,     Expression},
+                                                      {MultiplicativeExpression, op_minus,   Expression},
                                                       {MultiplicativeExpression},
                                               }
             },
             {
                     MultiplicativeExpression, {
-                                                      {BaseExpression,           op_mult,    MultiplicativeExpression},
-                                                      {BaseExpression,           op_div,   MultiplicativeExpression},
-                                                      {BaseExpression, op_idiv, MultiplicativeExpression},
-                                                      {BaseExpression, op_mod, MultiplicativeExpression},
-                                                      {BaseExpression, op_pow, MultiplicativeExpression},
+                                                      {ConditionalExpression,    op_mult,     MultiplicativeExpression},
+                                                      {ConditionalExpression,    op_div,     MultiplicativeExpression},
+                                                      {ConditionalExpression, op_idiv,    MultiplicativeExpression},
+                                                      {ConditionalExpression, op_mod, MultiplicativeExpression},
+                                                      {ConditionalExpression, op_pow,  MultiplicativeExpression},
+                                                      {ConditionalExpression},
+                                              }
+            },
+            {
+                    ConditionalExpression,    {
+                                                      {BaseExpression,           cop_equals,  ConditionalExpression},
+                                                      {BaseExpression,           cop_lt,     ConditionalExpression},
+                                                      {BaseExpression,        cop_lte,    ConditionalExpression},
+                                                      {BaseExpression,        cop_gt, ConditionalExpression},
+                                                      {BaseExpression,        cop_gte, ConditionalExpression},
+                                                      {BaseExpression, logical_and, ConditionalExpression},
+                                                      {BaseExpression, logical_or, ConditionalExpression},
+                                                      {BaseExpression, logical_not, op_equals, ConditionalExpression},
                                                       {BaseExpression},
                                               }
             },
             {
                     BaseExpression,           {
-                                                      {open_paren,               Expression, close_paren},
+                                                      {open_paren,               Expression,  close_paren},
                                                       {identifier},
-                                                      {Literal}
+                                                      {Literal},
+                                                      {logical_not,           BaseExpression},
+                                                      {op_minus,              BaseExpression},
+
                                               }
             },
             {

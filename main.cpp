@@ -13,6 +13,12 @@ int main() {
     lexer l;
     l.lex();
 
+//    auto q = l.tokens;
+//    while(!q.empty()) {
+//        cout << q.front() << endl;
+//        q.pop();
+//    }
+
     parser p(l.tokens);
     Mango1 *root = p.parse();
 
