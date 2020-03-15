@@ -1,9 +1,7 @@
-#include "parsing/parser.h"
-#include "utils/generator.h"
-#include "interpreter/interpreter.h"
+#include "generator.h"
+#include "lexer.h"
+#include "parser.h"
 
-using std::cout;
-using std::endl;
 
 int main() {
 //    generator g;
@@ -13,17 +11,10 @@ int main() {
     lexer l;
     l.lex();
 
-//    auto q = l.tokens;
-//    while(!q.empty()) {
-//        cout << q.front() << endl;
-//        q.pop();
-//    }
-
     parser p(l.tokens);
-    Mango1 *root = p.parse();
+    auto root = p.parse();
 
-    Interpreter I;
-    I.visit(root);
-
-    return 0;
+//    Interpreter I;
+//    I.visit(root);
 }
+

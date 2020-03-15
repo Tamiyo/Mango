@@ -27,19 +27,19 @@ Mango1 *parser::parse() {
 
         if (decision > 0) {
 //            cout << "\tSHIFT " << decision << endl;
-            if (ltoken.tok == token::type_double) {
+            if (ltoken.tok == type_double) {
                 auto *node = new DoubleLiteral{ltoken.val};
                 value_stack.push(node);
             }
-            if (ltoken.tok == token::type_int) {
+            if (ltoken.tok == type_int) {
                 auto *node = new IntegerLiteral{ltoken.val};
                 value_stack.push(node);
             }
-            if (ltoken.tok == token::type_string) {
+            if (ltoken.tok == type_string) {
                 auto *node = new StringLiteral{ltoken.val};
                 value_stack.push(node);
             }
-            if (ltoken.tok == token::identifier) {
+            if (ltoken.tok == identifier) {
                 auto *node = new Identifier{ltoken.val};
                 value_stack.push(node);
             }
@@ -66,7 +66,7 @@ Mango1 *parser::parse() {
 
                 if (tgoto.count({state_stack.top(), A}) > 0) {
                     state_stack.push(tgoto[{state_stack.top(), A}]);
-                    reduce(decision, &value_stack);
+                    reduce(decision, value_stack);
                 } else {
                     cout << "GOTO Error" << endl;
                     return nullptr;
@@ -78,7 +78,7 @@ Mango1 *parser::parse() {
 
         } else if (decision == 0) {
 //            cout << "ACCEPT!" << endl;
-            reduce(1, &value_stack);
+            reduce(1, value_stack);
             return dynamic_cast<Mango1 *>(value_stack.top());
         } else {
             cout << "Parsing Failed" << endl;

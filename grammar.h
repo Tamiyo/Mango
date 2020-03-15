@@ -5,28 +5,21 @@
 #include "string"
 #include "vector"
 
-using std::map;
-using std::string;
-using std::vector;
+using namespace std;
 
-namespace grammar {
+namespace mango {
     enum token {
         Mango,
         StatementSuite,
-        NewlineLoop,
         StatementList,
         Statement,
         SimpleStatement,
         ComplexStatement,
         Print,
         Assignment,
-        ForLoop,
-        WhileLoop,
         Expression,
         MultiplicativeExpression,
-        ConditionalExpression,
         BaseExpression,
-        Literal,
 
         op_plus,
         op_minus,
@@ -37,12 +30,11 @@ namespace grammar {
         op_pow,
 
         op_equals,
-
-        cop_lt,
-        cop_lte,
-        cop_gt,
-        cop_gte,
-        cop_equals,
+        op_lt,
+        op_lte,
+        op_gt,
+        op_gte,
+        op_double_equals,
 
         logical_not,
         logical_and,
@@ -81,6 +73,7 @@ namespace grammar {
         type_string,
         type_double,
         type_int,
+        type_boolean,
 
         eof
     };
@@ -88,20 +81,15 @@ namespace grammar {
     static vector<token> nonterminals = {
             Mango,
             StatementSuite,
-            NewlineLoop,
             StatementList,
             Statement,
             SimpleStatement,
             ComplexStatement,
             Print,
             Assignment,
-            ForLoop,
-            WhileLoop,
             Expression,
             MultiplicativeExpression,
-            ConditionalExpression,
             BaseExpression,
-            Literal,
     };
 
     static vector<token> terminals = {
@@ -115,11 +103,11 @@ namespace grammar {
 
             op_equals,
 
-            cop_lt,
-            cop_lte,
-            cop_gt,
-            cop_gte,
-            cop_equals,
+            op_lt,
+            op_lte,
+            op_gt,
+            op_gte,
+            op_double_equals,
 
             logical_not,
             logical_and,
@@ -157,6 +145,7 @@ namespace grammar {
             type_string,
             type_double,
             type_int,
+            type_boolean,
 
             eof
     };
@@ -164,20 +153,15 @@ namespace grammar {
     static map<token, string> token_map = {
             {Mango,                    "Mango"},
             {StatementSuite,           "StatementSuite"},
-            {NewlineLoop,              "NewlineLoop"},
             {StatementList,            "StatementList"},
             {Statement,                "Statement"},
             {SimpleStatement,          "SimpleStatement"},
             {ComplexStatement,         "ComplexStatement"},
             {Print,                    "Print"},
             {Assignment,               "Assignment"},
-            {ForLoop,                  "ForLoop"},
-            {WhileLoop,                "WhileLoop"},
             {Expression,               "Expression"},
             {MultiplicativeExpression, "MultiplicativeExpression"},
-            {ConditionalExpression,    "ConditionalExpression"},
             {BaseExpression,           "BaseExpression"},
-            {Literal,                  "Literal"},
             {op_plus,                  "op_plus"},
             {op_minus,                 "op_minus"},
             {op_mult,                  "op_mult"},
@@ -186,11 +170,11 @@ namespace grammar {
             {op_mod,                   "op_mod"},
             {op_pow,                   "op_pow"},
             {op_equals,                "op_equals"},
-            {cop_lt,                   "cop_lt"},
-            {cop_lte,                  "cop_lte"},
-            {cop_gt,                   "cop_gt"},
-            {cop_gte,                  "cop_gte"},
-            {cop_equals,               "cop_equals"},
+            {op_lt,                    "op_lt"},
+            {op_lte,                   "op_lte"},
+            {op_gt,                    "op_gt"},
+            {op_gte,                   "op_gte"},
+            {op_double_equals,         "op_double_equals"},
             {logical_not,              "logical_not"},
             {logical_and,              "logical_and"},
             {logical_or,               "logical_or"},
@@ -223,6 +207,7 @@ namespace grammar {
             {type_string,              "type_string"},
             {type_int,                 "type_int"},
             {type_double,              "type_double"},
+            {type_boolean,             "type_boolean"},
             {eof,                      "eof"},
     };
 
@@ -247,11 +232,11 @@ namespace grammar {
             {"%",  op_mod},
             {"^",  op_pow},
             {"=",  op_equals},
-            {"<",  cop_lt},
-            {"<=", cop_lte},
-            {">",  cop_gt},
-            {">=", cop_gte},
-            {"==", cop_equals},
+            {"<",  op_lt},
+            {"<=", op_lte},
+            {">",  op_gt},
+            {">=", op_gte},
+            {"==", op_double_equals},
             {"!",  logical_not},
             {"&&", logical_and},
             {"||", logical_or},
@@ -304,21 +289,13 @@ namespace grammar {
             },
             {
                     StatementSuite,           {
-                                                      {NewlineLoop,              StatementList},
                                                       {StatementList}
                                               }
             },
             {
                     StatementList,            {
-                                                      {Statement,                NewlineLoop, StatementList},
-                                                      {Statement,                NewlineLoop},
-                                                      {Statement},
-                                              }
-            },
-            {
-                    NewlineLoop,              {
-                                                      {newline,                  NewlineLoop},
-                                                      {newline}
+                                                      {Statement,                semicolon,  StatementList},
+                                                      {Statement,                semicolon},
                                               }
             },
             {
@@ -336,80 +313,44 @@ namespace grammar {
                     ComplexStatement,         {
                                                       {Print},
                                                       {Assignment},
-                                                      {ForLoop},
-                                                      {WhileLoop}
                                               }
             },
             {
                     Print,                    {
-                                                      {kw_print,                 open_paren,  SimpleStatement, close_paren}
+                                                      {kw_print,                 open_paren, Expression, close_paren}
                                               }
             },
             {
                     Assignment,               {
-                                                      {identifier,               op_equals,   SimpleStatement}
-                                              }
-            },
-            {
-                    ForLoop,                  {
-                                                      {kw_for,                   identifier,  colon,
-                                                                                                               type_int,   open_curly,    StatementSuite, close_curly},
-
-                                                      {kw_for,                   identifier, colon,
-                                                              type_int, comma, type_int,
-                                                              open_curly, StatementSuite, close_curly},
-                                              }
-            },
-            {
-                    WhileLoop,                {
-                                                      {kw_while,                 Expression,  colon,           open_curly, StatementList, close_curly}
+                                                      {identifier,               op_equals,  Expression}
                                               }
             },
             {
                     Expression,               {
-                                                      {MultiplicativeExpression, op_plus,     Expression},
-                                                      {MultiplicativeExpression, op_minus,   Expression},
+                                                      {MultiplicativeExpression, op_plus,    Expression},
+                                                      {MultiplicativeExpression, op_minus, Expression},
                                                       {MultiplicativeExpression},
                                               }
             },
             {
                     MultiplicativeExpression, {
-                                                      {ConditionalExpression,    op_mult,     MultiplicativeExpression},
-                                                      {ConditionalExpression,    op_div,     MultiplicativeExpression},
-                                                      {ConditionalExpression, op_idiv,    MultiplicativeExpression},
-                                                      {ConditionalExpression, op_mod, MultiplicativeExpression},
-                                                      {ConditionalExpression, op_pow,  MultiplicativeExpression},
-                                                      {ConditionalExpression},
-                                              }
-            },
-            {
-                    ConditionalExpression,    {
-                                                      {BaseExpression,           cop_equals,  ConditionalExpression},
-                                                      {BaseExpression,           cop_lt,     ConditionalExpression},
-                                                      {BaseExpression,        cop_lte,    ConditionalExpression},
-                                                      {BaseExpression,        cop_gt, ConditionalExpression},
-                                                      {BaseExpression,        cop_gte, ConditionalExpression},
-                                                      {BaseExpression, logical_and, ConditionalExpression},
-                                                      {BaseExpression, logical_or, ConditionalExpression},
-                                                      {BaseExpression, logical_not, op_equals, ConditionalExpression},
+                                                      {BaseExpression,           op_mult,    MultiplicativeExpression},
+                                                      {BaseExpression,           op_div,   MultiplicativeExpression},
+                                                      {BaseExpression, op_idiv, MultiplicativeExpression},
+                                                      {BaseExpression, op_mod, MultiplicativeExpression},
+                                                      {BaseExpression, op_pow, MultiplicativeExpression},
                                                       {BaseExpression},
                                               }
             },
             {
                     BaseExpression,           {
-                                                      {open_paren,               Expression,  close_paren},
+                                                      {open_paren,               Expression, close_paren},
                                                       {identifier},
-                                                      {Literal},
-                                                      {logical_not,           BaseExpression},
-                                                      {op_minus,              BaseExpression},
-
-                                              }
-            },
-            {
-                    Literal,                  {
                                                       {type_double},
                                                       {type_int},
                                                       {type_string},
+                                                      {type_boolean},
+
                                               }
             },
     };
