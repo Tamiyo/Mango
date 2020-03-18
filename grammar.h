@@ -17,6 +17,7 @@ namespace mango {
         ComplexStatement,
         Print,
         Assignment,
+        ForLoop,
         Expression,
         MultiplicativeExpression,
         BaseExpression,
@@ -66,7 +67,6 @@ namespace mango {
         underscore,
         hashtag,
         epsilon,
-        newline,
 
         identifier,
 
@@ -87,6 +87,7 @@ namespace mango {
             ComplexStatement,
             Print,
             Assignment,
+            ForLoop,
             Expression,
             MultiplicativeExpression,
             BaseExpression,
@@ -139,7 +140,6 @@ namespace mango {
             underscore,
             hashtag,
             epsilon,
-            newline,
 
             identifier,
             type_string,
@@ -160,6 +160,7 @@ namespace mango {
             {Print,                    "Print"},
             {Assignment,               "Assignment"},
             {Expression,               "Expression"},
+            {ForLoop,                  "ForLoop"},
             {MultiplicativeExpression, "MultiplicativeExpression"},
             {BaseExpression,           "BaseExpression"},
             {op_plus,                  "op_plus"},
@@ -202,7 +203,6 @@ namespace mango {
             {underscore,               "underscore"},
             {hashtag,                  "hashtag"},
             {epsilon,                  "epsilon"},
-            {newline,                  "newline"},
             {identifier,               "identifier"},
             {type_string,              "type_string"},
             {type_int,                 "type_int"},
@@ -254,7 +254,6 @@ namespace mango {
             {"\"", dquote},
             {"_",  underscore},
             {"#",  hashtag},
-            {"\n", newline},
             {"$",  eof},
     };
 
@@ -313,6 +312,7 @@ namespace mango {
                     ComplexStatement,         {
                                                       {Print},
                                                       {Assignment},
+                                                      {ForLoop}
                                               }
             },
             {
@@ -323,6 +323,11 @@ namespace mango {
             {
                     Assignment,               {
                                                       {identifier,               op_equals,  Expression}
+                                              }
+            },
+            {
+                    ForLoop,                  {
+                                                      {kw_for,                   identifier, colon,      type_int, comma, type_int, open_curly, StatementSuite, close_curly}
                                               }
             },
             {
@@ -350,7 +355,6 @@ namespace mango {
                                                       {type_int},
                                                       {type_string},
                                                       {type_boolean},
-
                                               }
             },
     };

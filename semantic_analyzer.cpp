@@ -16,7 +16,7 @@ namespace mango {
                 case op_mod:
                     return a % b;
                 case op_pow:
-                    return pow(a, b);
+                    return (int) pow(a, b);
                 case op_lt:
                     return (bool) (a < b);
                 case op_lte:

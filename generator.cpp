@@ -220,7 +220,7 @@ namespace mango {
                 for (const auto &sym : production_reversed) {
                     if (find(nonterminals.begin(), nonterminals.end(), sym) != nonterminals.end() ||
                         sym == type_string || sym == type_int || sym == type_double ||
-                        sym == identifier) {
+                        sym == type_boolean || sym == identifier) {
                         tempvars.emplace_back(token_map[sym] + "_" + to_string(offset));
                         ss << "\t\t\t\t" << "auto " << token_map[sym] << "_" << offset++
                            << " = value_stack.top();\n";
@@ -329,7 +329,7 @@ namespace mango {
               "public:\n"
               "    double f0;\n"
               "\n"
-              "    explicit DoubleLiteral(string n0) {\n"
+              "    explicit DoubleLiteral(const string& n0) {\n"
               "        f0 = stod(n0);\n"
               "    }\n"
               "\n"
@@ -342,7 +342,7 @@ namespace mango {
               "public:\n"
               "    int f0;\n"
               "\n"
-              "    explicit IntegerLiteral(string n0) {\n"
+              "    explicit IntegerLiteral(const string& n0) {\n"
               "        f0 = stoi(n0);\n"
               "    }\n"
               "\n"
@@ -400,23 +400,26 @@ namespace mango {
               "#include <vector>\n"
               "#include <memory>\n"
               "\n"
-              "#include \"tree.h\"\n\n"
+              "#include \"tree.h\"\n"
+              "#include \"semantic_analyzer.h\"\n"
+              "#include \"runtime_context.h\"\n\n"
               "using namespace std;\n\n";
 
-        ss << "namespace mango {";
+        ss << "namespace mango {\n";
 
         ss << "\tclass Interpreter : public Visitor {\n"
               "\tpublic:\n"
               "\t\tvoid visit(Identifier* n) override;\n"
               "\t\tvoid visit(StringLiteral* n) override;\n"
-              "\t\toid visit(IntegerLiteral* n) override;\n"
+              "\t\tvoid visit(IntegerLiteral* n) override;\n"
               "\t\tvoid visit(DoubleLiteral* n) override;\n";
 
         for (const auto &p : node_pointer_map) {
             ss << "\t\tvoid visit(" << p.first << "* n) override;\n";
         }
 
-        ss << "\t\nprivate:\n";
+        ss << "\t\t\nprivate:\n";
+        ss << "\t\truntime_context context;";
         ss << "\t};\n\n";
 
         ss << "}\n";

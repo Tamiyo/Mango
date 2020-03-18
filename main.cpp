@@ -1,6 +1,7 @@
 #include "generator.h"
 #include "lexer.h"
 #include "parser.h"
+#include "interpreter.h"
 
 
 int main() {
@@ -14,7 +15,7 @@ int main() {
     parser p(l.tokens);
     auto root = p.parse();
 
-//    Interpreter I;
-//    I.visit(root);
+    Interpreter I;
+    I.visit(root);
 }
 
