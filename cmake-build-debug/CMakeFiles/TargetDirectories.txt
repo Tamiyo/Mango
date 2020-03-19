@@ -1,0 +1,3 @@
+C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/mango_lox.dir
+C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/rebuild_cache.dir

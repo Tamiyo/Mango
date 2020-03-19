@@ -1,21 +1,6 @@
-#include "generator.h"
-#include "lexer.h"
-#include "parser.h"
-#include "interpreter.h"
-
+#include <iostream>
 
 int main() {
-//    generator g;
-//    g.generate();
-//    cout << "# of itemsets: " << g.c.size() << endl;
-
-    lexer l;
-    l.lex();
-
-    parser p(l.tokens);
-    auto root = p.parse();
-
-    Interpreter I;
-    I.visit(root);
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
 }
-

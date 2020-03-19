@@ -1,7 +1,0 @@
-/target
-**/*.rs.bk
-.idea/
-/generator/target/*
-venv/
-cmake-build-debug/
-CMakeLists.txt
