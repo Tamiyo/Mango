@@ -4,11 +4,14 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/Users/zoolo/CLionProjects/mango_lox/error.cpp" "C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/mango_lox.dir/error.cpp.obj"
-  "C:/Users/zoolo/CLionProjects/mango_lox/lexer.cpp" "C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/mango_lox.dir/lexer.cpp.obj"
-  "C:/Users/zoolo/CLionProjects/mango_lox/main.cpp" "C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/mango_lox.dir/main.cpp.obj"
-  "C:/Users/zoolo/CLionProjects/mango_lox/syntax_tree.cpp" "C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj"
-  "C:/Users/zoolo/CLionProjects/mango_lox/token.cpp" "C:/Users/zoolo/CLionProjects/mango_lox/cmake-build-debug/CMakeFiles/mango_lox.dir/token.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/error.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/error.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/eval.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/eval.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/expression.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/expression.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/interpreter.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/interpreter.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/lexer.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/lexer.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/main.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/main.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/parser.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/parser.cpp.obj"
+  "D:/Documents/MangoRevisitedCppCLion/token.cpp" "D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir/token.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

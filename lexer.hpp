@@ -10,43 +10,45 @@
 
 using namespace std;
 
-namespace mango {
-    class lexer {
-    public:
-        explicit lexer(string);
+namespace mango
+{
+	class lexer
+	{
+	public:
+		explicit lexer(string);
 
-        vector<token> scan_tokens();
+		vector<token> scan_tokens();
 
-    private:
+	private:
 
-        void scan_token();
+		void scan_token();
 
-        char advance();
+		char advance();
 
-        void add_token(token_type);
+		void add_token(token_type);
 
-        void add_token(token_type, variable);
+		void add_token(token_type, const variable&);
 
-        bool is_at_end();
+		bool is_at_end();
 
-        bool match(char);
+		bool match(char);
 
-        char peek();
+		char peek();
 
-        char peek_next();
+		char peek_next();
 
-        void process_string(char);
+		void process_string(char);
 
-        void process_number();
+		void process_number();
 
-        void process_identifier();
+		void process_identifier();
 
-        string source;
-        vector<token> tokens;
-        int start = 0;
-        int current = 0;
-        int line = 1;
-    };
+		string source;
+		vector<token> tokens;
+		int start = 0;
+		int current = 0;
+		int line = 1;
+	};
 }
 
 #endif //MANGO_LOX_LEXER_HPP

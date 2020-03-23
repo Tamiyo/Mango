@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="MangoRevisitedCppCLion"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="MangoRevisitedCppCLion">
+				<Option output="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/MangoRevisitedCppCLion.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/i686-w64-mingw32"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/backward"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include-fixed"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 MangoRevisitedCppCLion"/>
+					<CompileFile command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="MangoRevisitedCppCLion/fast">
+				<Option output="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/MangoRevisitedCppCLion.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/i686-w64-mingw32"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/backward"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include-fixed"/>
+					<Add directory="C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 MangoRevisitedCppCLion/fast"/>
+					<CompileFile command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="D:/Documents/MangoRevisitedCppCLion/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/PROGRA~2/MINGW-~1/I686-8~1.0-P/mingw32/bin/mingw32-make.exe -f &quot;D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/function.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/generator.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/generator.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/grammar.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/interpreter.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/interpreter.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/lexer.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/lexer.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/main.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/parse_table.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/parser.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/parser.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/runtime_context.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/runtime_context.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/scope.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/scope.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/semantic_analyzer.cpp">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/semantic_analyzer.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/tree.h">
+			<Option target="MangoRevisitedCppCLion"/>
+		</Unit>
+		<Unit filename="D:/Documents/MangoRevisitedCppCLion/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

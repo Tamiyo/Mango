@@ -1,8 +1,11 @@
 file(REMOVE_RECURSE
   "CMakeFiles/mango_lox.dir/error.cpp.obj"
+  "CMakeFiles/mango_lox.dir/eval.cpp.obj"
+  "CMakeFiles/mango_lox.dir/expression.cpp.obj"
+  "CMakeFiles/mango_lox.dir/interpreter.cpp.obj"
   "CMakeFiles/mango_lox.dir/lexer.cpp.obj"
   "CMakeFiles/mango_lox.dir/main.cpp.obj"
-  "CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj"
+  "CMakeFiles/mango_lox.dir/parser.cpp.obj"
   "CMakeFiles/mango_lox.dir/token.cpp.obj"
   "libmango_lox.dll.a"
   "mango_lox.exe"

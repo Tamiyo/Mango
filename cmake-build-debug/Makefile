@@ -38,19 +38,19 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2019.3.5\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2019.3.5\bin\cmake\win\bin\cmake.exe" -E remove -f
+RM = "C:\Program Files\JetBrains\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe" -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\zoolo\CLionProjects\mango_lox
+CMAKE_SOURCE_DIR = D:\Documents\MangoRevisitedCppCLion
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Documents\MangoRevisitedCppCLion\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -58,7 +58,7 @@ CMAKE_BINARY_DIR = C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	"C:\Program Files\JetBrains\CLion 2019.3.5\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
+	"C:\Program Files\JetBrains\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -69,7 +69,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	"C:\Program Files\JetBrains\CLion 2019.3.5\bin\cmake\win\bin\cmake.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	"C:\Program Files\JetBrains\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe" -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -79,9 +79,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles\progress.marks
 	$(MAKE) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -149,6 +149,87 @@ error.cpp.s:
 	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/error.cpp.s
 .PHONY : error.cpp.s
 
+eval.obj: eval.cpp.obj
+
+.PHONY : eval.obj
+
+# target to build an object file
+eval.cpp.obj:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/eval.cpp.obj
+.PHONY : eval.cpp.obj
+
+eval.i: eval.cpp.i
+
+.PHONY : eval.i
+
+# target to preprocess a source file
+eval.cpp.i:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/eval.cpp.i
+.PHONY : eval.cpp.i
+
+eval.s: eval.cpp.s
+
+.PHONY : eval.s
+
+# target to generate assembly for a file
+eval.cpp.s:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/eval.cpp.s
+.PHONY : eval.cpp.s
+
+expression.obj: expression.cpp.obj
+
+.PHONY : expression.obj
+
+# target to build an object file
+expression.cpp.obj:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/expression.cpp.obj
+.PHONY : expression.cpp.obj
+
+expression.i: expression.cpp.i
+
+.PHONY : expression.i
+
+# target to preprocess a source file
+expression.cpp.i:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/expression.cpp.i
+.PHONY : expression.cpp.i
+
+expression.s: expression.cpp.s
+
+.PHONY : expression.s
+
+# target to generate assembly for a file
+expression.cpp.s:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/expression.cpp.s
+.PHONY : expression.cpp.s
+
+interpreter.obj: interpreter.cpp.obj
+
+.PHONY : interpreter.obj
+
+# target to build an object file
+interpreter.cpp.obj:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/interpreter.cpp.obj
+.PHONY : interpreter.cpp.obj
+
+interpreter.i: interpreter.cpp.i
+
+.PHONY : interpreter.i
+
+# target to preprocess a source file
+interpreter.cpp.i:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/interpreter.cpp.i
+.PHONY : interpreter.cpp.i
+
+interpreter.s: interpreter.cpp.s
+
+.PHONY : interpreter.s
+
+# target to generate assembly for a file
+interpreter.cpp.s:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/interpreter.cpp.s
+.PHONY : interpreter.cpp.s
+
 lexer.obj: lexer.cpp.obj
 
 .PHONY : lexer.obj
@@ -203,32 +284,32 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-syntax_tree.obj: syntax_tree.cpp.obj
+parser.obj: parser.cpp.obj
 
-.PHONY : syntax_tree.obj
+.PHONY : parser.obj
 
 # target to build an object file
-syntax_tree.cpp.obj:
-	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj
-.PHONY : syntax_tree.cpp.obj
+parser.cpp.obj:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/parser.cpp.obj
+.PHONY : parser.cpp.obj
 
-syntax_tree.i: syntax_tree.cpp.i
+parser.i: parser.cpp.i
 
-.PHONY : syntax_tree.i
+.PHONY : parser.i
 
 # target to preprocess a source file
-syntax_tree.cpp.i:
-	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/syntax_tree.cpp.i
-.PHONY : syntax_tree.cpp.i
+parser.cpp.i:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/parser.cpp.i
+.PHONY : parser.cpp.i
 
-syntax_tree.s: syntax_tree.cpp.s
+parser.s: parser.cpp.s
 
-.PHONY : syntax_tree.s
+.PHONY : parser.s
 
 # target to generate assembly for a file
-syntax_tree.cpp.s:
-	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/syntax_tree.cpp.s
-.PHONY : syntax_tree.cpp.s
+parser.cpp.s:
+	$(MAKE) -f CMakeFiles\mango_lox.dir\build.make CMakeFiles/mango_lox.dir/parser.cpp.s
+.PHONY : parser.cpp.s
 
 token.obj: token.cpp.obj
 
@@ -269,15 +350,24 @@ help:
 	@echo ... error.obj
 	@echo ... error.i
 	@echo ... error.s
+	@echo ... eval.obj
+	@echo ... eval.i
+	@echo ... eval.s
+	@echo ... expression.obj
+	@echo ... expression.i
+	@echo ... expression.s
+	@echo ... interpreter.obj
+	@echo ... interpreter.i
+	@echo ... interpreter.s
 	@echo ... lexer.obj
 	@echo ... lexer.i
 	@echo ... lexer.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
-	@echo ... syntax_tree.obj
-	@echo ... syntax_tree.i
-	@echo ... syntax_tree.s
+	@echo ... parser.obj
+	@echo ... parser.i
+	@echo ... parser.s
 	@echo ... token.obj
 	@echo ... token.i
 	@echo ... token.s

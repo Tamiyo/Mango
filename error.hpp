@@ -5,14 +5,19 @@
 #include <string>
 #include <utility>
 
+#include "token.hpp"
+
 using namespace std;
 
-namespace mango {
-    static void error(int, string);
+namespace mango
+{
+	void error(int, const string&);
 
-    void report(int, string, string);
+	void error(const token&, const string&);
 
-    static bool hadError = false;
+	void report(int, const string&, const string&);
+
+	static bool hadError = false;
 }
 
 #endif //MANGO_LOX_ERROR_HPP

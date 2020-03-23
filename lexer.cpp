@@ -1,7 +1,8 @@
 #include "lexer.hpp"
 
 namespace mango {
-    lexer::lexer(string source) : source(move(source)) {}
+    lexer::lexer(string source) : source(move(source)) {
+    }
 
     vector<token> lexer::scan_tokens() {
         while (!is_at_end()) {
@@ -9,7 +10,7 @@ namespace mango {
             scan_token();
         }
 
-        tokens.emplace(token(END_OF_FILE, "", null, line));
+        tokens.emplace_back(token(END_OF_FILE, "", 0, line));
         return tokens;
     }
 
@@ -94,28 +95,31 @@ namespace mango {
             case '\'':
             case '\"':
                 process_string(c);
+                break;
             default:
                 if (isdigit(c)) {
                     process_number();
                 } else if (isalpha(c)) {
                     process_identifier();
                 } else {
-                    error(line, "Unexpected character.");
-                    break;
+                    error(line, "Unexpected character " + to_string(c) + ".");
                 }
+                break;
         }
     }
 
     char lexer::advance() {
-        return 0;
+        current++;
+        return source.at(current - 1);
     }
 
-    void lexer::add_token(token_type) {
-
+    void lexer::add_token(token_type type) {
+        add_token(type, {-1});
     }
 
-    void lexer::add_token(token_type, variable) {
-
+    void lexer::add_token(token_type type, const variable &literal) {
+        string text = source.substr(start, (current - start));
+        tokens.emplace_back(token(type, text, literal, line));
     }
 
     bool lexer::is_at_end() {
@@ -162,21 +166,32 @@ namespace mango {
         advance();
 
         // Trim the quotes
-        string value = source.substr(start + 1, (current - start - 1));
+        string value = source.substr(start + 1, (current - start - 2));
         add_token(STRING, value);
     }
 
     void lexer::process_number() {
+        bool is_float = false;
         while (isdigit(peek())) advance();
 
         if (peek() == '.' && isdigit(peek_next())) {
+            is_float = true;
+
             // Consume the '.'
             advance();
 
             while (isdigit(peek())) advance();
         }
 
-        add_token(NUMBER, source.substr(start, (current - start)));
+        string sub = source.substr(start, (current - start));
+
+        if (is_float) {
+            double d = stod(sub);
+            add_token(NUMBER, d);
+        } else {
+            int i = stoi(sub);
+            add_token(NUMBER, i);
+        }
     }
 
     void lexer::process_identifier() {

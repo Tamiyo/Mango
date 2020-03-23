@@ -5,13 +5,57 @@
       <config projectName="mango_lox" targetName="mango_lox" />
     </generated>
   </component>
-  <component name="CMakeSettings">
+  <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd0e21f1-3fe6-41c0-ab08-f40a1efbb905" name="Default Changelist" comment="" />
+    <list default="true" id="95676c20-f614-43dc-8b94-372d6aa65b0a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/eval.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eval.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/expression.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/expression.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interpreter.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/interpreter.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/parser.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/parser.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test.f" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeDetermineCompilerABI_C.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeDetermineCompilerABI_C.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeDetermineCompilerABI_CXX.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdC/a.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdC/a.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeDirectoryInformation.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeDirectoryInformation.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/DependInfo.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/DependInfo.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/build.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/build.make" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/cmake_clean.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/cmake_clean.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/depend.make" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/link.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/link.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/objects1.rsp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/objects1.rsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/progress.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/mango_lox.dir/progress.make" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/progress.marks" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/progress.marks" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/mango_lox.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/mango_lox.cbp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/error.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/error.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/error.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/error.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lexer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lexer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lexer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/lexer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/syntax_tree.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/syntax_tree.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/token.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/token.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/token.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/token.hpp" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,17 +64,52 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
-  <component name="ProjectId" id="1ZM8FSg20amd0Oz0irqABKKc7ec" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="ProjectId" id="1YaFq89tswNje6Qz3vwaWRiBJjS" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="js.buildTools.gulp.gulp_package_dir" value="" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs.jest.jest_package" value="" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Documents\MangoRevisitedCppCLion" />
+      <recent name="D:\Documents\MangoRevisitedCppCLion\parsing" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Documents\MangoRevisitedCppCLion" />
+      <recent name="D:\Documents\MangoRevisitedCppCLion\parsing" />
+      <recent name="D:\Documents\MangoRevisitedCppCLion\core" />
+      <recent name="D:\Documents\MangoRevisitedCppCLion\utilities" />
+      <recent name="D:\Documents\MangoRevisitedCppCLion\abstract-syntax" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration name="mango_lox" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="mango_lox" TARGET_NAME="mango_lox" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="mango_lox" RUN_TARGET_NAME="mango_lox">
@@ -38,44 +117,279 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="MangoRevisitedCppCLion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="MangoRevisitedCppCLion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <module name="MangoRevisitedCppCLion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <module name="MangoRevisitedCppCLion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="bd0e21f1-3fe6-41c0-ab08-f40a1efbb905" name="Default Changelist" comment="" />
-      <created>1584637498834</created>
+      <changelist id="95676c20-f614-43dc-8b94-372d6aa65b0a" name="Default Changelist" comment="" />
+      <created>1583172985986</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1584637498834</updated>
-      <workItem from="1584637501123" duration="11567000" />
+      <updated>1583172985986</updated>
+      <workItem from="1583172987386" duration="15865000" />
+      <workItem from="1583190978993" duration="1157000" />
+      <workItem from="1583349185530" duration="1872000" />
+      <workItem from="1583387488135" duration="8984000" />
+      <workItem from="1583431556710" duration="11355000" />
+      <workItem from="1583448636558" duration="3052000" />
+      <workItem from="1583525107483" duration="20388000" />
+      <workItem from="1583605387288" duration="2684000" />
+      <workItem from="1583638621939" duration="13375000" />
+      <workItem from="1583703283196" duration="25331000" />
+      <workItem from="1583775039964" duration="37803000" />
+      <workItem from="1583862736227" duration="2972000" />
+      <workItem from="1583892267644" duration="602000" />
+      <workItem from="1583905581876" duration="3829000" />
+      <workItem from="1583945198407" duration="3388000" />
+      <workItem from="1584077521810" duration="760000" />
+      <workItem from="1584152338037" duration="601000" />
+      <workItem from="1584152967279" duration="1195000" />
+      <workItem from="1584161675514" duration="4262000" />
+      <workItem from="1584166412500" duration="4000" />
+      <workItem from="1584209454587" duration="52000" />
+      <workItem from="1584209513560" duration="90000" />
+      <workItem from="1584210071187" duration="2402000" />
+      <workItem from="1584251407934" duration="3275000" />
+      <workItem from="1584298219460" duration="1425000" />
+      <workItem from="1584421088669" duration="722000" />
+      <workItem from="1584474587336" duration="8520000" />
+      <workItem from="1584486112684" duration="4014000" />
+      <workItem from="1584490853236" duration="130000" />
+      <workItem from="1584490991046" duration="149000" />
+      <workItem from="1584491147599" duration="96000" />
+      <workItem from="1584491250660" duration="24413000" />
+      <workItem from="1584540119299" duration="7171000" />
+      <workItem from="1584578976347" duration="12458000" />
+      <workItem from="1584598902862" duration="1120000" />
+      <workItem from="1584652554461" duration="4579000" />
+      <workItem from="1584661440287" duration="8491000" />
+      <workItem from="1584674248957" duration="13641000" />
+      <workItem from="1584752330329" duration="7640000" />
+      <workItem from="1584809963451" duration="12163000" />
+      <workItem from="1584849450693" duration="12807000" />
+      <workItem from="1584865272879" duration="54000" />
+      <workItem from="1584899644852" duration="2128000" />
+      <workItem from="1584903148534" duration="36442000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.f" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="WindowStateProjectService">
-    <state x="361" y="91" key="#New_File_Extensions" timestamp="1584637809969">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="552" y="201" key="#Inspections" timestamp="1584674111579">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="361" y="91" key="#New_File_Extensions/0.0.1536.864@0.0.1536.864" timestamp="1584637809969" />
-    <state x="574" y="148" key="#com.intellij.ide.util.MemberChooser" timestamp="1584646708906">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="552" y="201" key="#Inspections/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584674111579" />
+    <state x="-1368" y="261" key="#New_File_Extensions" timestamp="1584657726195">
+      <screen x="-1920" y="0" width="1920" height="1200" />
     </state>
-    <state x="574" y="148" key="#com.intellij.ide.util.MemberChooser/0.0.1536.864@0.0.1536.864" timestamp="1584646708906" />
-    <state x="277" y="75" key="SettingsEditor" timestamp="1584642579623">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="-1368" y="261" key="#New_File_Extensions/0.0.1920.1080/-1920.0.1920.1200@-1920.0.1920.1200" timestamp="1584657726195" />
+    <state x="414" y="198" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1584905854735">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="277" y="75" key="SettingsEditor/0.0.1536.864@0.0.1536.864" timestamp="1584642579623" />
-    <state x="425" y="197" key="run.anything.popup" timestamp="1584647609269">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="414" y="198" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584905854735" />
+    <state x="728" y="350" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1584754156544">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="425" y="197" key="run.anything.popup/0.0.1536.864@0.0.1536.864" timestamp="1584647609269" />
-    <state x="431" y="181" width="672" height="678" key="search.everywhere.popup" timestamp="1584645796346">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="728" y="350" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1584754156544" />
+    <state x="765" y="256" key="#com.intellij.ide.util.MemberChooser" timestamp="1584921732425">
+      <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="431" y="181" width="672" height="678" key="search.everywhere.popup/0.0.1536.864@0.0.1536.864" timestamp="1584645796346" />
+    <state x="765" y="256" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584674666095" />
+    <state x="765" y="256" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1584921732425" />
+    <state x="640" y="279" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1584899704778">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="640" y="279" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584899704778" />
+    <state x="864" y="293" width="432" height="494" key="#xdebugger.XInspectDialog" timestamp="1584942999187">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="864" y="293" width="432" height="494" key="#xdebugger.XInspectDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584942999187" />
+    <state x="1062" y="207" key="#xdebugger.evaluate" timestamp="1584943065186">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="1062" y="207" key="#xdebugger.evaluate/0.0.1920.1080@0.0.1920.1080" timestamp="1584943065186" />
+    <state x="739" y="282" key="FileChooserDialogImpl" timestamp="1584209601360">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="739" y="282" key="FileChooserDialogImpl/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584209601360" />
+    <state width="938" height="251" key="GridCell.Tab.0.bottom" timestamp="1584949374963">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="251" key="GridCell.Tab.0.bottom/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584598513878" />
+    <state width="938" height="251" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1584949374963" />
+    <state width="938" height="251" key="GridCell.Tab.0.center" timestamp="1584949374963">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="251" key="GridCell.Tab.0.center/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584598513878" />
+    <state width="938" height="251" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1584949374963" />
+    <state width="938" height="251" key="GridCell.Tab.0.left" timestamp="1584949374963">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="251" key="GridCell.Tab.0.left/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584598513878" />
+    <state width="938" height="251" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1584949374963" />
+    <state width="938" height="251" key="GridCell.Tab.0.right" timestamp="1584949374963">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="251" key="GridCell.Tab.0.right/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584598513878" />
+    <state width="938" height="251" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1584949374963" />
+    <state width="938" height="248" key="GridCell.Tab.1.bottom" timestamp="1584947420638">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="248" key="GridCell.Tab.1.bottom/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584519148197" />
+    <state width="938" height="248" key="GridCell.Tab.1.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1584947420638" />
+    <state width="938" height="248" key="GridCell.Tab.1.center" timestamp="1584947420638">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="248" key="GridCell.Tab.1.center/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584519148197" />
+    <state width="938" height="248" key="GridCell.Tab.1.center/0.0.1920.1080@0.0.1920.1080" timestamp="1584947420638" />
+    <state width="938" height="248" key="GridCell.Tab.1.left" timestamp="1584947420638">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="248" key="GridCell.Tab.1.left/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584519148197" />
+    <state width="938" height="248" key="GridCell.Tab.1.left/0.0.1920.1080@0.0.1920.1080" timestamp="1584947420638" />
+    <state width="938" height="248" key="GridCell.Tab.1.right" timestamp="1584947420638">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1877" height="248" key="GridCell.Tab.1.right/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584519148197" />
+    <state width="938" height="248" key="GridCell.Tab.1.right/0.0.1920.1080@0.0.1920.1080" timestamp="1584947420638" />
+    <state x="461" y="182" key="SettingsEditor" timestamp="1584905887047">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="461" y="182" key="SettingsEditor/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584652616833" />
+    <state x="461" y="182" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1584905887047" />
+    <state x="656" y="364" key="com.intellij.ide.util.TipDialog" timestamp="1584903149509">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="656" y="364" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584674270192" />
+    <state x="656" y="364" key="com.intellij.ide.util.TipDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584903149509" />
+    <state x="656" y="272" width="607" height="536" key="find.popup" timestamp="1584947079977">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="656" y="272" width="607" height="536" key="find.popup/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584553855706" />
+    <state x="656" y="272" width="607" height="536" key="find.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1584947079977" />
+    <state x="701" y="188" key="refactoring.ChangeSignatureDialog" timestamp="1584903255957">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="701" y="188" key="refactoring.ChangeSignatureDialog/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584674183390" />
+    <state x="701" y="188" key="refactoring.ChangeSignatureDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1584903255957" />
+    <state x="616" y="250" key="run.anything.popup" timestamp="1584947153414">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="616" y="250" key="run.anything.popup/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584251761820" />
+    <state x="616" y="250" key="run.anything.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1584947153414" />
+    <state x="623" y="235" width="672" height="678" key="search.everywhere.popup" timestamp="1584946566673">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="623" y="235" width="672" height="678" key="search.everywhere.popup/0.0.1920.1080/-1920.0.1920.1200@0.0.1920.1080" timestamp="1584594365945" />
+    <state x="623" y="235" width="672" height="678" key="search.everywhere.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1584946566673" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/lexer.cpp</url>
+          <line>168</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="l" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

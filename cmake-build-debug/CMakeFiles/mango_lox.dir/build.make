@@ -33,19 +33,19 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2019.3.5\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2019.3.5\bin\cmake\win\bin\cmake.exe" -E remove -f
+RM = "C:\Program Files\JetBrains\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe" -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\zoolo\CLionProjects\mango_lox
+CMAKE_SOURCE_DIR = D:\Documents\MangoRevisitedCppCLion
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Documents\MangoRevisitedCppCLion\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/mango_lox.dir/depend.make
@@ -58,68 +58,107 @@ include CMakeFiles/mango_lox.dir/flags.make
 
 CMakeFiles/mango_lox.dir/main.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
 CMakeFiles/mango_lox.dir/main.cpp.obj: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mango_lox.dir/main.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\main.cpp.obj -c C:\Users\zoolo\CLionProjects\mango_lox\main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mango_lox.dir/main.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\main.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\main.cpp
 
 CMakeFiles/mango_lox.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/main.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\zoolo\CLionProjects\mango_lox\main.cpp > CMakeFiles\mango_lox.dir\main.cpp.i
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\main.cpp > CMakeFiles\mango_lox.dir\main.cpp.i
 
 CMakeFiles/mango_lox.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/main.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\zoolo\CLionProjects\mango_lox\main.cpp -o CMakeFiles\mango_lox.dir\main.cpp.s
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\main.cpp -o CMakeFiles\mango_lox.dir\main.cpp.s
 
 CMakeFiles/mango_lox.dir/token.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
 CMakeFiles/mango_lox.dir/token.cpp.obj: ../token.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mango_lox.dir/token.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\token.cpp.obj -c C:\Users\zoolo\CLionProjects\mango_lox\token.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mango_lox.dir/token.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\token.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\token.cpp
 
 CMakeFiles/mango_lox.dir/token.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/token.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\zoolo\CLionProjects\mango_lox\token.cpp > CMakeFiles\mango_lox.dir\token.cpp.i
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\token.cpp > CMakeFiles\mango_lox.dir\token.cpp.i
 
 CMakeFiles/mango_lox.dir/token.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/token.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\zoolo\CLionProjects\mango_lox\token.cpp -o CMakeFiles\mango_lox.dir\token.cpp.s
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\token.cpp -o CMakeFiles\mango_lox.dir\token.cpp.s
 
 CMakeFiles/mango_lox.dir/lexer.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
 CMakeFiles/mango_lox.dir/lexer.cpp.obj: ../lexer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mango_lox.dir/lexer.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\lexer.cpp.obj -c C:\Users\zoolo\CLionProjects\mango_lox\lexer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mango_lox.dir/lexer.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\lexer.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\lexer.cpp
 
 CMakeFiles/mango_lox.dir/lexer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/lexer.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\zoolo\CLionProjects\mango_lox\lexer.cpp > CMakeFiles\mango_lox.dir\lexer.cpp.i
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\lexer.cpp > CMakeFiles\mango_lox.dir\lexer.cpp.i
 
 CMakeFiles/mango_lox.dir/lexer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/lexer.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\zoolo\CLionProjects\mango_lox\lexer.cpp -o CMakeFiles\mango_lox.dir\lexer.cpp.s
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\lexer.cpp -o CMakeFiles\mango_lox.dir\lexer.cpp.s
 
 CMakeFiles/mango_lox.dir/error.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
 CMakeFiles/mango_lox.dir/error.cpp.obj: ../error.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mango_lox.dir/error.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\error.cpp.obj -c C:\Users\zoolo\CLionProjects\mango_lox\error.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mango_lox.dir/error.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\error.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\error.cpp
 
 CMakeFiles/mango_lox.dir/error.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/error.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\zoolo\CLionProjects\mango_lox\error.cpp > CMakeFiles\mango_lox.dir\error.cpp.i
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\error.cpp > CMakeFiles\mango_lox.dir\error.cpp.i
 
 CMakeFiles/mango_lox.dir/error.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/error.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\zoolo\CLionProjects\mango_lox\error.cpp -o CMakeFiles\mango_lox.dir\error.cpp.s
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\error.cpp -o CMakeFiles\mango_lox.dir\error.cpp.s
 
-CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
-CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj: ../syntax_tree.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\syntax_tree.cpp.obj -c C:\Users\zoolo\CLionProjects\mango_lox\syntax_tree.cpp
+CMakeFiles/mango_lox.dir/expression.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
+CMakeFiles/mango_lox.dir/expression.cpp.obj: ../expression.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mango_lox.dir/expression.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\expression.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\expression.cpp
 
-CMakeFiles/mango_lox.dir/syntax_tree.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/syntax_tree.cpp.i"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\zoolo\CLionProjects\mango_lox\syntax_tree.cpp > CMakeFiles\mango_lox.dir\syntax_tree.cpp.i
+CMakeFiles/mango_lox.dir/expression.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/expression.cpp.i"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\expression.cpp > CMakeFiles\mango_lox.dir\expression.cpp.i
 
-CMakeFiles/mango_lox.dir/syntax_tree.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/syntax_tree.cpp.s"
-	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\zoolo\CLionProjects\mango_lox\syntax_tree.cpp -o CMakeFiles\mango_lox.dir\syntax_tree.cpp.s
+CMakeFiles/mango_lox.dir/expression.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/expression.cpp.s"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\expression.cpp -o CMakeFiles\mango_lox.dir\expression.cpp.s
+
+CMakeFiles/mango_lox.dir/parser.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
+CMakeFiles/mango_lox.dir/parser.cpp.obj: ../parser.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/mango_lox.dir/parser.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\parser.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\parser.cpp
+
+CMakeFiles/mango_lox.dir/parser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/parser.cpp.i"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\parser.cpp > CMakeFiles\mango_lox.dir\parser.cpp.i
+
+CMakeFiles/mango_lox.dir/parser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/parser.cpp.s"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\parser.cpp -o CMakeFiles\mango_lox.dir\parser.cpp.s
+
+CMakeFiles/mango_lox.dir/eval.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
+CMakeFiles/mango_lox.dir/eval.cpp.obj: ../eval.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/mango_lox.dir/eval.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\eval.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\eval.cpp
+
+CMakeFiles/mango_lox.dir/eval.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/eval.cpp.i"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\eval.cpp > CMakeFiles\mango_lox.dir\eval.cpp.i
+
+CMakeFiles/mango_lox.dir/eval.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/eval.cpp.s"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\eval.cpp -o CMakeFiles\mango_lox.dir\eval.cpp.s
+
+CMakeFiles/mango_lox.dir/interpreter.cpp.obj: CMakeFiles/mango_lox.dir/flags.make
+CMakeFiles/mango_lox.dir/interpreter.cpp.obj: ../interpreter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/mango_lox.dir/interpreter.cpp.obj"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\mango_lox.dir\interpreter.cpp.obj -c D:\Documents\MangoRevisitedCppCLion\interpreter.cpp
+
+CMakeFiles/mango_lox.dir/interpreter.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mango_lox.dir/interpreter.cpp.i"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Documents\MangoRevisitedCppCLion\interpreter.cpp > CMakeFiles\mango_lox.dir\interpreter.cpp.i
+
+CMakeFiles/mango_lox.dir/interpreter.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mango_lox.dir/interpreter.cpp.s"
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Documents\MangoRevisitedCppCLion\interpreter.cpp -o CMakeFiles\mango_lox.dir\interpreter.cpp.s
 
 # Object files for target mango_lox
 mango_lox_OBJECTS = \
@@ -127,7 +166,10 @@ mango_lox_OBJECTS = \
 "CMakeFiles/mango_lox.dir/token.cpp.obj" \
 "CMakeFiles/mango_lox.dir/lexer.cpp.obj" \
 "CMakeFiles/mango_lox.dir/error.cpp.obj" \
-"CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj"
+"CMakeFiles/mango_lox.dir/expression.cpp.obj" \
+"CMakeFiles/mango_lox.dir/parser.cpp.obj" \
+"CMakeFiles/mango_lox.dir/eval.cpp.obj" \
+"CMakeFiles/mango_lox.dir/interpreter.cpp.obj"
 
 # External object files for target mango_lox
 mango_lox_EXTERNAL_OBJECTS =
@@ -136,12 +178,15 @@ mango_lox.exe: CMakeFiles/mango_lox.dir/main.cpp.obj
 mango_lox.exe: CMakeFiles/mango_lox.dir/token.cpp.obj
 mango_lox.exe: CMakeFiles/mango_lox.dir/lexer.cpp.obj
 mango_lox.exe: CMakeFiles/mango_lox.dir/error.cpp.obj
-mango_lox.exe: CMakeFiles/mango_lox.dir/syntax_tree.cpp.obj
+mango_lox.exe: CMakeFiles/mango_lox.dir/expression.cpp.obj
+mango_lox.exe: CMakeFiles/mango_lox.dir/parser.cpp.obj
+mango_lox.exe: CMakeFiles/mango_lox.dir/eval.cpp.obj
+mango_lox.exe: CMakeFiles/mango_lox.dir/interpreter.cpp.obj
 mango_lox.exe: CMakeFiles/mango_lox.dir/build.make
 mango_lox.exe: CMakeFiles/mango_lox.dir/linklibs.rsp
 mango_lox.exe: CMakeFiles/mango_lox.dir/objects1.rsp
 mango_lox.exe: CMakeFiles/mango_lox.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable mango_lox.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable mango_lox.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\mango_lox.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -154,6 +199,6 @@ CMakeFiles/mango_lox.dir/clean:
 .PHONY : CMakeFiles/mango_lox.dir/clean
 
 CMakeFiles/mango_lox.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\zoolo\CLionProjects\mango_lox C:\Users\zoolo\CLionProjects\mango_lox C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug C:\Users\zoolo\CLionProjects\mango_lox\cmake-build-debug\CMakeFiles\mango_lox.dir\DependInfo.cmake --color=$(COLOR)
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" D:\Documents\MangoRevisitedCppCLion D:\Documents\MangoRevisitedCppCLion D:\Documents\MangoRevisitedCppCLion\cmake-build-debug D:\Documents\MangoRevisitedCppCLion\cmake-build-debug D:\Documents\MangoRevisitedCppCLion\cmake-build-debug\CMakeFiles\mango_lox.dir\DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/mango_lox.dir/depend
 
