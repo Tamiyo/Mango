@@ -1,3 +1,0 @@
-D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/mango_lox.dir
-D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/Documents/MangoRevisitedCppCLion/cmake-build-debug/CMakeFiles/rebuild_cache.dir
