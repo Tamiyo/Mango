@@ -1,0 +1,44 @@
+declaration ::= classDecl
+                | funDecl
+                | statement
+
+classDecl ::= "#" IDENTIFIER '{' function* "}"
+funDecl ::= "@" function
+
+statement ::= exprStmt
+            | printStmt
+            | returnStmt
+            | assignStmt
+            | ifStmt
+            | whileStmt
+            | forStmt
+            | blockStmt
+
+exprStmt ::= expression ";"
+printStmt ::= "print" "(" expression ")" ";"
+returnStmt ::= "return" expression ";"
+assignStmt ::= IDENTIFIER "=" expression ";"
+ifStmt ::= "if" "(" expression ")" blockStmt
+            (("elif" "(" expression ")")*)? ("else" blockStmt)?
+
+whileStmt ::= "while" "(" expression ")" blockStmt
+forStmt ::= "for" IDENTIFIER "=" NUMBER ":" NUMBER (":" NUMBER)? blockStmt
+blockStmt ::= "{" statement* "}"
+
+expression ::= logic_or
+logic_or ::= logic_and ("or" logic_and)*
+logic_and ::= equality ("and" equality)*
+equality ::= comparison ( ("!=" | "==") comparison )*
+comparison ::= addition ( (">" | ">=" | "<" | "<=") addition)*
+addition ::= multiplication ( ("+" | "-") multiplication)*
+multiplication ::= power ( ("*" | "/" | "%") power)*
+power ::= unary ("^" unary)*
+unary ::= "!" unary | call
+call ::= primary ( "(" arguments ")" | "." IDENTIFIER )*
+primary ::= "true" | "false" | "none" | "my"
+            | NUMBER | STRING | IDENTIFIER | "(" expression ")"
+
+
+function ::= IDENTIFIER "(" parameters? ")" blockStmt
+parameters ::= IDENTIFIER ( "," IDENTIFIER )*
+arguments ::= expression ( "," expression )*

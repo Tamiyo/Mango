@@ -1,0 +1,260 @@
+use crate::scanner::Scanner;
+use crate::error::ParseError;
+use crate::ast::{Expr, Stmt};
+use crate::token::{Symbol, Token};
+
+#[derive(PartialEq, PartialOrd, Copy, Clone)]
+enum Precedence {
+    None,
+    // Assign,
+    Or,
+    And,
+    Equality,
+    Comparison,
+    Term,
+    Factor,
+    Power,
+    Unary,
+    Call,
+    Primary,
+}
+
+impl<'a> From<&'a Symbol> for Precedence {
+    fn from(symbol: &Symbol) -> Precedence {
+        match *symbol {
+            // Symbol::Equal => Precedence::Assign,
+            Symbol::Or => Precedence::Or,
+            Symbol::And => Precedence::And,
+            Symbol::NotEqual | Symbol::EqualEqual => Precedence::Equality,
+            Symbol::Less | Symbol::LessEqual | Symbol::Greater | Symbol::GreaterEqual => {
+                Precedence::Comparison
+            }
+            Symbol::Plus | Symbol::Minus => Precedence::Term,
+            Symbol::Star | Symbol::Slash | Symbol::Modulo => Precedence::Factor,
+            Symbol::Carat => Precedence::Power,
+            Symbol::Not => Precedence::Unary,
+            Symbol::LeftParen => Precedence::Call,
+            Symbol::Dot => Precedence::Call,
+            _ => Precedence::None,
+        }
+    }
+}
+
+pub struct Parser {
+    pub tokens: Vec<Token>,
+}
+
+impl Parser {
+    pub fn new(buf: &str) -> Self {
+        let mut sc = Scanner::new(buf);
+        let mut tokens = sc.tokenize();
+        tokens.reverse();
+
+        Parser {
+            tokens,
+        }
+    }
+
+    // helper
+    fn check(&self) -> Option<&Symbol> {
+        match self.tokens.last() {
+            Some(t) => Some(&t.value),
+            None => None
+        }
+    }
+
+    fn peek(&self) -> Result<&Symbol, String> {
+        match self.tokens.last() {
+            Some(token) => Ok(&token.value),
+            None => Err(String::from("peek: No more tokens"))
+        }
+    }
+
+    fn next(&mut self) -> Result<Symbol, String> {
+        match self.tokens.pop() {
+            Some(token) => Ok(token.value),
+            None => Err(String::from("next: No more tokens"))
+        }
+    }
+
+    fn consume(&mut self, expected: Symbol, message: &str) -> Result<(), ParseError> {
+        let token = self.peek().expect("expected peek symbol");
+        if token != &expected {
+            Err(ParseError::from(message))
+        } else {
+            self.next().expect("expected next symbol");
+            Ok(())
+        }
+    }
+
+    // statement
+    pub fn parse(&mut self) -> Result<Vec<Stmt>, ParseError> {
+        let mut stmts: Vec<Stmt> = vec![];
+        while self.check().unwrap_or(&Symbol::Eof) != &Symbol::Eof {
+            stmts.push(self.declaration()?);
+        }
+        Ok(stmts)
+    }
+
+    fn declaration(&mut self) -> Result<Stmt, ParseError> {
+        self.statement()
+    }
+
+    fn statement(&mut self) -> Result<Stmt, ParseError> {
+        match self.check() {
+            Some(Symbol::Identifier(name)) => self.assign_statement(name.clone()),
+            Some(Symbol::Print) => self.print_statement(),
+            Some(Symbol::LeftBrace) => self.block_statement(),
+            _ => self.expression_statement()
+        }
+    }
+
+    fn assign_statement(&mut self, name: String) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Identifier(name.to_string()), "Expect some identifier in assign")?;
+        self.consume(Symbol::Equal, "Expect '=' after identifier")?;
+        let expr = self.expression(Precedence::None)?;
+        self.consume(Symbol::Semicolon, "Expect ';' after assign.")?;
+        Ok(Stmt::Assign(name.clone(), Box::new(expr)))
+    }
+
+    fn block_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::LeftBrace, "Expect '{' before block")?;
+
+        let mut statements: Vec<Stmt> = Vec::new();
+        while self.peek()? != &Symbol::RightBrace && self.peek()? != &Symbol::Eof {
+            statements.push(self.declaration()?);
+        }
+        self.consume(Symbol::RightBrace, "Expect '}' after block")?;
+        Ok(Stmt::Block(statements))
+    }
+
+    fn print_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Print, "Expect print keyword.")?;
+        self.consume(Symbol::LeftParen, "Expect '(' after print.")?;
+        let expr = self.expression(Precedence::None)?;
+        self.consume(Symbol::RightParen, "Expect ') after expression.")?;
+        self.consume(Symbol::Semicolon, "Expect ';' after print.")?;
+
+        Ok(Stmt::Print(Box::new(expr)))
+    }
+
+    fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
+        let expr = self.expression(Precedence::None)?;
+        self.consume(Symbol::Semicolon, "Expect ';' after expression.")?;
+
+        Ok(Stmt::Expression(Box::new(expr)))
+    }
+
+    // expression
+    fn infix(&mut self, left: Expr) -> Result<Expr, ParseError> {
+        match self.peek()? {
+            Symbol::NotEqual
+            | Symbol::EqualEqual
+            | Symbol::Less
+            | Symbol::LessEqual
+            | Symbol::Greater
+            | Symbol::GreaterEqual
+            | Symbol::Plus
+            | Symbol::Minus
+            | Symbol::Star
+            | Symbol::Slash
+            | Symbol::Modulo
+            | Symbol::Carat
+            | Symbol::And
+            | Symbol::Or => self.binary(left),
+
+            // Symbol::Equal => self.assign(left),
+
+            _ => panic!(format!("unexpected infix operator {:?}", self.peek()))
+        }
+    }
+
+    fn prefix(&mut self) -> Result<Expr, ParseError> {
+        match self.peek()? {
+            Symbol::Number(_)
+            | Symbol::None
+            | Symbol::My
+            | Symbol::String(_)
+            | Symbol::True
+            | Symbol::False
+            | Symbol::Identifier(_) => self.primary(),
+
+            Symbol::Not => self.unary(),
+
+            Symbol::LeftParen => self.grouping(),
+            _ => panic!(format!("invalid prefix token: {:?}", self.peek()))
+        }
+    }
+
+    fn expression(&mut self, precedence: Precedence) -> Result<Expr, ParseError> {
+        let mut expr = self.prefix()?;
+        while let Some(token) = self.check() {
+            let next = Precedence::from(token);
+            if precedence >= next {
+                break;
+            }
+            expr = self.infix(expr)?;
+        }
+        Ok(expr)
+    }
+
+    fn binary(&mut self, left: Expr) -> Result<Expr, ParseError> {
+        let precedence = Precedence::from(self.peek()?);
+        let op = match self.next()? {
+            Symbol::Plus => Symbol::Plus,
+            Symbol::Minus => Symbol::Minus,
+            Symbol::Star => Symbol::Star,
+            Symbol::Slash => Symbol::Slash,
+            Symbol::Modulo => Symbol::Modulo,
+            Symbol::Carat => Symbol::Carat,
+            Symbol::Less => Symbol::Less,
+            Symbol::LessEqual => Symbol::LessEqual,
+            Symbol::Greater => Symbol::Greater,
+            Symbol::GreaterEqual => Symbol::GreaterEqual,
+            Symbol::NotEqual => Symbol::NotEqual,
+            Symbol::EqualEqual => Symbol::EqualEqual,
+            _ => panic!("Expected binary op.")
+        };
+        let right = self.expression(precedence)?;
+        Ok(Expr::Binary(Box::new(left), op, Box::new(right)))
+    }
+
+    fn primary(&mut self) -> Result<Expr, ParseError> {
+        let token = self.next()?;
+        match token {
+            Symbol::None => Ok(Expr::None),
+            Symbol::Number(n) => Ok(Expr::Number(n)),
+            Symbol::True => Ok(Expr::Boolean(true)),
+            Symbol::False => Ok(Expr::Boolean(false)),
+            Symbol::String(s) => Ok(Expr::String(s)),
+            Symbol::Identifier(s) => Ok(Expr::Variable(s)),
+            _ => panic!("Expected primary!")
+        }
+    }
+
+    // fn assign(&mut self, expr: Expr) -> Result<Expr, ParseError> {
+    //     self.consume(Symbol::Equal, "Expect '=' after variable identifier.")?;
+    //     let right = self.expression(Precedence::None)?;
+    //     match expr {
+    //         Expr::Variable(identifier) => Ok(Expr::Assign(identifier, Box::new(right))),
+    //         e => Err(format!("assignment when assignment is not allowed: {:?}", e).into())
+    //     }
+    // }
+
+    fn unary(&mut self) -> Result<Expr, ParseError> {
+        let op = match self.next()? {
+            Symbol::Not => Symbol::Not,
+            _ => panic!("Expected unary op.")
+        };
+        let right = self.expression(Precedence::Unary)?;
+        Ok(Expr::Unary(op, Box::new(right)))
+    }
+
+    fn grouping(&mut self) -> Result<Expr, ParseError> {
+        self.consume(Symbol::LeftParen, "Expect '(' at beginning of expression.")?;
+        let expr = self.expression(Precedence::None)?;
+        self.consume(Symbol::RightParen, "Expect ')' after expression.")?;
+        Ok(Expr::Grouping(Box::new(expr)))
+    }
+}
+
