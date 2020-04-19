@@ -1,4 +1,4 @@
-use crate::chunk::{Chunk, ConstantIndex, ChunkIndex, Instruction};
+use crate::chunk::{Chunk, ConstantIndex, ChunkIndex, Instruction, InstructionIndex};
 use crate::constant::Constant;
 
 pub struct Module {
@@ -24,8 +24,16 @@ impl Module {
         self.constants.len() - 1
     }
 
-    pub fn add_instruction(&mut self, index: usize, instruction: Instruction) {
-        self.chunks[index].add_instruction(instruction);
+    pub fn add_instruction(&mut self, index: usize, instruction: Instruction) -> InstructionIndex {
+        self.chunks[index].add_instruction(instruction)
+    }
+
+    pub fn chunk(&self, index: ChunkIndex) -> &Chunk {
+        &self.chunks[index]
+    }
+
+    pub fn chunk_mut(&mut self, index: ChunkIndex) -> &mut Chunk {
+        &mut self.chunks[index]
     }
 
     pub fn chunks(&self) -> &[Chunk] {

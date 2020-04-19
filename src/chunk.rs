@@ -34,6 +34,9 @@ pub enum Instruction {
     GetLocal(StackIndex),
     SetLocal(StackIndex),
 
+    JumpIfFalse(StackIndex),
+    Jump(StackIndex),
+
     Pop,
 
     Return,
@@ -51,7 +54,21 @@ impl Chunk {
         }
     }
 
-    pub fn add_instruction(&mut self, instruction: Instruction) {
+    pub fn add_instruction(&mut self, instruction: Instruction) -> InstructionIndex {
         self.instructions.push(instruction);
+        self.instructions.len() - 1
+    }
+
+    pub fn patch_instruction(&mut self, index: InstructionIndex) {
+        let current = self.instructions.len();
+        self.patch_instruction_to(index, current);
+    }
+
+    pub fn patch_instruction_to(&mut self, index: InstructionIndex, to: InstructionIndex) {
+        match self.instructions[index] {
+            Instruction::JumpIfFalse(ref mut placeholder) => *placeholder = to,
+            Instruction::Jump(ref mut placeholder) => *placeholder = to,
+            _ => (),
+        };
     }
 }

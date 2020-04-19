@@ -21,4 +21,5 @@ pub enum Stmt {
     Print(Box<Expr>),
     Block(Vec<Stmt>),
     Assign(Identifier, Box<Expr>),
+    If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
 }

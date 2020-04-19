@@ -31,8 +31,12 @@ impl Chunk {
 
                 Instruction::GetGlobal(offset) => simple(index, Instruction::GetGlobal(offset)),
                 Instruction::SetGlobal(offset) => simple(index, Instruction::SetGlobal(offset)),
+
                 Instruction::GetLocal(offset) => simple(index, Instruction::GetLocal(offset)),
                 Instruction::SetLocal(offset) => simple(index, Instruction::SetLocal(offset)),
+
+                Instruction::JumpIfFalse(offset) => simple(index, Instruction::JumpIfFalse(offset)),
+                Instruction::Jump(offset) => simple(index, Instruction::Jump(offset)),
 
                 _ => panic!(format!("Unknown instruction {:?}", instruction))
             }

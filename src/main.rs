@@ -20,8 +20,19 @@ mod local;
 // general
 mod error;
 
+#[derive(Debug)]
+struct A {
+    pub left: B,
+    pub right: B,
+}
+
+#[derive(Debug)]
+struct B {
+    pub val: i32,
+}
+
 fn main() {
-    let buf = "y = 20; { x = 4; }";
+    let buf = "if (true) { print('if'); } elif (false) { print('elif'); } else { print('else'); }";
     let mut parser = Parser::new(buf);
     let stmts = match parser.parse() {
         Ok(s) => s,

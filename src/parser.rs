@@ -104,6 +104,7 @@ impl Parser {
         match self.check() {
             Some(Symbol::Identifier(name)) => self.assign_statement(name.clone()),
             Some(Symbol::Print) => self.print_statement(),
+            Some(Symbol::If) => self.if_statement(),
             Some(Symbol::LeftBrace) => self.block_statement(),
             _ => self.expression_statement()
         }
@@ -117,6 +118,51 @@ impl Parser {
         Ok(Stmt::Assign(name.clone(), Box::new(expr)))
     }
 
+    fn print_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Print, "Expect print keyword.")?;
+        self.consume(Symbol::LeftParen, "Expect '(' after print.")?;
+        let expr = self.expression(Precedence::None)?;
+        self.consume(Symbol::RightParen, "Expect ') after expression.")?;
+        self.consume(Symbol::Semicolon, "Expect ';' after print.")?;
+
+        Ok(Stmt::Print(Box::new(expr)))
+    }
+
+    fn else_statement(&mut self) -> Result<Option<Box<Stmt>>, ParseError> {
+        let mut else_block: Option<Stmt> = None;
+        if self.check().unwrap() == &Symbol::Else {
+            self.consume(Symbol::Else, "Expect else keyword");
+            else_block = Some(self.block_statement()?);
+        }
+        Ok(else_block.map(Box::new))
+    }
+
+    fn elif_statement(&mut self) -> Result<Option<Box<Stmt>>, ParseError> {
+        if self.check().unwrap() == &Symbol::Elif {
+            self.consume(Symbol::Elif, "Expect elif keyword");
+            self.consume(Symbol::LeftParen, "Expect '(' after elif.")?;
+            let elif_condition = self.expression(Precedence::None)?;
+            self.consume(Symbol::RightParen, "Expect ')' after condition.")?;
+            let elif_block = self.block_statement()?;
+            Ok(Some(Box::new(Stmt::If(Box::new(elif_condition), Box::new(elif_block), self.elif_statement()?))))
+        } else {
+            self.else_statement()
+        }
+    }
+
+    fn if_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::If, "Expect if keyword.")?;
+        self.consume(Symbol::LeftParen, "Expect '(' after if.")?;
+        let if_condition = self.expression(Precedence::None)?;
+        self.consume(Symbol::RightParen, "Expect ')' after condition.")?;
+
+        let if_block = self.block_statement()?;
+
+        let rest = self.elif_statement()?;
+
+        Ok(Stmt::If(Box::new(if_condition), Box::new(if_block), rest))
+    }
+
     fn block_statement(&mut self) -> Result<Stmt, ParseError> {
         self.consume(Symbol::LeftBrace, "Expect '{' before block")?;
 
@@ -126,16 +172,6 @@ impl Parser {
         }
         self.consume(Symbol::RightBrace, "Expect '}' after block")?;
         Ok(Stmt::Block(statements))
-    }
-
-    fn print_statement(&mut self) -> Result<Stmt, ParseError> {
-        self.consume(Symbol::Print, "Expect print keyword.")?;
-        self.consume(Symbol::LeftParen, "Expect '(' after print.")?;
-        let expr = self.expression(Precedence::None)?;
-        self.consume(Symbol::RightParen, "Expect ') after expression.")?;
-        self.consume(Symbol::Semicolon, "Expect ';' after print.")?;
-
-        Ok(Stmt::Print(Box::new(expr)))
     }
 
     fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
@@ -231,15 +267,6 @@ impl Parser {
             _ => panic!("Expected primary!")
         }
     }
-
-    // fn assign(&mut self, expr: Expr) -> Result<Expr, ParseError> {
-    //     self.consume(Symbol::Equal, "Expect '=' after variable identifier.")?;
-    //     let right = self.expression(Precedence::None)?;
-    //     match expr {
-    //         Expr::Variable(identifier) => Ok(Expr::Assign(identifier, Box::new(right))),
-    //         e => Err(format!("assignment when assignment is not allowed: {:?}", e).into())
-    //     }
-    // }
 
     fn unary(&mut self) -> Result<Expr, ParseError> {
         let op = match self.next()? {

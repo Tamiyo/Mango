@@ -23,6 +23,10 @@ impl Local {
     pub fn initialized(&self) -> bool {
         self.initialized
     }
+
+    pub fn mark_initialized(&mut self) {
+        self.initialized = true;
+    }
 }
 
 pub struct Locals {
@@ -55,7 +59,7 @@ impl Locals {
         self.scope_depth
     }
 
-    pub fn get(&mut self, name: &str) -> Option<&Local> {
+    pub fn get(&self, name: &str) -> Option<&Local> {
         self.stack.iter().rev().find(|local| local.name == name.to_string())
     }
 
@@ -63,13 +67,17 @@ impl Locals {
         self.stack.iter().rev().find(|local| &local.name == name && local.depth == self.scope_depth)
     }
 
-    pub fn insert(&mut self, name: &str) -> &Local {
+    pub fn insert(&mut self, name: &str) -> usize {
         self.stack.push(Local {
             name: name.to_string(),
             depth: self.scope_depth,
             location: self.stack.len(),
             initialized: false,
         });
-        self.stack.last().unwrap()
+        self.stack.len() - 1
+    }
+
+    pub fn mark_initialized(&mut self) {
+        self.stack.last_mut().unwrap().mark_initialized();
     }
 }
