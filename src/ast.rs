@@ -5,6 +5,7 @@ pub type Identifier = String;
 #[derive(Debug, PartialEq)]
 pub enum Expr {
     Binary(Box<Expr>, Symbol, Box<Expr>),
+    Logical(Box<Expr>, Symbol, Box<Expr>),
     Grouping(Box<Expr>),
     Number(f64),
     Boolean(bool),

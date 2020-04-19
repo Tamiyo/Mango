@@ -195,9 +195,10 @@ impl Parser {
             | Symbol::Star
             | Symbol::Slash
             | Symbol::Modulo
-            | Symbol::Carat
-            | Symbol::And
-            | Symbol::Or => self.binary(left),
+            | Symbol::Carat => self.binary(left),
+
+            Symbol::And
+            | Symbol::Or => self.logical(left),
 
             // Symbol::Equal => self.assign(left),
 
@@ -253,6 +254,17 @@ impl Parser {
         };
         let right = self.expression(precedence)?;
         Ok(Expr::Binary(Box::new(left), op, Box::new(right)))
+    }
+
+    fn logical(&mut self, left: Expr) -> Result<Expr, ParseError> {
+        let precedence = Precedence::from(self.peek()?);
+        let op = match self.next()? {
+            Symbol::And => Symbol::And,
+            Symbol::Or => Symbol::Or,
+            _ => panic!("Expected logical binary op.")
+        };
+        let right = self.expression(precedence)?;
+        Ok(Expr::Logical(Box::new(left), op, Box::new(right)))
     }
 
     fn primary(&mut self) -> Result<Expr, ParseError> {

@@ -11,6 +11,7 @@ impl Chunk {
                 Instruction::True => simple(index, Instruction::True),
                 Instruction::False => simple(index, Instruction::False),
                 Instruction::None => simple(index, Instruction::None),
+
                 Instruction::Add => simple(index, Instruction::Add),
                 Instruction::Subtract => simple(index, Instruction::Subtract),
                 Instruction::Multiply => simple(index, Instruction::Multiply),
@@ -25,6 +26,7 @@ impl Chunk {
                 Instruction::GreaterEqual => simple(index, Instruction::GreaterEqual),
                 Instruction::Less => simple(index, Instruction::Less),
                 Instruction::LessEqual => simple(index, Instruction::LessEqual),
+
                 Instruction::Pop => simple(index, Instruction::Pop),
                 Instruction::Print => simple(index, Instruction::Print),
                 Instruction::Return => simple(index, Instruction::Return),
@@ -35,6 +37,7 @@ impl Chunk {
                 Instruction::GetLocal(offset) => simple(index, Instruction::GetLocal(offset)),
                 Instruction::SetLocal(offset) => simple(index, Instruction::SetLocal(offset)),
 
+                Instruction::JumpIfTrue(offset) => simple(index, Instruction::JumpIfTrue(offset)),
                 Instruction::JumpIfFalse(offset) => simple(index, Instruction::JumpIfFalse(offset)),
                 Instruction::Jump(offset) => simple(index, Instruction::Jump(offset)),
 

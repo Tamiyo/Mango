@@ -209,57 +209,16 @@ impl Compiler {
             Expr::Variable(ref string) => self.variable(string),
 
             Expr::Binary(ref left, ref op, ref right) => self.binary(left, op, right),
+            Expr::Logical(ref left, ref op, ref right) => self.logical(left, op, right),
             Expr::Grouping(ref expr) => self.expression(expr),
             Expr::Unary(ref op, ref expr) => self.unary(op, expr),
             _ => Err(CompileError::from("Unexpected expression!"))
         }
     }
 
-    fn number(&mut self, num: f64) -> Result<(), CompileError> {
-        let constant = self.add_constant(num);
-        self.add_instruction(Instruction::Constant(constant));
-        Ok(())
-    }
-
-    fn string(&mut self, string: &str) -> Result<(), CompileError> {
-        let constant = self.add_constant(string);
-        self.add_instruction(Instruction::Constant(constant));
-        Ok(())
-    }
-
-    fn boolean(&mut self, boolean: bool) -> Result<(), CompileError> {
-        if boolean {
-            self.add_instruction(Instruction::True);
-        } else {
-            self.add_instruction(Instruction::False);
-        }
-        Ok(())
-    }
-
-    /// TODO https://www.craftinginterpreters.com/global-variables.html
-    /// The compiler adds a global variable’s name to the constant table as a string every time an identifier is encountered.
-    /// It creates a new constant each time, even if that variable name is already in a previous slot in the constant table.
-    /// That’s wasteful in cases where the same variable is referenced multiple times by the same function.
-    /// That in turn increases the odds of filling up the constant table and running out of slots, since we only allow 256 constants in a single chunk.
-    /// 
-    /// Optimize this. How does your optimization affect the performance of the compiler compared to the runtime? Is this the right trade-off?
-    fn variable(&mut self, name: &str) -> Result<(), CompileError> {
-        if self.current_context().scope_depth() > 0 {
-            if let Some(local) = self.resolve_local(name)? {
-                self.add_instruction(Instruction::GetLocal(local));
-            } else {
-                return Err(CompileError::from(format!("undefined variable '{}'", name)));
-            }
-        } else {
-            let constant = self.add_constant(name);
-            self.add_instruction(Instruction::GetGlobal(constant));
-        }
-        Ok(())
-    }
-
     fn binary(&mut self, left: &Expr, op: &Symbol, right: &Expr) -> Result<(), CompileError> {
-        self.expression(left);
-        self.expression(right);
+        self.expression(left)?;
+        self.expression(right)?;
 
         match *op {
             Symbol::Plus => self.add_instruction(Instruction::Add),
@@ -280,12 +239,80 @@ impl Compiler {
         Ok(())
     }
 
+    fn logical(&mut self, left: &Expr, op: &Symbol, right: &Expr) -> Result<(), CompileError> {
+        match op {
+            &Symbol::And => self.and(left, right),
+            &Symbol::Or => self.or(left, right),
+            _ => Err(CompileError::from(format!("Expected logical op, got {:?} instead", op)))
+        }
+    }
+
+    fn and(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        self.expression(left)?;
+        let next_jump = self.add_instruction(Instruction::JumpIfFalse(0));
+        self.add_instruction(Instruction::Pop);
+        self.expression(right)?;
+        self.patch_instruction(next_jump);
+        Ok(())
+    }
+
+    fn or(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        self.expression(left)?;
+        let next_jump = self.add_instruction(Instruction::JumpIfTrue(0));
+        self.add_instruction(Instruction::Pop);
+        self.expression(right)?;
+        self.patch_instruction(next_jump);
+        Ok(())
+    }
+
     fn unary(&mut self, op: &Symbol, expr: &Expr) -> Result<(), CompileError> {
-        self.expression(expr);
+        self.expression(expr)?;
         match *op {
             Symbol::Not => self.add_instruction(Instruction::Not),
             _ => panic!("Unknown unary Operator")
         };
+        Ok(())
+    }
+
+    /// TODO https://www.craftinginterpreters.com/global-variables.html
+    /// The compiler adds a global variable’s name to the constant table as a string every time an identifier is encountered.
+    /// It creates a new constant each time, even if that variable name is already in a previous slot in the constant table.
+    /// That’s wasteful in cases where the same variable is referenced multiple times by the same function.
+    /// That in turn increases the odds of filling up the constant table and running out of slots, since we only allow 256 constants in a single chunk.
+    ///
+    /// Optimize this. How does your optimization affect the performance of the compiler compared to the runtime? Is this the right trade-off?
+    fn variable(&mut self, name: &str) -> Result<(), CompileError> {
+        if self.current_context().scope_depth() > 0 {
+            if let Some(local) = self.resolve_local(name)? {
+                self.add_instruction(Instruction::GetLocal(local));
+            } else {
+                return Err(CompileError::from(format!("undefined variable '{}'", name)));
+            }
+        } else {
+            let constant = self.add_constant(name);
+            self.add_instruction(Instruction::GetGlobal(constant));
+        }
+        Ok(())
+    }
+
+    fn number(&mut self, num: f64) -> Result<(), CompileError> {
+        let constant = self.add_constant(num);
+        self.add_instruction(Instruction::Constant(constant));
+        Ok(())
+    }
+
+    fn string(&mut self, string: &str) -> Result<(), CompileError> {
+        let constant = self.add_constant(string);
+        self.add_instruction(Instruction::Constant(constant));
+        Ok(())
+    }
+
+    fn boolean(&mut self, boolean: bool) -> Result<(), CompileError> {
+        if boolean {
+            self.add_instruction(Instruction::True);
+        } else {
+            self.add_instruction(Instruction::False);
+        }
         Ok(())
     }
 }

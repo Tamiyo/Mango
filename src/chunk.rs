@@ -34,6 +34,7 @@ pub enum Instruction {
     GetLocal(StackIndex),
     SetLocal(StackIndex),
 
+    JumpIfTrue(StackIndex),
     JumpIfFalse(StackIndex),
     Jump(StackIndex),
 
@@ -66,9 +67,10 @@ impl Chunk {
 
     pub fn patch_instruction_to(&mut self, index: InstructionIndex, to: InstructionIndex) {
         match self.instructions[index] {
+            Instruction::JumpIfTrue(ref mut placeholder) => *placeholder = to,
             Instruction::JumpIfFalse(ref mut placeholder) => *placeholder = to,
             Instruction::Jump(ref mut placeholder) => *placeholder = to,
-            _ => (),
+            _ => panic!(format!("Cannot patch instruction {:?}, ", self.instructions[index])),
         };
     }
 }
