@@ -3,7 +3,7 @@ use crate::constant::Constant;
 
 impl Chunk {
     pub fn disassemble(&self, constants: &[Constant]) {
-        println!("{:<8}\t{:<16}\t{:<16}", "OFFSET", "INSTRUCTION", "OPERAND");
+        println!("{:<8}\t\t{:<16}\t{:<16}", "OFFSET", "INSTRUCTION", "OPERAND");
         let mut index = 0;
         for instruction in self.instructions.clone() {
             match instruction {
@@ -46,9 +46,9 @@ impl Chunk {
 }
 
 fn simple(offset: i32, instruction: Instruction) {
-    println!("{:#008x}\t{:<16}\t{:<16}", offset, format!("{:?}", instruction), "");
+    println!("{:<#008x}\t\t{:<16}\t{:<16}", offset, format!("{:?}", instruction), "");
 }
 
 fn constant(offset: i32, instruction: Instruction, constant: Constant) {
-    println!("{:#008x}\t{:<16}\t{:<16}", offset, format!("{:?}", instruction), format!("{:?}", constant));
+    println!("{:#008x}\t\t{:<16}\t{:<16}", offset, format!("{:?}", instruction), format!("{:?}", constant));
 }
