@@ -2,6 +2,7 @@ use crate::scanner::Scanner;
 use crate::error::ParseError;
 use crate::ast::{Expr, Stmt};
 use crate::token::{Symbol, Token};
+use crate::parser::Precedence::Primary;
 
 #[derive(PartialEq, PartialOrd, Copy, Clone)]
 enum Precedence {
@@ -106,6 +107,8 @@ impl Parser {
             Some(Symbol::Print) => self.print_statement(),
             Some(Symbol::If) => self.if_statement(),
             Some(Symbol::LeftBrace) => self.block_statement(),
+            Some(Symbol::While) => self.while_statement(),
+            Some(Symbol::For) => self.for_statement(),
             _ => self.expression_statement()
         }
     }
@@ -131,7 +134,7 @@ impl Parser {
     fn else_statement(&mut self) -> Result<Option<Box<Stmt>>, ParseError> {
         let mut else_block: Option<Stmt> = None;
         if self.check().unwrap() == &Symbol::Else {
-            self.consume(Symbol::Else, "Expect else keyword");
+            self.consume(Symbol::Else, "Expect else keyword")?;
             else_block = Some(self.block_statement()?);
         }
         Ok(else_block.map(Box::new))
@@ -139,7 +142,7 @@ impl Parser {
 
     fn elif_statement(&mut self) -> Result<Option<Box<Stmt>>, ParseError> {
         if self.check().unwrap() == &Symbol::Elif {
-            self.consume(Symbol::Elif, "Expect elif keyword");
+            self.consume(Symbol::Elif, "Expect elif keyword")?;
             self.consume(Symbol::LeftParen, "Expect '(' after elif.")?;
             let elif_condition = self.expression(Precedence::None)?;
             self.consume(Symbol::RightParen, "Expect ')' after condition.")?;
@@ -161,6 +164,53 @@ impl Parser {
         let rest = self.elif_statement()?;
 
         Ok(Stmt::If(Box::new(if_condition), Box::new(if_block), rest))
+    }
+
+    fn while_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::While, "Expect while keyword.")?;
+        self.consume(Symbol::LeftParen, "Expect '(' after while.")?;
+        let while_condition = self.expression(Precedence::None)?;
+        self.consume(Symbol::RightParen, "Expect ')' after condition.")?;
+
+        let while_block = self.block_statement()?;
+
+        Ok(Stmt::While(Box::new(while_condition), Box::new(while_block)))
+    }
+
+    fn for_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::For, "Expect for keyword.")?;
+
+        let identifier = match self.next()? {
+            Symbol::Identifier(name) => name,
+            _ => panic!("Expected identifier in for loop.")
+        };
+
+        self.consume(Symbol::Equal, "Expect '=' after identifier")?;
+        let start = self.expression(Precedence::None)?;
+        let initializer = Stmt::Assign(String::from(identifier.clone()), Box::new(start.clone()));
+
+        self.consume(Symbol::Colon, "Expect ':' after ident assign.")?;
+        let limit = self.expression(Precedence::None)?;
+
+        let condition = Expr::Binary(Box::new(Expr::Variable(identifier.clone())), Symbol::Less, Box::new(limit));
+
+        let mut increment: Option<Expr> = None;
+        if self.peek()? == &Symbol::Colon {
+            self.consume(Symbol::Colon, "Expect ':' before increment.")?;
+            increment = Some(self.expression(Precedence::None)?);
+        }
+
+        let increment_expression = match increment {
+            Some(expr) => Expr::Binary(Box::new(Expr::Variable(identifier.clone())), Symbol::Plus, Box::new(expr)),
+            _ => Expr::Binary(Box::new(Expr::Variable(identifier.clone())), Symbol::Plus, Box::new(Expr::Number(1 as f64))),
+        };
+
+        let body = self.block_statement()?;
+        let body = Stmt::Block(vec![body, Stmt::Expression(Box::new(increment_expression))]);
+        let body = Stmt::While(Box::new(condition), Box::new(body));
+        let body = Stmt::Block(vec![initializer, body]);
+
+        Ok(body)
     }
 
     fn block_statement(&mut self) -> Result<Stmt, ParseError> {
@@ -219,7 +269,7 @@ impl Parser {
             Symbol::Not => self.unary(),
 
             Symbol::LeftParen => self.grouping(),
-            _ => panic!(format!("invalid prefix token: {:?}", self.peek()))
+            _ => panic!(format!("invalid prefix token: {:?}", self.peek()?))
         }
     }
 

@@ -2,7 +2,7 @@ use crate::token::Symbol;
 
 pub type Identifier = String;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     Binary(Box<Expr>, Symbol, Box<Expr>),
     Logical(Box<Expr>, Symbol, Box<Expr>),
@@ -23,4 +23,5 @@ pub enum Stmt {
     Block(Vec<Stmt>),
     Assign(Identifier, Box<Expr>),
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
+    While(Box<Expr>, Box<Stmt>)
 }

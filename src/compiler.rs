@@ -66,7 +66,7 @@ impl Compiler {
         }
     }
 
-    // chunk
+    // module
     fn current_chunk(&self) -> &Chunk {
         self.module.chunk(self.current_context().chunk_index)
     }
@@ -81,6 +81,10 @@ impl Compiler {
 
     fn patch_instruction_to(&mut self, index: InstructionIndex, to: InstructionIndex) {
         self.current_chunk_mut().patch_instruction_to(index, to);
+    }
+
+    fn instruction_index(&self) -> InstructionIndex {
+        self.current_chunk().instructions.len()
     }
 
     fn add_instruction(&mut self, instruction: Instruction) -> InstructionIndex {
@@ -142,6 +146,7 @@ impl Compiler {
             Stmt::Block(ref stmts) => self.block_statement(stmts),
             Stmt::Print(ref expr) => self.print_statement(expr),
             Stmt::If(ref condition, ref block, ref next) => self.if_statement(condition, block, next),
+            Stmt::While(ref condition, ref block) => self.while_statement(condition, block),
             Stmt::Expression(ref expr) => self.expression(expr),
 
             _ => Err(CompileError::from(format!("Unrecognized statement {:?}", stmt)))
@@ -185,17 +190,33 @@ impl Compiler {
 
         let next_index = self.add_instruction(Instruction::JumpIfFalse(0));
         self.add_instruction(Instruction::Pop);
-        self.statement(block);
+        self.statement(block)?;
 
         if let Some(stmt) = next {
             let index = self.add_instruction(Instruction::Jump(0));
             self.patch_instruction(next_index);
             self.add_instruction(Instruction::Pop);
-            self.statement(stmt.as_ref());
+            self.statement(stmt.as_ref())?;
             self.patch_instruction(index);
         } else {
             self.patch_instruction(next_index);
         }
+        Ok(())
+    }
+
+    fn while_statement(&mut self, condition: &Expr, block: &Stmt) -> Result<(), CompileError> {
+        let start_jump = self.instruction_index();
+        self.expression(condition)?;
+
+        let exit_jump = self.add_instruction(Instruction::JumpIfFalse(0));
+        self.add_instruction(Instruction::Pop);
+        self.statement(block)?;
+
+        let loop_jump = self.add_instruction(Instruction::Jump(0));
+        self.patch_instruction_to(loop_jump, start_jump);
+        self.patch_instruction(exit_jump);
+        self.add_instruction(Instruction::Pop);
+
         Ok(())
     }
 

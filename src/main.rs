@@ -21,7 +21,7 @@ mod local;
 mod error;
 
 fn main() {
-    let buf = "print(true or false);";
+    let buf = "for i=1:10 { print(5); }";
     let mut parser = Parser::new(buf);
     let stmts = match parser.parse() {
         Ok(s) => s,
