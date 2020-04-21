@@ -17,7 +17,7 @@ statement ::= exprStmt
 exprStmt ::= expression ";"
 printStmt ::= "print" "(" expression ")" ";"
 returnStmt ::= "return" expression ";"
-assignStmt ::= IDENTIFIER "=" expression ";"
+assignStmt ::= '$' IDENTIFIER "=" expression ";"
 ifStmt ::= "if" "(" expression ")" blockStmt
             (("elif" "(" expression ")")*)? ("else" blockStmt)?
 
