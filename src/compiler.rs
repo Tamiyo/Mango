@@ -67,6 +67,12 @@ impl Compiler {
         }
     }
 
+    pub fn compile(&mut self, stmts: &[Stmt]) -> Result<&Module, CompileError> {
+        self.program(stmts)?;
+        self.disassemble();
+        Ok(&self.module)
+    }
+
     // module
     fn current_chunk(&self) -> &Chunk {
         self.module.chunk(self.current_context().chunk_index)
@@ -98,7 +104,8 @@ impl Compiler {
         self.module.add_constant(constant.into())
     }
 
-    pub fn disassemble(&mut self) {
+    pub fn disassemble(&self) {
+        println!("chunk constants: {:?}", self.module.constants());
         for chunk in self.module.chunks() {
             chunk.disassemble(self.module.constants());
             println!();
@@ -163,7 +170,7 @@ impl Compiler {
     }
 
     // statement
-    pub fn program(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
+    fn program(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
         for stmt in stmts {
             match self.statement(stmt) {
                 Ok(()) => {}
@@ -241,6 +248,8 @@ impl Compiler {
         Ok(())
     }
 
+    /// TODO - let buf = "x = 0; while (x < 4) { x = x + 1; }"; fails
+    /// thread 'main' panicked at 'CompileError: undefined variable 'x'', src\compiler.rs:178:21
     fn while_statement(&mut self, condition: &Expr, block: &Stmt) -> Result<(), CompileError> {
         let start_jump = self.instruction_index();
         self.expression(condition)?;
@@ -257,7 +266,7 @@ impl Compiler {
         Ok(())
     }
 
-    fn function(&mut self, name: &Identifier, params: &[Identifier], body: &[Stmt]) -> Result<(), CompileError> {
+    fn function(&mut self, name: &str, params: &[Identifier], body: &[Stmt]) -> Result<(), CompileError> {
         self.declare_variable(name);
         if self.local_depth() {
             self.mark_initialized();
@@ -344,8 +353,8 @@ impl Compiler {
 
     fn logical(&mut self, left: &Expr, op: &Symbol, right: &Expr) -> Result<(), CompileError> {
         match op {
-            &Symbol::And => self.and(left, right),
-            &Symbol::Or => self.or(left, right),
+            Symbol::And => self.and(left, right),
+            Symbol::Or => self.or(left, right),
             _ => Err(CompileError::from(format!("Expected logical op, got {:?} instead", op)))
         }
     }

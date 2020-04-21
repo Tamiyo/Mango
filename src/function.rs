@@ -1,9 +1,9 @@
 use crate::chunk::ChunkIndex;
 
 pub struct Function {
-    name: String,
-    chunk_index: ChunkIndex,
-    arity: usize,
+    pub(crate) name: String,
+    pub(crate) chunk_index: ChunkIndex,
+    pub(crate) arity: usize,
 }
 
 impl Function {

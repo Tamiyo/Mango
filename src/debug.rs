@@ -4,8 +4,7 @@ use crate::constant::Constant;
 impl Chunk {
     pub fn disassemble(&self, constants: &[Constant]) {
         println!("{:<8}\t\t{:<16}\t{:<16}", "OFFSET", "INSTRUCTION", "OPERAND");
-        let mut index = 0;
-        for instruction in self.instructions.clone() {
+        for (index, instruction) in self.instructions.clone().into_iter().enumerate() {
             match instruction {
                 Instruction::Constant(offset) => constant(index, Instruction::Constant(offset), constants[offset].clone()),
                 Instruction::True => simple(index, Instruction::True),
@@ -44,15 +43,14 @@ impl Chunk {
 
                 _ => panic!(format!("Unknown instruction {:?}", instruction))
             }
-            index += 1;
         }
     }
 }
 
-fn simple(offset: i32, instruction: Instruction) {
+fn simple(offset: usize, instruction: Instruction) {
     println!("{:<#008x}\t\t{:<16}\t{:<16}", offset, format!("{:?}", instruction), "");
 }
 
-fn constant(offset: i32, instruction: Instruction, constant: Constant) {
+fn constant(offset: usize, instruction: Instruction, constant: Constant) {
     println!("{:#008x}\t\t{:<16}\t{:<16}", offset, format!("{:?}", instruction), format!("{:?}", constant));
 }

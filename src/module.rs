@@ -43,4 +43,8 @@ impl Module {
     pub fn constants(&self) -> &[Constant] {
         &self.constants
     }
+
+    pub fn constant(&self, index: usize) -> Constant {
+        self.constants[index].clone()
+    }
 }

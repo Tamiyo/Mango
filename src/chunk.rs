@@ -54,6 +54,10 @@ impl Chunk {
         }
     }
 
+    pub fn instructions(&self) -> &[Instruction] {
+        &self.instructions
+    }
+
     pub fn add_instruction(&mut self, instruction: Instruction) -> InstructionIndex {
         self.instructions.push(instruction);
         self.instructions.len() - 1

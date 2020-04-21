@@ -42,7 +42,7 @@ impl Locals {
         let index = self.stack.iter()
             .enumerate()
             .find_map(|(index, local)| if local.depth > self.scope_depth { Some(index) } else { None })
-            .unwrap_or(self.stack.len());
+            .unwrap_or_else(|| self.stack.len());
         self.stack.split_off(index);
     }
 
@@ -60,7 +60,7 @@ impl Locals {
     }
 
     fn find_at_depth(&mut self, name: &str) -> Option<&Local> {
-        self.stack.iter().rev().find(|local| &local.name == name && local.depth == self.scope_depth)
+        self.stack.iter().rev().find(|local| local.name == name.to_string() && local.depth == self.scope_depth)
     }
 
     pub fn insert(&mut self, name: &str) -> usize {

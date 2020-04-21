@@ -40,18 +40,13 @@ impl<'a> Scanner<'a> {
     }
 
     fn whitespace(&mut self) {
-        loop {
-            match self.it.peek() {
-                Some(ch) => {
-                    match ch {
-                        '\n' => {
-                            self.line += 1;
-                            self.it.next();
-                        }
-                        '\r' | '\t' | ' ' => { self.it.next(); }
-                        _ => break
-                    }
+        while let Some(ch) = self.it.peek() {
+            match ch {
+                '\n' => {
+                    self.line += 1;
+                    self.it.next();
                 }
+                '\r' | '\t' | ' ' => { self.it.next(); }
                 _ => break
             }
         }

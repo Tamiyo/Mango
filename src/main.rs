@@ -1,5 +1,7 @@
 use crate::parser::Parser;
 use crate::compiler::Compiler;
+use crate::vm::VM;
+use crate::module::Module;
 
 // bytecode
 mod chunk;
@@ -25,7 +27,8 @@ mod function;
 mod error;
 
 fn main() {
-    let buf = "@myfunction() { print(5); return; } myfunction();";
+    // let buf = "@myfunction() { print(5); return; } myfunction();";
+    let buf = "if (4 == 4) { print('Hello'); print('World'); } else { print('No'); }";
     let mut parser = Parser::new(buf);
     let stmts = match parser.parse() {
         Ok(s) => s,
@@ -35,6 +38,10 @@ fn main() {
     println!("{:?}\n", stmts);
 
     let mut compiler = Compiler::new();
-    compiler.program(&stmts);
-    compiler.disassemble();
+
+    let empty_module = Module::new();
+    let module = compiler.compile(&stmts).unwrap_or(&empty_module);
+
+    let mut vm = VM::new(module);
+    vm.interpret();
 }
