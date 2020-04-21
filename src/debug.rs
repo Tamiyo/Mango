@@ -20,7 +20,6 @@ impl Chunk {
                 Instruction::Pow => simple(index, Instruction::Pow),
                 Instruction::Not => simple(index, Instruction::Not),
                 Instruction::NotEqual => simple(index, Instruction::NotEqual),
-                Instruction::Equal => simple(index, Instruction::Equal),
                 Instruction::EqualEqual => simple(index, Instruction::EqualEqual),
                 Instruction::Greater => simple(index, Instruction::Greater),
                 Instruction::GreaterEqual => simple(index, Instruction::GreaterEqual),
@@ -40,6 +39,8 @@ impl Chunk {
                 Instruction::JumpIfTrue(offset) => simple(index, Instruction::JumpIfTrue(offset)),
                 Instruction::JumpIfFalse(offset) => simple(index, Instruction::JumpIfFalse(offset)),
                 Instruction::Jump(offset) => simple(index, Instruction::Jump(offset)),
+
+                Instruction::Call(args) =>  simple(index, Instruction::Call(args)),
 
                 _ => panic!(format!("Unknown instruction {:?}", instruction))
             }

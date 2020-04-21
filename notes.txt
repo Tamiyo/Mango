@@ -1,0 +1,11 @@
+- Function Object
+    - Arity
+    - Name
+    - Supporting block
+
+- Claim local spot 0 as null local (internal use, keep reading stupid)
+
+- Compiling Function Object
+    - Create and push new "compiler_context" of type (type)
+    - Begin_Scope with the new context (don't end-scope cause we still want to locals)
+

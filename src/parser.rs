@@ -1,13 +1,11 @@
 use crate::scanner::Scanner;
 use crate::error::ParseError;
-use crate::ast::{Expr, Stmt};
+use crate::ast::{Expr, Stmt, Identifier};
 use crate::token::{Symbol, Token};
-use crate::parser::Precedence::Primary;
 
 #[derive(PartialEq, PartialOrd, Copy, Clone)]
 enum Precedence {
     None,
-    // Assign,
     Or,
     And,
     Equality,
@@ -17,13 +15,11 @@ enum Precedence {
     Power,
     Unary,
     Call,
-    Primary,
 }
 
 impl<'a> From<&'a Symbol> for Precedence {
     fn from(symbol: &Symbol) -> Precedence {
         match *symbol {
-            // Symbol::Equal => Precedence::Assign,
             Symbol::Or => Precedence::Or,
             Symbol::And => Precedence::And,
             Symbol::NotEqual | Symbol::EqualEqual => Precedence::Equality,
@@ -71,6 +67,12 @@ impl Parser {
         }
     }
 
+    fn peek_next(&self) -> &Symbol {
+        let mut rev_iter = self.tokens.iter().rev();
+        rev_iter.next();
+        &rev_iter.next().unwrap().value
+    }
+
     fn next(&mut self) -> Result<Symbol, String> {
         match self.tokens.pop() {
             Some(token) => Ok(token.value),
@@ -98,17 +100,76 @@ impl Parser {
     }
 
     fn declaration(&mut self) -> Result<Stmt, ParseError> {
-        self.statement()
+        match self.check() {
+            Some(Symbol::Fun) => self.function_declaration(),
+            _ => self.statement()
+        }
+    }
+
+    fn function_declaration(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Fun, "Expect function keyword.")?;
+        self.function()
+    }
+
+    fn params(&mut self) -> Result<Vec<Identifier>, ParseError> {
+        let mut params: Vec<Identifier> = Vec::new();
+        params.push(match self.next()? {
+            Symbol::Identifier(name) => Ok(name.clone()),
+            s => Err(ParseError::from(format!("Expected identifier in params, got {:?} instead", s)))
+        }?);
+
+        while self.peek()? == &Symbol::Comma {
+            self.consume(Symbol::Comma, "Expect ',' to seperate params")?;
+            params.push(match self.next()? {
+                Symbol::Identifier(name) => Ok(name.clone()),
+                s => Err(ParseError::from(format!("Expected identifier in params, got {:?} instead", s)))
+            }?);
+        }
+
+        Ok(params)
+    }
+
+    fn function(&mut self) -> Result<Stmt, ParseError> {
+        let name = match self.next()? {
+            Symbol::Identifier(name) => Ok(name),
+            _ => Err(ParseError::from("Expected function identifier."))
+        }?;
+
+        self.consume(Symbol::LeftParen, "Expect '(' at beginning of function params.")?;
+        let params: Vec<Identifier> = if self.peek()? != &Symbol::RightParen {
+            self.params()?
+        } else {
+            Vec::new()
+        };
+        self.consume(Symbol::RightParen, "Expect ')' at end of function params.")?;
+
+        self.consume(Symbol::LeftBrace, "Expect '{' before block")?;
+
+        let mut statements: Vec<Stmt> = Vec::new();
+        while self.peek()? != &Symbol::RightBrace && self.peek()? != &Symbol::Eof {
+            statements.push(self.declaration()?);
+        }
+        self.consume(Symbol::RightBrace, "Expect '}' after block")?;
+
+        Ok(Stmt::Function(name, params, statements))
     }
 
     fn statement(&mut self) -> Result<Stmt, ParseError> {
+        let next_sym = self.peek_next();
         match self.check() {
-            Some(Symbol::Identifier(name)) => self.assign_statement(name.clone()),
+            Some(Symbol::Identifier(ref name)) => {
+                if next_sym == &Symbol::Equal {
+                    self.assign_statement(name.clone())
+                } else {
+                    self.expression_statement()
+                }
+            }
             Some(Symbol::Print) => self.print_statement(),
             Some(Symbol::If) => self.if_statement(),
             Some(Symbol::LeftBrace) => self.block_statement(),
             Some(Symbol::While) => self.while_statement(),
             Some(Symbol::For) => self.for_statement(),
+            Some(Symbol::Return) => self.return_statement(),
             _ => self.expression_statement()
         }
     }
@@ -177,6 +238,7 @@ impl Parser {
         Ok(Stmt::While(Box::new(while_condition), Box::new(while_block)))
     }
 
+    /// TODO - Kinda janky... attempt to optimize later?
     fn for_statement(&mut self) -> Result<Stmt, ParseError> {
         self.consume(Symbol::For, "Expect for keyword.")?;
 
@@ -213,14 +275,24 @@ impl Parser {
         Ok(body)
     }
 
+    fn return_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Return, "Expect 'return' keyword.")?;
+        let mut expr: Option<Box<Expr>> = None;
+        if self.peek()? != &Symbol::Semicolon {
+            expr = Some(Box::new(self.expression(Precedence::None)?));
+        }
+        self.consume(Symbol::Semicolon, "Expect ';' after return statement.")?;
+        Ok(Stmt::Return(expr))
+    }
+
     fn block_statement(&mut self) -> Result<Stmt, ParseError> {
-        self.consume(Symbol::LeftBrace, "Expect '{' before block")?;
+        self.consume(Symbol::LeftBrace, "Expect '{' before block.")?;
 
         let mut statements: Vec<Stmt> = Vec::new();
         while self.peek()? != &Symbol::RightBrace && self.peek()? != &Symbol::Eof {
             statements.push(self.declaration()?);
         }
-        self.consume(Symbol::RightBrace, "Expect '}' after block")?;
+        self.consume(Symbol::RightBrace, "Expect '}' after block.")?;
         Ok(Stmt::Block(statements))
     }
 
@@ -250,7 +322,7 @@ impl Parser {
             Symbol::And
             | Symbol::Or => self.logical(left),
 
-            // Symbol::Equal => self.assign(left),
+            Symbol::LeftParen => self.call(left),
 
             _ => panic!(format!("unexpected infix operator {:?}", self.peek()))
         }
@@ -344,6 +416,31 @@ impl Parser {
         let expr = self.expression(Precedence::None)?;
         self.consume(Symbol::RightParen, "Expect ')' after expression.")?;
         Ok(Expr::Grouping(Box::new(expr)))
+    }
+
+    fn args(&mut self) -> Result<Vec<Expr>, ParseError> {
+        let mut args = Vec::new();
+        if self.peek()? != &Symbol::RightParen {
+            args.push(self.expression(Precedence::None)?);
+            while self.peek()? == &Symbol::Comma {
+                self.consume(Symbol::Comma, "Expect ',' to separate call args.")?;
+                args.push(self.expression(Precedence::None)?);
+            }
+        }
+
+        Ok(args)
+    }
+
+    fn call(&mut self, left: Expr) -> Result<Expr, ParseError> {
+        self.consume(Symbol::LeftParen, "Expect '(' at beginning of call")?;
+        let args = self.args()?;
+        self.consume(Symbol::RightParen, "Expect ')' at end of call")?;
+
+        if args.len() > 256 {
+            Err(ParseError::from("Function call contains too many args!"))
+        } else {
+            Ok(Expr::Call(Box::new(left), args))
+        }
     }
 }
 

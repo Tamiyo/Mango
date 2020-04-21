@@ -17,11 +17,15 @@ mod compiler;
 mod module;
 mod local;
 
+// vm
+mod vm;
+mod function;
+
 // general
 mod error;
 
 fn main() {
-    let buf = "for i=1:10 { print(5); }";
+    let buf = "@myfunction() { print(5); return; } myfunction();";
     let mut parser = Parser::new(buf);
     let stmts = match parser.parse() {
         Ok(s) => s,

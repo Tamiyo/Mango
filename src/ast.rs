@@ -13,7 +13,7 @@ pub enum Expr {
     String(String),
     Unary(Symbol, Box<Expr>),
     Variable(Identifier),
-    // Assign(Identifier, Box<Expr>),
+    Call(Box<Expr>, Vec<Expr>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -23,5 +23,7 @@ pub enum Stmt {
     Block(Vec<Stmt>),
     Assign(Identifier, Box<Expr>),
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
-    While(Box<Expr>, Box<Stmt>)
+    While(Box<Expr>, Box<Stmt>),
+    Function(Identifier, Vec<Identifier>, Vec<Stmt>),
+    Return(Option<Box<Expr>>),
 }

@@ -1,5 +1,3 @@
-use crate::constant::Constant;
-
 pub type InstructionIndex = usize;
 pub type ConstantIndex = usize;
 pub type StackIndex = usize;
@@ -21,7 +19,6 @@ pub enum Instruction {
 
     Not,
     NotEqual,
-    Equal,
     EqualEqual,
     Greater,
     GreaterEqual,
@@ -37,6 +34,8 @@ pub enum Instruction {
     JumpIfTrue(StackIndex),
     JumpIfFalse(StackIndex),
     Jump(StackIndex),
+
+    Call(usize),
 
     Pop,
 

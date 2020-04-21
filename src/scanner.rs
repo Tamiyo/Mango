@@ -79,7 +79,7 @@ impl<'a> Scanner<'a> {
     }
 
     fn string(&mut self, delim: char) -> Symbol {
-        let mut result: String = self.consume_while(|c| c != delim)
+        let result: String = self.consume_while(|c| c != delim)
             .into_iter()
             .collect();
         if self.it.next().expect("expected next symbol") != delim {

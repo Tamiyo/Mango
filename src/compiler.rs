@@ -1,16 +1,17 @@
 use crate::chunk::{Chunk, Instruction, ConstantIndex, ChunkIndex, StackIndex, InstructionIndex};
 use crate::constant::Constant;
-use crate::ast::{Stmt, Expr};
+use crate::ast::{Stmt, Expr, Identifier};
 use crate::error::CompileError;
 use crate::token::Symbol;
 use crate::module::Module;
 use crate::local::{Local, Locals};
 
 // https://www.craftinginterpreters.com/local-variables.html
+#[derive(Debug, PartialEq)]
 pub enum ContextType {
     Function,
-    Initializer,
-    Method,
+    // Initializer,
+    // Method,
     Script,
 }
 
@@ -105,6 +106,13 @@ impl Compiler {
     }
 
     // context
+    fn new_context(&mut self, context_type: ContextType) {
+        let chunk_index = self.module.add_chunk();
+        self.contexts.push(CompilerContext::new(
+            context_type,
+            chunk_index));
+    }
+
     fn current_context(&self) -> &CompilerContext {
         self.contexts.last().expect("expected a compiler context to exist")
     }
@@ -122,8 +130,36 @@ impl Compiler {
         self.current_context_mut().locals.end_scope();
     }
 
+    fn local_depth(&mut self) -> bool {
+        self.current_context().locals.depth() != 0
+    }
+
+    fn find_local_at_depth(&mut self, name: &str) -> Option<&Local> {
+        self.current_context().locals.get_at_depth(name)
+    }
+
+    fn mark_initialized(&mut self) {
+        self.current_context_mut().locals.mark_initialized();
+    }
+
     fn resolve_local(&self, name: &str) -> Result<Option<StackIndex>, CompileError> {
         self.current_context().resolve_local(name)
+    }
+
+    // variable
+    fn declare_variable(&mut self, name: &str) {
+        if self.local_depth() && self.find_local_at_depth(name) == None {
+            self.current_context_mut().locals.insert(name);
+        }
+    }
+
+    fn define_variable(&mut self, name: &str) {
+        if self.local_depth() {
+            self.mark_initialized();
+        } else {
+            let constant = self.add_constant(name);
+            self.add_instruction(Instruction::SetGlobal(constant));
+        }
     }
 
     // statement
@@ -147,8 +183,9 @@ impl Compiler {
             Stmt::Print(ref expr) => self.print_statement(expr),
             Stmt::If(ref condition, ref block, ref next) => self.if_statement(condition, block, next),
             Stmt::While(ref condition, ref block) => self.while_statement(condition, block),
+            Stmt::Function(ref name, ref params, ref body) => self.function(name, params, body),
+            Stmt::Return(ref val) => self.return_statement(val),
             Stmt::Expression(ref expr) => self.expression(expr),
-
             _ => Err(CompileError::from(format!("Unrecognized statement {:?}", stmt)))
         }
     }
@@ -220,6 +257,47 @@ impl Compiler {
         Ok(())
     }
 
+    fn function(&mut self, name: &Identifier, params: &[Identifier], body: &[Stmt]) -> Result<(), CompileError> {
+        self.declare_variable(name);
+        if self.local_depth() {
+            self.mark_initialized();
+        }
+
+        self.new_context(ContextType::Function);
+        self.begin_scope();
+
+        for param in params {
+            self.declare_variable(param);
+            self.define_variable(param);
+        }
+
+        self.block_statement(body)?;
+
+        match body.last() {
+            Some(Stmt::Return(_)) => (),
+            _ => {
+                self.add_instruction(Instruction::None);
+                self.add_instruction(Instruction::Return);
+            }
+        };
+        self.contexts.pop();
+        Ok(())
+    }
+
+    fn return_statement(&mut self, expr: &Option<Box<Expr>>) -> Result<(), CompileError> {
+        if self.current_context().context_type == ContextType::Script {
+            Err(CompileError::from("Cannot return from top-level context"))
+        } else {
+            if let Some(expr) = expr {
+                self.expression(expr.as_ref())?;
+            } else {
+                self.none()?;
+            }
+            self.add_instruction(Instruction::Return);
+            Ok(())
+        }
+    }
+
     // expression
     fn expression(&mut self, expr: &Expr) -> Result<(), CompileError> {
         match *expr {
@@ -228,11 +306,15 @@ impl Compiler {
             Expr::Boolean(boolean) => self.boolean(boolean),
 
             Expr::Variable(ref string) => self.variable(string),
+            Expr::None => self.none(),
 
             Expr::Binary(ref left, ref op, ref right) => self.binary(left, op, right),
             Expr::Logical(ref left, ref op, ref right) => self.logical(left, op, right),
             Expr::Grouping(ref expr) => self.expression(expr),
             Expr::Unary(ref op, ref expr) => self.unary(op, expr),
+
+            Expr::Call(ref left, ref args) => self.call(left, args),
+
             _ => Err(CompileError::from("Unexpected expression!"))
         }
     }
@@ -316,6 +398,11 @@ impl Compiler {
         Ok(())
     }
 
+    fn none(&mut self) -> Result<(), CompileError> {
+        self.add_instruction(Instruction::None);
+        Ok(())
+    }
+
     fn number(&mut self, num: f64) -> Result<(), CompileError> {
         let constant = self.add_constant(num);
         self.add_instruction(Instruction::Constant(constant));
@@ -334,6 +421,15 @@ impl Compiler {
         } else {
             self.add_instruction(Instruction::False);
         }
+        Ok(())
+    }
+
+    fn call(&mut self, left: &Expr, args: &[Expr]) -> Result<(), CompileError> {
+        self.expression(left)?;
+        for arg in args {
+            self.expression(arg)?;
+        }
+        self.add_instruction(Instruction::Call(args.len()));
         Ok(())
     }
 }

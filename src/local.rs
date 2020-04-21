@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Local {
     name: String,
     depth: usize,
@@ -7,15 +7,6 @@ pub struct Local {
 }
 
 impl Local {
-    pub fn new(name: String, depth: usize, location: usize, initialized: bool) -> Self {
-        Local {
-            name,
-            depth,
-            location,
-            initialized,
-        }
-    }
-
     pub fn location(&self) -> usize {
         self.location
     }
@@ -61,6 +52,11 @@ impl Locals {
 
     pub fn get(&self, name: &str) -> Option<&Local> {
         self.stack.iter().rev().find(|local| local.name == name.to_string())
+    }
+
+    pub fn get_at_depth(&self, name: &str) -> Option<&Local> {
+        self.stack.iter().rev().find(|local| local.name == name.to_string()
+            && local.depth == self.scope_depth)
     }
 
     fn find_at_depth(&mut self, name: &str) -> Option<&Local> {
