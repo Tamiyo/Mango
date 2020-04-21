@@ -28,7 +28,7 @@ mod error;
 
 fn main() {
     // let buf = "@myfunction() { print(5); return; } myfunction();";
-    let buf = "if (4 == 4) { print('Hello'); print('World'); } else { print('No'); }";
+    let buf = "$x = 4; print(x);";
     let mut parser = Parser::new(buf);
     let stmts = match parser.parse() {
         Ok(s) => s,

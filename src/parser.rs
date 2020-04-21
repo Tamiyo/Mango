@@ -157,13 +157,10 @@ impl Parser {
     fn statement(&mut self) -> Result<Stmt, ParseError> {
         let next_sym = self.peek_next();
         match self.check() {
-            Some(Symbol::Identifier(ref name)) => {
-                if next_sym == &Symbol::Equal {
-                    self.assign_statement(name.clone())
-                } else {
-                    self.expression_statement()
-                }
-            }
+
+            // TODO - This 'Some()' violates borrow rules, but still runs.
+            // Debug or redesign more so this doesnt occur
+            Some(Symbol::Var) => self.assign_statement(),
             Some(Symbol::Print) => self.print_statement(),
             Some(Symbol::If) => self.if_statement(),
             Some(Symbol::LeftBrace) => self.block_statement(),
@@ -174,7 +171,14 @@ impl Parser {
         }
     }
 
-    fn assign_statement(&mut self, name: String) -> Result<Stmt, ParseError> {
+    fn assign_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Var, "Expected variable symbol.")?;
+
+        let name = match self.check() {
+            Some(Symbol::Identifier(name)) => name.clone(),
+            _ => panic!("Expected Identifier")
+        };
+
         self.consume(Symbol::Identifier(name.to_string()), "Expect some identifier in assign")?;
         self.consume(Symbol::Equal, "Expect '=' after identifier")?;
         let expr = self.expression(Precedence::None)?;

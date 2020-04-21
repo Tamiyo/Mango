@@ -150,6 +150,7 @@ impl<'a> Scanner<'a> {
                 ';' => Symbol::Semicolon,
                 '@' => Symbol::Fun,
                 '#' => Symbol::Struct,
+                '$' => Symbol::Var,
                 x if x.is_numeric() => self.number(x),
                 x if x.is_alphabetic() => self.identifier(x),
                 '\'' | '"' => self.string(ch),

@@ -53,6 +53,7 @@ pub enum Symbol {
     Super,
     True,
     While,
+    Var,
     Eof,
 }
 
