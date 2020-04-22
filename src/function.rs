@@ -1,9 +1,10 @@
 use crate::chunk::ChunkIndex;
 
+#[derive(Debug, Clone)]
 pub struct Function {
-    pub(crate) name: String,
-    pub(crate) chunk_index: ChunkIndex,
-    pub(crate) arity: usize,
+    pub name: String,
+    pub chunk_index: ChunkIndex,
+    pub arity: usize,
 }
 
 impl Function {
@@ -14,4 +15,9 @@ impl Function {
             arity,
         }
     }
+}
+
+pub struct Closure {
+    function: Function,
+    // upvalues: Vec<Upvalue>
 }

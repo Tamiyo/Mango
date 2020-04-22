@@ -5,6 +5,7 @@ use crate::error::CompileError;
 use crate::token::Symbol;
 use crate::module::Module;
 use crate::local::{Local, Locals};
+use crate::function::Function;
 
 // https://www.craftinginterpreters.com/local-variables.html
 #[derive(Debug, PartialEq)]
@@ -105,7 +106,8 @@ impl Compiler {
     }
 
     pub fn disassemble(&self) {
-        println!("chunk constants: {:?}", self.module.constants());
+        // TODO - Rc<T> constants (shared_ptr)
+
         for chunk in self.module.chunks() {
             chunk.disassemble(self.module.constants());
             println!();
@@ -113,11 +115,12 @@ impl Compiler {
     }
 
     // context
-    fn new_context(&mut self, context_type: ContextType) {
+    fn new_context(&mut self, context_type: ContextType) -> usize {
         let chunk_index = self.module.add_chunk();
         self.contexts.push(CompilerContext::new(
             context_type,
             chunk_index));
+        chunk_index
     }
 
     fn current_context(&self) -> &CompilerContext {
@@ -138,7 +141,7 @@ impl Compiler {
     }
 
     fn local_depth(&mut self) -> bool {
-        self.current_context().locals.depth() != 0
+        self.current_context().locals.depth() > 0
     }
 
     fn find_local_at_depth(&mut self, name: &str) -> Option<&Local> {
@@ -198,28 +201,26 @@ impl Compiler {
     }
 
     fn assign_statement(&mut self, name: &str, expr: &Expr) -> Result<(), CompileError> {
+        self.declare_variable(name);
         self.expression(expr)?;
+        self.define_variable(name);
 
-        if self.current_context().scope_depth() > 0 {
-            let local = match self.resolve_local(name)? {
-                Some(local) => local,
-                None => self.current_context_mut().locals.insert(name)
-            };
-            self.current_context_mut().locals.mark_initialized();
-            self.add_instruction(Instruction::SetLocal(local));
-        } else {
-            let constant = self.add_constant(name);
-            self.add_instruction(Instruction::SetGlobal(constant));
-        }
         Ok(())
     }
 
-    fn block_statement(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
+    fn function_block_statement(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
         self.begin_scope();
         for stmt in stmts {
             self.statement(stmt)?;
         }
         self.end_scope();
+        Ok(())
+    }
+
+    fn block_statement(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
+        for stmt in stmts {
+            self.statement(stmt)?;
+        }
         Ok(())
     }
 
@@ -248,8 +249,6 @@ impl Compiler {
         Ok(())
     }
 
-    /// TODO - let buf = "x = 0; while (x < 4) { x = x + 1; }"; fails
-    /// thread 'main' panicked at 'CompileError: undefined variable 'x'', src\compiler.rs:178:21
     fn while_statement(&mut self, condition: &Expr, block: &Stmt) -> Result<(), CompileError> {
         let start_jump = self.instruction_index();
         self.expression(condition)?;
@@ -272,7 +271,7 @@ impl Compiler {
             self.mark_initialized();
         }
 
-        self.new_context(ContextType::Function);
+        let chunk_index = self.new_context(ContextType::Function);
         self.begin_scope();
 
         for param in params {
@@ -280,7 +279,7 @@ impl Compiler {
             self.define_variable(param);
         }
 
-        self.block_statement(body)?;
+        self.function_block_statement(body)?;
 
         match body.last() {
             Some(Stmt::Return(_)) => (),
@@ -289,7 +288,20 @@ impl Compiler {
                 self.add_instruction(Instruction::Return);
             }
         };
+
+        let function = Function {
+            name: name.to_string(),
+            chunk_index: chunk_index,
+            arity: params.len(),
+
+        };
         self.contexts.pop();
+
+        let constant = self.add_constant(Constant::Function(function));
+        self.add_instruction(Instruction::Function(constant));
+
+        self.define_variable(name);
+
         Ok(())
     }
 
@@ -394,12 +406,8 @@ impl Compiler {
     ///
     /// Optimize this. How does your optimization affect the performance of the compiler compared to the runtime? Is this the right trade-off?
     fn variable(&mut self, name: &str) -> Result<(), CompileError> {
-        if self.current_context().scope_depth() > 0 {
-            if let Some(local) = self.resolve_local(name)? {
-                self.add_instruction(Instruction::GetLocal(local));
-            } else {
-                return Err(CompileError::from(format!("undefined variable '{}'", name)));
-            }
+        if let Some(local) = self.resolve_local(name)? {
+            self.add_instruction(Instruction::GetLocal(local));
         } else {
             let constant = self.add_constant(name);
             self.add_instruction(Instruction::GetGlobal(constant));

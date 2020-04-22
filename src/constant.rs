@@ -1,9 +1,12 @@
+use crate::function::Function;
+
 #[derive(Debug, Clone)]
 pub enum Constant {
     Number(f64),
     String(String),
     Boolean(bool),
     None,
+    Function(Function)
 }
 
 impl From<f64> for Constant {

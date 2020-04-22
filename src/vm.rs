@@ -59,8 +59,6 @@ impl<'a> VM<'a> {
             frame.chunk.instructions()[frame.ip - 1].clone()
         };
 
-        let mut result = InterpretResult::More;
-
         match instr {
             Instruction::Constant(index) => {
                 match self.module.constants()[index].clone() {
@@ -104,13 +102,13 @@ impl<'a> VM<'a> {
             Instruction::Modulo => {
                 match (self.pop()?, self.pop()?) {
                     (Constant::Number(n1), Constant::Number(n2)) => self.push(Constant::Number(n2 % n1)),
-                    (n1, n2) => panic!(format!("Multiply not implemented for '{:?}' and '{:?}'", n1, n2))
+                    (n1, n2) => panic!(format!("Modulo not implemented for '{:?}' and '{:?}'", n1, n2))
                 }
             }
             Instruction::Pow => {
                 match (self.pop()?, self.pop()?) {
                     (Constant::Number(n1), Constant::Number(n2)) => self.push(Constant::Number(f64::powf(n2, n1))),
-                    (n1, n2) => panic!(format!("Multiply not implemented for '{:?}' and '{:?}'", n1, n2))
+                    (n1, n2) => panic!(format!("Pow not implemented for '{:?}' and '{:?}'", n1, n2))
                 }
             }
             Instruction::Not => {
@@ -159,6 +157,8 @@ impl<'a> VM<'a> {
                 if let Constant::String(key) = self.module.constant(index) {
                     if let Some(constant) = self.globals.get(key.as_str()).cloned() {
                         self.push(constant);
+                    } else {
+                        return Err(VMError::from(format!("Undefined variable '{}'", key)));
                     }
                 } else {
                     panic!("Expected String Constant!");
@@ -172,8 +172,15 @@ impl<'a> VM<'a> {
                     panic!("Expected String Constant!");
                 }
             }
-            Instruction::GetLocal(_) => {}
-            Instruction::SetLocal(_) => {}
+            Instruction::GetLocal(index) => {
+                let index = self.current_frame().base_counter + index;
+                self.push(self.stack[index].clone());
+            }
+            Instruction::SetLocal(index) => {
+                let index = self.current_frame().base_counter + index;
+                let value = self.peek()?.clone();
+                self.stack[index] = value;
+            }
             Instruction::JumpIfTrue(to) => {
                 if !self.peek()?.is_falsey() {
                     self.current_frame_mut().ip = to;
@@ -187,12 +194,23 @@ impl<'a> VM<'a> {
             Instruction::Jump(to) => {
                 self.current_frame_mut().ip = to;
             }
-            Instruction::Call(_) => {}
+            Instruction::Call(arity) => {
+                self.call(arity)?;
+            }
             Instruction::Pop => {
                 self.pop();
             }
             Instruction::Return => {
-                result = InterpretResult::Done;
+                let res = self.pop();
+                let frame = self.frames.pop()
+                    .ok_or_else(|| VMError::from("No more call frames!"))?;
+
+                self.stack.split_off(frame.base_counter);
+
+                if self.frames.len() == 0 {
+                    return Ok(InterpretResult::Done);
+                }
+                self.push(res?);
             }
             Instruction::Print => {
                 match self.pop()? {
@@ -208,11 +226,18 @@ impl<'a> VM<'a> {
                     Constant::None => {
                         println!("None")
                     }
+                    Constant::Function(_) => {
+                        println!("Function?")
+                    }
+                }
+            }
+            Instruction::Function(index) => {
+                if let Constant::Function(function) = self.module.constant(index) {
+                    self.push(Constant::Function(function));
                 }
             }
         }
-
-        Ok(result)
+        Ok(InterpretResult::More)
     }
 
     fn current_frame(&self) -> &CallFrame<'a> {
@@ -239,5 +264,33 @@ impl<'a> VM<'a> {
 
     fn peek(&self) -> Result<&Constant, VMError> {
         self.stack.last().ok_or_else(|| VMError::from("Stack Empty!"))
+    }
+
+    fn peek_n(&self, n: usize) -> Result<&Constant, VMError> {
+        self.stack.get(self.stack.len() - n - 1).ok_or_else(|| VMError::from("Stack Empty!"))
+    }
+
+    fn call(&mut self, arity: usize) -> Result<(), VMError> {
+        let callee = self.peek_n(arity)?;
+        match callee {
+            Constant::Function(callee) => {
+                if callee.arity != arity {
+                    return Err(VMError::from("function arity doesnt match"));
+                } else {
+                    self.begin_frame(callee.clone())
+                }
+            }
+            _ => return Err(VMError::from("invalid callee"))
+        }
+        Ok(())
+    }
+
+    fn begin_frame(&mut self, function: Function) {
+        self.frames.push(CallFrame {
+            ip: 0,
+            base_counter: self.stack.len() - function.arity,
+            chunk: self.module.chunk(function.chunk_index),
+            function,
+        })
     }
 }

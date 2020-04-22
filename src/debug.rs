@@ -39,7 +39,8 @@ impl Chunk {
                 Instruction::JumpIfFalse(offset) => simple(index, Instruction::JumpIfFalse(offset)),
                 Instruction::Jump(offset) => simple(index, Instruction::Jump(offset)),
 
-                Instruction::Call(args) =>  simple(index, Instruction::Call(args)),
+                Instruction::Call(args) => simple(index, Instruction::Call(args)),
+                Instruction::Function(offset) => simple(index, Instruction::Function(offset)),
 
                 _ => panic!(format!("Unknown instruction {:?}", instruction))
             }

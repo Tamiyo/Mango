@@ -2,6 +2,7 @@ use crate::scanner::Scanner;
 use crate::error::ParseError;
 use crate::ast::{Expr, Stmt, Identifier};
 use crate::token::{Symbol, Token};
+use std::ops::Add;
 
 #[derive(PartialEq, PartialOrd, Copy, Clone)]
 enum Precedence {
@@ -67,12 +68,6 @@ impl Parser {
         }
     }
 
-    fn peek_next(&self) -> &Symbol {
-        let mut rev_iter = self.tokens.iter().rev();
-        rev_iter.next();
-        &rev_iter.next().unwrap().value
-    }
-
     fn next(&mut self) -> Result<Symbol, String> {
         match self.tokens.pop() {
             Some(token) => Ok(token.value),
@@ -125,7 +120,6 @@ impl Parser {
                 s => Err(ParseError::from(format!("Expected identifier in params, got {:?} instead", s)))
             }?);
         }
-
         Ok(params)
     }
 
@@ -144,7 +138,6 @@ impl Parser {
         self.consume(Symbol::RightParen, "Expect ')' at end of function params.")?;
 
         self.consume(Symbol::LeftBrace, "Expect '{' before block")?;
-
         let mut statements: Vec<Stmt> = Vec::new();
         while self.peek()? != &Symbol::RightBrace && self.peek()? != &Symbol::Eof {
             statements.push(self.declaration()?);
@@ -155,9 +148,7 @@ impl Parser {
     }
 
     fn statement(&mut self) -> Result<Stmt, ParseError> {
-        let next_sym = self.peek_next();
         match self.check() {
-
             // TODO - This 'Some()' violates borrow rules, but still runs.
             // Debug or redesign more so this doesnt occur
             Some(Symbol::Var) => self.assign_statement(),
@@ -384,6 +375,14 @@ impl Parser {
             _ => panic!("Expected binary op.")
         };
         let right = self.expression(precedence)?;
+
+        // Constant Folding
+        // match (&left, &right) {
+        //     (Expr::Number(n1), Expr::Number(n2)) => Ok(Expr::Number(n1 + n2)),
+        //     (Expr::String(n1), Expr::String(n2)) => Ok(Expr::String(n1.clone().add(n2))),
+        //     _ => Ok(Expr::Binary(Box::new(left), op, Box::new(right)))
+        // }
+
         Ok(Expr::Binary(Box::new(left), op, Box::new(right)))
     }
 
@@ -436,7 +435,7 @@ impl Parser {
                 args.push(self.expression(Precedence::None)?);
             }
         }
-
+        args.reverse();
         Ok(args)
     }
 

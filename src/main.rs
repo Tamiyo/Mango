@@ -27,8 +27,9 @@ mod function;
 mod error;
 
 fn main() {
-    // let buf = "@myfunction() { print(5); return; } myfunction();";
-    let buf = "$x = 4; print(x);";
+    // let buf = "#myfunction() { print(5); return; } myfunction();";
+    // let buf = "$x = 0; if (x < 4) { print(2^2 + 3^2); }";
+    let buf = "#pythagorean(a, b) { return (a^2 + b^2) ^ (0.5); } $c = pythagorean(1, 2); print(c);";
     let mut parser = Parser::new(buf);
     let stmts = match parser.parse() {
         Ok(s) => s,
@@ -43,5 +44,8 @@ fn main() {
     let module = compiler.compile(&stmts).unwrap_or(&empty_module);
 
     let mut vm = VM::new(module);
-    vm.interpret();
+    match vm.interpret() {
+        Ok(t) => println!("Interpret complete!"),
+        Err(e) => panic!(e.error)
+    }
 }

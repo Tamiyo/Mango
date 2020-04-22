@@ -36,6 +36,7 @@ pub enum Instruction {
     Jump(StackIndex),
 
     Call(usize),
+    Function(usize),
 
     Pop,
 
