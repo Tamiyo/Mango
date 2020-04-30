@@ -1,60 +1,20 @@
-/// TODO - Standard enum errors favorable over string errors
-pub struct CompileError {
-    pub error: String
-}
+use crate::tokens::Token;
 
-impl From<&str> for CompileError {
-    fn from(error: &str) -> CompileError {
-        CompileError {
-            error: error.to_string(),
-        }
-    }
+#[derive(Debug)]
+pub enum ParseError {
+    UnexpectedOperator(Token),
+    UnexpectedToken(Token),
+    ExpectedIdentifier(Token),
+    ExpectedLiteral(Token),
+    TokenStreamEmpty,
 }
-
-impl From<String> for CompileError {
-    fn from(error: String) -> CompileError {
-        CompileError {
-            error,
-        }
-    }
+#[derive(Debug)]
+pub enum CompileError {
+    UndefinedVariable,
+    UnexpectedBinaryOperator(Token),
+    UnexpectedLogicalOperator(Token),
+    UnexpectedUnaryOperator(Token),
+    ReturnInScript,
 }
-
-pub struct ParseError {
-    pub error: String,
-}
-
-impl From<&str> for ParseError {
-    fn from(error: &str) -> ParseError {
-        ParseError {
-            error: error.to_string(),
-        }
-    }
-}
-
-impl From<String> for ParseError {
-    fn from(error: String) -> ParseError {
-        ParseError {
-            error,
-        }
-    }
-}
-
-pub struct VMError {
-    pub error: String,
-}
-
-impl From<&str> for VMError {
-    fn from(error: &str) -> VMError {
-        VMError {
-            error: error.to_string(),
-        }
-    }
-}
-
-impl From<String> for VMError {
-    fn from(error: String) -> VMError {
-        VMError {
-            error,
-        }
-    }
-}
+#[derive(Debug)]
+pub enum RuntimeError {}

@@ -1,16 +1,24 @@
-use crate::chunk::{Chunk, ConstantIndex, ChunkIndex, Instruction, InstructionIndex};
+use crate::chunk::Chunk;
+use crate::chunk::ChunkIndex;
+use crate::chunk::ConstantIndex;
+use crate::chunk::Instruction;
 use crate::constant::Constant;
-
-pub struct Module {
-    chunks: Vec<Chunk>,
-    constants: Vec<Constant>,
+use crate::memory::ConstantPool;
+use string_interner::StringInterner;
+use string_interner::Sym;
+#[derive(Debug)]
+pub struct Module<'a> {
+    pub chunks: Vec<Chunk>,
+    pub constants: ConstantPool,
+    pub strings: &'a StringInterner<Sym>,
 }
 
-impl Module {
-    pub fn new() -> Module {
+impl<'a> Module<'a> {
+    pub fn new(strings: &'a StringInterner<Sym>) -> Self {
         Module {
             chunks: vec![],
-            constants: vec![],
+            constants: ConstantPool::new(),
+            strings,
         }
     }
 
@@ -19,32 +27,15 @@ impl Module {
         self.chunks.len() - 1
     }
 
+    pub fn get_chunk(&self, chunk_index: usize) -> &Chunk {
+        &self.chunks[chunk_index]
+    }
+
+    pub fn get_chunk_mut(&mut self, chunk_index: usize) -> &mut Chunk {
+        &mut self.chunks[chunk_index]
+    }
+
     pub fn add_constant(&mut self, constant: Constant) -> ConstantIndex {
-        self.constants.push(constant);
-        self.constants.len() - 1
-    }
-
-    pub fn add_instruction(&mut self, index: usize, instruction: Instruction) -> InstructionIndex {
-        self.chunks[index].add_instruction(instruction)
-    }
-
-    pub fn chunk(&self, index: ChunkIndex) -> &Chunk {
-        &self.chunks[index]
-    }
-
-    pub fn chunk_mut(&mut self, index: ChunkIndex) -> &mut Chunk {
-        &mut self.chunks[index]
-    }
-
-    pub fn chunks(&self) -> &[Chunk] {
-        &self.chunks
-    }
-
-    pub fn constants(&self) -> &[Constant] {
-        &self.constants
-    }
-
-    pub fn constant(&self, index: usize) -> Constant {
-        self.constants[index].clone()
+        self.constants.add(constant)
     }
 }

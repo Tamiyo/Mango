@@ -1,4 +1,6 @@
-#[derive(PartialEq, Debug, Clone)]
+use crate::memory::Distance;
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum Symbol {
     // Single-character Symbols.
     LeftParen,
@@ -11,18 +13,12 @@ pub enum Symbol {
     Colon,
     Dot,
     Minus,
-    MinusEqual,
     Plus,
-    PlusEqual,
     Semicolon,
     Slash,
-    SlashEqual,
     Modulo,
-    ModuloEqual,
     Carat,
-    CaratEqual,
     Star,
-    StarEqual,
     // One or two character Symbols.
     Not,
     NotEqual,
@@ -35,7 +31,7 @@ pub enum Symbol {
     // Literals.
     Identifier(String),
     String(String),
-    Number(f64),
+    Number(Distance),
     // Keywords.
     And,
     Struct,
@@ -57,17 +53,15 @@ pub enum Symbol {
     Eof,
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Token {
-    pub value: Symbol,
+    pub symbol: Symbol,
     pub line: usize,
+    pub col: usize,
 }
 
 impl Token {
-    pub fn new(value: Symbol, line: usize) -> Self {
-        Token {
-            value,
-            line,
-        }
+    pub fn new(symbol: Symbol, line: usize, col: usize) -> Self {
+        Token { symbol, line, col }
     }
 }

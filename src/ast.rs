@@ -1,29 +1,30 @@
-use crate::token::Symbol;
-
-pub type Identifier = String;
-
-#[derive(Debug, PartialEq, Clone)]
+use crate::memory::Distance;
+use crate::tokens::Token;
+use string_interner::Sym;
+#[derive(Debug, PartialEq)]
 pub enum Expr {
-    Binary(Box<Expr>, Symbol, Box<Expr>),
-    Logical(Box<Expr>, Symbol, Box<Expr>),
-    Grouping(Box<Expr>),
-    Number(f64),
+    Number(Distance),
+    String(Sym),
     Boolean(bool),
     None,
-    String(String),
-    Unary(Symbol, Box<Expr>),
-    Variable(Identifier),
+    Variable(Sym),
+    List(Vec<Expr>),
+    Index(Sym, Box<Expr>),
+    Slice(Option<Box<Expr>>, Option<Box<Expr>>, Option<Box<Expr>>),
+    Binary(Box<Expr>, Token, Box<Expr>),
+    Logical(Box<Expr>, Token, Box<Expr>),
+    Grouping(Box<Expr>),
+    Unary(Token, Box<Expr>),
     Call(Box<Expr>, Vec<Expr>),
 }
-
 #[derive(Debug, PartialEq)]
 pub enum Stmt {
     Expression(Box<Expr>),
     Print(Box<Expr>),
+    Return(Option<Box<Expr>>),
+    Assign(Sym, Box<Expr>),
     Block(Vec<Stmt>),
-    Assign(Identifier, Box<Expr>),
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
     While(Box<Expr>, Box<Stmt>),
-    Function(Identifier, Vec<Identifier>, Vec<Stmt>),
-    Return(Option<Box<Expr>>),
+    Function(Sym, Vec<Sym>, Box<Stmt>),
 }

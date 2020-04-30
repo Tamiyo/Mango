@@ -2,8 +2,8 @@ declaration ::= classDecl
                 | funDecl
                 | statement
 
-classDecl ::= "#" IDENTIFIER '{' function* "}"
-funDecl ::= "@" function
+classDecl ::= "@" IDENTIFIER '{' function* "}"
+funDecl ::= "#" function
 
 statement ::= exprStmt
             | printStmt
@@ -18,27 +18,50 @@ exprStmt ::= expression ";"
 printStmt ::= "print" "(" expression ")" ";"
 returnStmt ::= "return" expression ";"
 assignStmt ::= '$' IDENTIFIER "=" expression ";"
-ifStmt ::= "if" "(" expression ")" blockStmt
-            (("elif" "(" expression ")")*)? ("else" blockStmt)?
+ifStmt ::= "if" expression blockStmt
+            (("elif"  expression)*)? ("else" blockStmt)?
 
-whileStmt ::= "while" "(" expression ")" blockStmt
+whileStmt ::= "while" expression blockStmt
 forStmt ::= "for" IDENTIFIER "=" NUMBER ":" NUMBER (":" NUMBER)? blockStmt
 blockStmt ::= "{" statement* "}"
 
 expression ::= logic_or
+            | multi_select_list
+            # | multi_select_hash 
+
 logic_or ::= logic_and ("or" logic_and)*
 logic_and ::= equality ("and" equality)*
 equality ::= comparison ( ("!=" | "==") comparison )*
 comparison ::= addition ( (">" | ">=" | "<" | "<=") addition)*
 addition ::= multiplication ( ("+" | "-") multiplication)*
 multiplication ::= power ( ("*" | "/" | "%") power)*
-power ::= unary ("^" unary)*
-unary ::= "!" unary | call
-call ::= primary ( "(" arguments ")" | "." IDENTIFIER )*
-primary ::= "true" | "false" | "none" | "my"
-            | NUMBER | STRING | IDENTIFIER | "(" expression ")"
+power ::= unary ("^" unary)*    
+unary ::= "!" unary | index
+index ::= IDENTIFIER bracket_specifier | call
+call ::= primary ( "(" identifier_list ")" | "." IDENTIFIER )*
+primary ::= "true" | "false" | "none" 
+            | NUMBER | STRING | IDENTIFIER 
+            | "(" expression ")"
+
+multi_select_list ::= "[" expression_list "]"
+# multi_select_hash ::= "{" key_value_expression ( "," key_value_expression )* "}"
+
+bracket_specifier ::= "[" (NUMBER | slice_expression) "]"
+                    | "[" "]"
+
+# https://jmespath.org/proposals/array-slices.html
+slice_expression ::=  NUMBER ":" NUMBER ":" NUMBER
+                    | NUMBER ":"
+                    | NUMBER ":" ":" NUMBER
+                    | ":"
+                    | ":" NUMBER
+                    | ":" NUMBER ":" NUMBER
+                    | ":" ":" NUMBER
 
 
-function ::= IDENTIFIER "(" parameters? ")" blockStmt
-parameters ::= IDENTIFIER ( "," IDENTIFIER )*
-arguments ::= expression ( "," expression )*
+key_value_expression = expression ":" expression
+
+identifier_list ::= IDENTIFIER ( "," IDENTIFIER )*
+expression_list ::= expression ( "," expression )*
+
+function ::= IDENTIFIER "(" identifier_list? ")" blockStmt

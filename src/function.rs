@@ -1,23 +1,25 @@
 use crate::chunk::ChunkIndex;
+use crate::local::Upvalue;
+use string_interner::Sym;
 
-#[derive(Debug, Clone)]
-pub struct Function {
-    pub name: String,
-    pub chunk_index: ChunkIndex,
-    pub arity: usize,
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct Closure {
+    function: Function,
+    upvalues: Vec<Upvalue>,
 }
 
-impl Function {
-    pub fn new(name: String, chunk_index: ChunkIndex, arity: usize) -> Self {
-        Function {
-            name,
-            chunk_index,
-            arity,
+impl Closure {
+    pub fn new(function: Function) -> Self {
+        Closure {
+            function,
+            upvalues: vec![],
         }
     }
 }
 
-pub struct Closure {
-    function: Function,
-    // upvalues: Vec<Upvalue>
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct Function {
+    name: Sym,
+    chunk_index: ChunkIndex,
+    arity: usize,
 }
