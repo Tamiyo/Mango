@@ -1,8 +1,7 @@
-pub type InstructionIndex = usize;
-pub type ConstantIndex = usize;
-pub type StackIndex = usize;
 pub type ChunkIndex = usize;
-
+pub type InstructionIndex = usize;
+pub type StackIndex = usize;
+pub type ConstantIndex = usize;
 #[derive(Debug, Clone)]
 pub enum Instruction {
     Constant(ConstantIndex),
@@ -12,6 +11,7 @@ pub enum Instruction {
 
     Add,
     Subtract,
+    Negate,
     Multiply,
     Divide,
     Modulo,
@@ -25,25 +25,32 @@ pub enum Instruction {
     Less,
     LessEqual,
 
-    GetGlobal(ConstantIndex),
-    SetGlobal(ConstantIndex),
-
-    GetLocal(StackIndex),
-    SetLocal(StackIndex),
-
     JumpIfTrue(StackIndex),
     JumpIfFalse(StackIndex),
     Jump(StackIndex),
 
-    Call(usize),
-    Function(usize),
+    GetGlobal(ConstantIndex),
+    GetLocal(StackIndex),
+    GetUpvalue(StackIndex),
+
+    SetGlobal(ConstantIndex),
+    SetLocal(StackIndex),
+    SetUpvalue(StackIndex),
+
+    Call(StackIndex),
+    Closure(ConstantIndex),
+    // CloseUpValue,
 
     Pop,
 
-    Return,
-    Print,
-}
+    List(usize),
+    Slice,
+    Index,
 
+    Print,
+    Return,
+}
+#[derive(Debug, Clone)]
 pub struct Chunk {
     pub instructions: Vec<Instruction>,
 }
@@ -55,26 +62,25 @@ impl Chunk {
         }
     }
 
-    pub fn instructions(&self) -> &[Instruction] {
-        &self.instructions
-    }
-
-    pub fn add_instruction(&mut self, instruction: Instruction) -> InstructionIndex {
+    pub fn add_instruction(&mut self, instruction: Instruction) -> usize {
         self.instructions.push(instruction);
         self.instructions.len() - 1
     }
 
-    pub fn patch_instruction(&mut self, index: InstructionIndex) {
+    pub fn patch_instruction(&mut self, index: usize) {
         let current = self.instructions.len();
         self.patch_instruction_to(index, current);
     }
 
-    pub fn patch_instruction_to(&mut self, index: InstructionIndex, to: InstructionIndex) {
+    pub fn patch_instruction_to(&mut self, index: usize, to: usize) {
         match self.instructions[index] {
             Instruction::JumpIfTrue(ref mut placeholder) => *placeholder = to,
             Instruction::JumpIfFalse(ref mut placeholder) => *placeholder = to,
             Instruction::Jump(ref mut placeholder) => *placeholder = to,
-            _ => panic!(format!("Cannot patch instruction {:?}, ", self.instructions[index])),
+            _ => panic!(format!(
+                "Cannot patch instruction {:?}, ",
+                self.instructions[index]
+            )),
         };
     }
 }

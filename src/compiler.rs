@@ -1,47 +1,55 @@
-use crate::chunk::{Chunk, Instruction, ConstantIndex, ChunkIndex, StackIndex, InstructionIndex};
+use crate::ast::Expr;
+use crate::ast::Expr::Slice;
+use crate::ast::Stmt;
+use crate::chunk::Chunk;
+use crate::chunk::ConstantIndex;
+use crate::chunk::Instruction;
 use crate::constant::Constant;
-use crate::ast::{Stmt, Expr, Identifier};
 use crate::error::CompileError;
-use crate::token::Symbol;
-use crate::module::Module;
-use crate::local::{Local, Locals};
+use crate::function::Closure;
 use crate::function::Function;
+use crate::local::Locals;
+use crate::local::Upvalue;
+use crate::memory::Distance;
+use crate::tokens::Symbol;
+use crate::tokens::Token;
+use string_interner::StringInterner;
+use string_interner::Sym;
 
-// https://www.craftinginterpreters.com/local-variables.html
+use crate::module::Module;
+
 #[derive(Debug, PartialEq)]
 pub enum ContextType {
     Function,
-    // Initializer,
-    // Method,
     Script,
 }
 
-struct CompilerContext {
-    context_type: ContextType,
-    chunk_index: ChunkIndex,
-
-    locals: Locals,
+#[derive(Debug)]
+pub struct CompilerContext {
+    pub context_type: ContextType,
+    pub enclosing: isize,
+    pub chunk_index: usize,
+    pub locals: Locals,
+    pub upvalues: Vec<Upvalue>,
 }
 
 impl CompilerContext {
-    pub fn new(context_type: ContextType, chunk_index: ChunkIndex) -> Self {
+    pub fn new(context_type: ContextType, enclosing: isize, chunk_index: usize) -> Self {
         CompilerContext {
             context_type,
+            enclosing,
             chunk_index,
             locals: Locals::new(),
+            upvalues: vec![],
         }
     }
 
-    pub fn scope_depth(&self) -> usize {
-        self.locals.depth()
-    }
-
-    pub fn resolve_local(&self, name: &str) -> Result<Option<StackIndex>, CompileError> {
-        if let Some(local) = self.locals.get(name) {
-            if local.initialized() {
-                Ok(Some(local.location()))
+    pub fn resolve_local(&mut self, sym: &Sym) -> Result<Option<usize>, CompileError> {
+        if let Some(local) = self.locals.get(*sym) {
+            if local.is_initialized {
+                Ok(Some(local.slot))
             } else {
-                Err(CompileError::from(format!("cannot assign to undefined variable '{}'", name)))
+                Err(CompileError::UndefinedVariable)
             }
         } else {
             Ok(None)
@@ -49,302 +57,243 @@ impl CompilerContext {
     }
 }
 
+#[derive(Debug)]
 pub struct Compiler {
     module: Module,
     contexts: Vec<CompilerContext>,
 }
 
 impl Compiler {
-    pub fn new() -> Self {
-        let mut module = Module::new();
-        let index = module.add_chunk();
+    pub fn new(strings: StringInterner<Sym>) -> Self {
+        let mut module = Module::new(strings);
+        let chunk_index = module.add_chunk();
 
         let mut contexts: Vec<CompilerContext> = vec![];
-        contexts.push(CompilerContext::new(ContextType::Script, index));
+        contexts.push(CompilerContext::new(ContextType::Script, -1, chunk_index));
 
-        Compiler {
-            module,
-            contexts,
-        }
-    }
-
-    pub fn compile(&mut self, stmts: &[Stmt]) -> Result<&Module, CompileError> {
-        self.program(stmts)?;
-        self.disassemble();
-        Ok(&self.module)
-    }
-
-    // module
-    fn current_chunk(&self) -> &Chunk {
-        self.module.chunk(self.current_context().chunk_index)
-    }
-
-    fn current_chunk_mut(&mut self) -> &mut Chunk {
-        self.module.chunk_mut(self.current_context().chunk_index)
-    }
-
-    fn patch_instruction(&mut self, index: InstructionIndex) {
-        self.current_chunk_mut().patch_instruction(index);
-    }
-
-    fn patch_instruction_to(&mut self, index: InstructionIndex, to: InstructionIndex) {
-        self.current_chunk_mut().patch_instruction_to(index, to);
-    }
-
-    fn instruction_index(&self) -> InstructionIndex {
-        self.current_chunk().instructions.len()
-    }
-
-    fn add_instruction(&mut self, instruction: Instruction) -> InstructionIndex {
-        let context = self.contexts.last().expect("expected some compiler context");
-        let index = context.chunk_index;
-        self.module.add_instruction(index, instruction)
-    }
-
-    fn add_constant<C: Into<Constant>>(&mut self, constant: C) -> ConstantIndex {
-        self.module.add_constant(constant.into())
-    }
-
-    pub fn disassemble(&self) {
-        // TODO - Rc<T> constants (shared_ptr)
-
-        for chunk in self.module.chunks() {
-            chunk.disassemble(self.module.constants());
-            println!();
-        }
-    }
-
-    // context
-    fn new_context(&mut self, context_type: ContextType) -> usize {
-        let chunk_index = self.module.add_chunk();
-        self.contexts.push(CompilerContext::new(
-            context_type,
-            chunk_index));
-        chunk_index
+        Compiler { module, contexts }
     }
 
     fn current_context(&self) -> &CompilerContext {
-        self.contexts.last().expect("expected a compiler context to exist")
+        self.contexts
+            .last()
+            .expect("expected a &CompilerContext to exist")
     }
 
     fn current_context_mut(&mut self) -> &mut CompilerContext {
-        self.contexts.last_mut().expect("expected a compiler context to exist")
+        self.contexts
+            .last_mut()
+            .expect("expected a &mut CompilerContext to exist")
     }
 
-    // scope
-    fn begin_scope(&mut self) {
-        self.current_context_mut().locals.begin_scope();
+    fn current_chunk(&self) -> &Chunk {
+        self.module.get_chunk(self.current_context().chunk_index)
     }
 
-    fn end_scope(&mut self) {
-        self.current_context_mut().locals.end_scope();
+    fn current_chunk_mut(&mut self) -> &mut Chunk {
+        self.module
+            .get_chunk_mut(self.current_context().chunk_index)
     }
 
-    fn local_depth(&mut self) -> bool {
-        self.current_context().locals.depth() > 0
+    fn add_instruction(&mut self, instruction: Instruction) -> usize {
+        self.current_chunk_mut().add_instruction(instruction)
     }
 
-    fn find_local_at_depth(&mut self, name: &str) -> Option<&Local> {
-        self.current_context().locals.get_at_depth(name)
+    fn add_constant(&mut self, constant: Constant) -> ConstantIndex {
+        self.module.add_constant(constant)
     }
 
-    fn mark_initialized(&mut self) {
-        self.current_context_mut().locals.mark_initialized();
-    }
+    fn resolve_upvalue(&mut self, sym: &Sym) -> Result<Option<usize>, CompileError> {
+        let enclosing = self.current_context().enclosing;
 
-    fn resolve_local(&self, name: &str) -> Result<Option<StackIndex>, CompileError> {
-        self.current_context().resolve_local(name)
-    }
-
-    // variable
-    fn declare_variable(&mut self, name: &str) {
-        if self.local_depth() && self.find_local_at_depth(name) == None {
-            self.current_context_mut().locals.insert(name);
-        }
-    }
-
-    fn define_variable(&mut self, name: &str) {
-        if self.local_depth() {
-            self.mark_initialized();
+        if enclosing < 0 {
+            Ok(None)
         } else {
-            let constant = self.add_constant(name);
-            self.add_instruction(Instruction::SetGlobal(constant));
+            if let Some(local) = self.contexts[enclosing as usize].resolve_local(sym)? {
+                let upvalue = Upvalue::new(local, true, false);
+                for (i, existing) in (&self.current_context().upvalues).iter().enumerate() {
+                    if *existing == upvalue {
+                        return Ok(Some(i));
+                    }
+                }
+                self.contexts[enclosing as usize]
+                    .locals
+                    .get_mut(*sym)
+                    .unwrap_or_else(|| panic!("Expected Local @ {}", local))
+                    .is_captured = true;
+
+                self.current_context_mut()
+                    .upvalues
+                    .push(Upvalue::new(local, true, false));
+                Ok(Some(local))
+            } else {
+                Ok(None)
+            }
         }
     }
 
-    // statement
-    fn program(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
-        for stmt in stmts {
-            match self.statement(stmt) {
-                Ok(()) => {}
-                Err(error) => {
-                    panic!(format!("CompileError: {}", error.error));
-                }
-            }
+    fn resolve_local(&mut self, sym: &Sym) -> Result<Option<usize>, CompileError> {
+        self.current_context_mut().resolve_local(sym)
+    }
+
+    pub fn compile(&mut self, statements: &[Stmt]) -> Result<&Module, CompileError> {
+        self.compile_program(statements)?;
+
+        // println!("Constants: {:?}", self.module.constants);
+        for chunk in &self.module.chunks {
+            chunk.disassemble(&self.module.constants);
+            println!();
+        }
+
+        Ok(&self.module)
+    }
+
+    fn compile_program(&mut self, statements: &[Stmt]) -> Result<(), CompileError> {
+        for statement in statements {
+            self.compile_statement(statement)?;
         }
         self.add_instruction(Instruction::Return);
         Ok(())
     }
 
-    fn statement(&mut self, stmt: &Stmt) -> Result<(), CompileError> {
-        match stmt {
-            Stmt::Assign(ref name, ref expr) => self.assign_statement(name, expr),
-            Stmt::Block(ref stmts) => self.block_statement(stmts),
-            Stmt::Print(ref expr) => self.print_statement(expr),
-            Stmt::If(ref condition, ref block, ref next) => self.if_statement(condition, block, next),
-            Stmt::While(ref condition, ref block) => self.while_statement(condition, block),
-            Stmt::Function(ref name, ref params, ref body) => self.function(name, params, body),
-            Stmt::Return(ref val) => self.return_statement(val),
-            Stmt::Expression(ref expr) => self.expression(expr),
-            _ => Err(CompileError::from(format!("Unrecognized statement {:?}", stmt)))
-        }
-    }
-
-    fn assign_statement(&mut self, name: &str, expr: &Expr) -> Result<(), CompileError> {
-        self.declare_variable(name);
-        self.expression(expr)?;
-        self.define_variable(name);
+    fn compile_statement(&mut self, statement: &Stmt) -> Result<(), CompileError> {
+        match statement {
+            Stmt::Expression(ref expr) => self.compile_expression(expr),
+            Stmt::Print(ref expr) => self.compile_print(expr),
+            Stmt::Return(ref expr) => self.compile_return(expr),
+            Stmt::Assign(ref sym, ref expr) => self.compile_assign(sym, expr),
+            Stmt::Block(ref statements) => self.compile_block(statements),
+            Stmt::If(ref condition, ref body, ref next) => self.compile_if(condition, body, next),
+            Stmt::While(ref condition, ref body) => self.compile_while(condition, body),
+            Stmt::Function(ref sym, ref params, ref body) => {
+                self.compile_function(sym, params, body)
+            }
+        }?;
 
         Ok(())
     }
 
-    fn function_block_statement(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
-        self.begin_scope();
-        for stmt in stmts {
-            self.statement(stmt)?;
-        }
-        self.end_scope();
+    fn compile_expression(&mut self, expr: &Expr) -> Result<(), CompileError> {
+        match expr {
+            Expr::Number(ref distance) => self.compile_number(distance),
+            Expr::String(ref sym) => self.compile_string(sym),
+            Expr::Boolean(ref boolean) => self.compile_boolean(boolean),
+            Expr::None => self.compile_none(),
+            Expr::Variable(ref sym) => self.compile_variable(sym),
+            Expr::List(ref elements) => self.compile_list(elements),
+            Expr::Index(ref sym, ref expr) => self.compile_index(sym, expr),
+            Expr::Slice(ref start, ref stop, ref step) => self.compile_slice(start, stop, step),
+            Expr::Binary(ref left, ref op, ref right) => self.compile_binary(left, op, right),
+            Expr::Logical(ref left, ref op, ref right) => self.compile_logical(left, op, right),
+            Expr::Grouping(ref expr) => self.compile_grouping(expr),
+            Expr::Unary(ref op, ref right) => self.compile_unary(op, right),
+            Expr::Call(ref callee, ref arguments) => self.compile_call(callee, arguments),
+        }?;
+
         Ok(())
     }
 
-    fn block_statement(&mut self, stmts: &[Stmt]) -> Result<(), CompileError> {
-        for stmt in stmts {
-            self.statement(stmt)?;
-        }
+    fn compile_number(&mut self, distance: &Distance) -> Result<(), CompileError> {
+        let constant = self.add_constant(Constant::from(distance));
+        self.add_instruction(Instruction::Constant(constant));
         Ok(())
     }
 
-    fn print_statement(&mut self, expr: &Expr) -> Result<(), CompileError> {
-        self.expression(expr)?;
-        self.add_instruction(Instruction::Print);
+    fn compile_string(&mut self, sym: &Sym) -> Result<(), CompileError> {
+        let constant = self.add_constant(Constant::from(sym));
+        self.add_instruction(Instruction::Constant(constant));
         Ok(())
     }
 
-    fn if_statement(&mut self, condition: &Expr, block: &Stmt, next: &Option<Box<Stmt>>) -> Result<(), CompileError> {
-        self.expression(condition)?;
-
-        let next_index = self.add_instruction(Instruction::JumpIfFalse(0));
-        self.add_instruction(Instruction::Pop);
-        self.statement(block)?;
-
-        if let Some(stmt) = next {
-            let index = self.add_instruction(Instruction::Jump(0));
-            self.patch_instruction(next_index);
-            self.add_instruction(Instruction::Pop);
-            self.statement(stmt.as_ref())?;
-            self.patch_instruction(index);
+    fn compile_boolean(&mut self, boolean: &bool) -> Result<(), CompileError> {
+        if *boolean {
+            self.add_instruction(Instruction::True);
         } else {
-            self.patch_instruction(next_index);
+            self.add_instruction(Instruction::False);
         }
         Ok(())
     }
 
-    fn while_statement(&mut self, condition: &Expr, block: &Stmt) -> Result<(), CompileError> {
-        let start_jump = self.instruction_index();
-        self.expression(condition)?;
+    fn compile_none(&mut self) -> Result<(), CompileError> {
+        self.add_instruction(Instruction::None);
+        Ok(())
+    }
 
-        let exit_jump = self.add_instruction(Instruction::JumpIfFalse(0));
-        self.add_instruction(Instruction::Pop);
-        self.statement(block)?;
+    fn compile_variable(&mut self, sym: &Sym) -> Result<(), CompileError> {
+        // if local :-
+        if let Some(local) = self.resolve_local(sym)? {
+            self.add_instruction(Instruction::GetLocal(local));
+        }
+        // else if upvalue :-
+        else if let Some(upvalue) = self.resolve_upvalue(sym)? {
+            self.add_instruction(Instruction::GetUpvalue(upvalue));
+        }
+        // else global
+        else {
+            let constant = self.add_constant(Constant::from(sym));
+            self.add_instruction(Instruction::GetGlobal(constant));
+        }
+        Ok(())
+    }
 
-        let loop_jump = self.add_instruction(Instruction::Jump(0));
-        self.patch_instruction_to(loop_jump, start_jump);
-        self.patch_instruction(exit_jump);
-        self.add_instruction(Instruction::Pop);
+    fn compile_list(&mut self, expressions: &[Expr]) -> Result<(), CompileError> {
+        for expression in expressions {
+            self.compile_expression(expression)?;
+        }
+
+        self.add_instruction(Instruction::List(expressions.len()));
 
         Ok(())
     }
 
-    fn function(&mut self, name: &str, params: &[Identifier], body: &[Stmt]) -> Result<(), CompileError> {
-        self.declare_variable(name);
-        if self.local_depth() {
-            self.mark_initialized();
-        }
-
-        let chunk_index = self.new_context(ContextType::Function);
-        self.begin_scope();
-
-        for param in params {
-            self.declare_variable(param);
-            self.define_variable(param);
-        }
-
-        self.function_block_statement(body)?;
-
-        match body.last() {
-            Some(Stmt::Return(_)) => (),
+    fn compile_index(&mut self, sym: &Sym, expression: &Expr) -> Result<(), CompileError> {
+        self.compile_variable(sym)?;
+        match expression {
+            Slice(_, _, _) => {
+                self.compile_expression(expression)?;
+            }
             _ => {
-                self.add_instruction(Instruction::None);
-                self.add_instruction(Instruction::Return);
+                self.compile_expression(expression)?;
+                self.add_instruction(Instruction::Index);
             }
         };
-
-        let function = Function {
-            name: name.to_string(),
-            chunk_index: chunk_index,
-            arity: params.len(),
-
-        };
-        self.contexts.pop();
-
-        let constant = self.add_constant(Constant::Function(function));
-        self.add_instruction(Instruction::Function(constant));
-
-        self.define_variable(name);
-
         Ok(())
     }
 
-    fn return_statement(&mut self, expr: &Option<Box<Expr>>) -> Result<(), CompileError> {
-        if self.current_context().context_type == ContextType::Script {
-            Err(CompileError::from("Cannot return from top-level context"))
-        } else {
-            if let Some(expr) = expr {
-                self.expression(expr.as_ref())?;
-            } else {
-                self.none()?;
-            }
-            self.add_instruction(Instruction::Return);
-            Ok(())
-        }
+    fn compile_slice(
+        &mut self,
+        start: &Option<Box<Expr>>,
+        stop: &Option<Box<Expr>>,
+        step: &Option<Box<Expr>>,
+    ) -> Result<(), CompileError> {
+        match start {
+            Some(expr) => self.compile_expression(expr)?,
+            _ => self.compile_none()?,
+        };
+
+        match stop {
+            Some(expr) => self.compile_expression(expr)?,
+            _ => self.compile_none()?,
+        };
+
+        match step {
+            Some(expr) => self.compile_expression(expr)?,
+            _ => self.compile_none()?,
+        };
+        self.add_instruction(Instruction::Slice);
+        Ok(())
     }
 
-    // expression
-    fn expression(&mut self, expr: &Expr) -> Result<(), CompileError> {
-        match *expr {
-            Expr::Number(num) => self.number(num),
-            Expr::String(ref string) => self.string(string),
-            Expr::Boolean(boolean) => self.boolean(boolean),
+    fn compile_binary(
+        &mut self,
+        left: &Expr,
+        op: &Token,
+        right: &Expr,
+    ) -> Result<(), CompileError> {
+        self.compile_expression(left)?;
+        self.compile_expression(right)?;
 
-            Expr::Variable(ref string) => self.variable(string),
-            Expr::None => self.none(),
-
-            Expr::Binary(ref left, ref op, ref right) => self.binary(left, op, right),
-            Expr::Logical(ref left, ref op, ref right) => self.logical(left, op, right),
-            Expr::Grouping(ref expr) => self.expression(expr),
-            Expr::Unary(ref op, ref expr) => self.unary(op, expr),
-
-            Expr::Call(ref left, ref args) => self.call(left, args),
-
-            _ => Err(CompileError::from("Unexpected expression!"))
-        }
-    }
-
-    fn binary(&mut self, left: &Expr, op: &Symbol, right: &Expr) -> Result<(), CompileError> {
-        self.expression(left)?;
-        self.expression(right)?;
-
-        match *op {
+        match op.symbol {
             Symbol::Plus => self.add_instruction(Instruction::Add),
             Symbol::Minus => self.add_instruction(Instruction::Subtract),
             Symbol::Star => self.add_instruction(Instruction::Multiply),
@@ -357,96 +306,221 @@ impl Compiler {
             Symbol::GreaterEqual => self.add_instruction(Instruction::GreaterEqual),
             Symbol::NotEqual => self.add_instruction(Instruction::NotEqual),
             Symbol::EqualEqual => self.add_instruction(Instruction::EqualEqual),
-            _ => panic!("Unknown Binary Operator")
+            _ => return Err(CompileError::UnexpectedBinaryOperator(op.clone())),
         };
 
         Ok(())
     }
 
-    fn logical(&mut self, left: &Expr, op: &Symbol, right: &Expr) -> Result<(), CompileError> {
-        match op {
-            Symbol::And => self.and(left, right),
-            Symbol::Or => self.or(left, right),
-            _ => Err(CompileError::from(format!("Expected logical op, got {:?} instead", op)))
+    fn compile_logical(
+        &mut self,
+        left: &Expr,
+        op: &Token,
+        right: &Expr,
+    ) -> Result<(), CompileError> {
+        match op.symbol {
+            Symbol::And => self.compile_and(left, right),
+            Symbol::Or => self.compile_or(left, right),
+            _ => Err(CompileError::UnexpectedLogicalOperator(op.clone())),
         }
     }
 
-    fn and(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
-        self.expression(left)?;
+    fn compile_and(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(left)?;
         let next_jump = self.add_instruction(Instruction::JumpIfFalse(0));
         self.add_instruction(Instruction::Pop);
-        self.expression(right)?;
-        self.patch_instruction(next_jump);
+        self.compile_expression(right)?;
+        self.current_chunk_mut().patch_instruction(next_jump);
         Ok(())
     }
 
-    fn or(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
-        self.expression(left)?;
+    fn compile_or(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(left)?;
         let next_jump = self.add_instruction(Instruction::JumpIfTrue(0));
         self.add_instruction(Instruction::Pop);
-        self.expression(right)?;
-        self.patch_instruction(next_jump);
+        self.compile_expression(right)?;
+        self.current_chunk_mut().patch_instruction(next_jump);
         Ok(())
     }
 
-    fn unary(&mut self, op: &Symbol, expr: &Expr) -> Result<(), CompileError> {
-        self.expression(expr)?;
-        match *op {
+    fn compile_grouping(&mut self, expr: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(expr)?;
+        Ok(())
+    }
+
+    fn compile_unary(&mut self, op: &Token, right: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(right)?;
+        match op.symbol {
             Symbol::Not => self.add_instruction(Instruction::Not),
-            _ => panic!("Unknown unary Operator")
+            Symbol::Minus => {
+                self.add_instruction(Instruction::Negate)
+            }
+            _ => return Err(CompileError::UnexpectedUnaryOperator(op.clone())),
         };
         Ok(())
     }
 
-    /// TODO https://www.craftinginterpreters.com/global-variables.html
-    /// The compiler adds a global variable’s name to the constant table as a string every time an identifier is encountered.
-    /// It creates a new constant each time, even if that variable name is already in a previous slot in the constant table.
-    /// That’s wasteful in cases where the same variable is referenced multiple times by the same function.
-    /// That in turn increases the odds of filling up the constant table and running out of slots, since we only allow 256 constants in a single chunk.
-    ///
-    /// Optimize this. How does your optimization affect the performance of the compiler compared to the runtime? Is this the right trade-off?
-    fn variable(&mut self, name: &str) -> Result<(), CompileError> {
-        if let Some(local) = self.resolve_local(name)? {
-            self.add_instruction(Instruction::GetLocal(local));
+    fn compile_call(&mut self, callee: &Expr, arguments: &[Expr]) -> Result<(), CompileError> {
+        self.compile_expression(callee)?;
+        for arg in arguments {
+            self.compile_expression(arg)?;
+        }
+        self.add_instruction(Instruction::Call(arguments.len()));
+        Ok(())
+    }
+
+    fn compile_print(&mut self, expr: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(expr)?;
+        self.add_instruction(Instruction::Print);
+        Ok(())
+    }
+
+    fn compile_return(&mut self, expr: &Option<Box<Expr>>) -> Result<(), CompileError> {
+        if self.current_context().context_type == ContextType::Script {
+            Err(CompileError::ReturnInScript)
         } else {
-            let constant = self.add_constant(name);
-            self.add_instruction(Instruction::GetGlobal(constant));
+            if let Some(expr) = expr {
+                self.compile_expression(expr)?;
+            } else {
+                self.compile_none()?;
+            }
+            self.add_instruction(Instruction::Return);
+            Ok(())
         }
-        Ok(())
     }
 
-    fn none(&mut self) -> Result<(), CompileError> {
-        self.add_instruction(Instruction::None);
-        Ok(())
+    fn declare_variable(&mut self, sym: &Sym) {
+        if self.current_context().locals.depth > 0 {
+            self.current_context_mut().locals.insert(sym);
+        }
     }
 
-    fn number(&mut self, num: f64) -> Result<(), CompileError> {
-        let constant = self.add_constant(num);
-        self.add_instruction(Instruction::Constant(constant));
-        Ok(())
-    }
-
-    fn string(&mut self, string: &str) -> Result<(), CompileError> {
-        let constant = self.add_constant(string);
-        self.add_instruction(Instruction::Constant(constant));
-        Ok(())
-    }
-
-    fn boolean(&mut self, boolean: bool) -> Result<(), CompileError> {
-        if boolean {
-            self.add_instruction(Instruction::True);
+    fn define_variable(&mut self, sym: &Sym) {
+        if self.current_context().locals.depth > 0 {
+            self.current_context_mut().locals.mark_initialized();
         } else {
-            self.add_instruction(Instruction::False);
+            let constant = self.add_constant(Constant::from(sym));
+            self.add_instruction(Instruction::SetGlobal(constant));
+        }
+    }
+
+    fn compile_assign(&mut self, sym: &Sym, expr: &Expr) -> Result<(), CompileError> {
+        self.declare_variable(sym);
+        self.compile_expression(expr)?;
+        self.define_variable(sym);
+        Ok(())
+    }
+
+    fn compile_block(&mut self, statements: &[Stmt]) -> Result<(), CompileError> {
+        for statement in statements {
+            self.compile_statement(statement)?;
         }
         Ok(())
     }
 
-    fn call(&mut self, left: &Expr, args: &[Expr]) -> Result<(), CompileError> {
-        self.expression(left)?;
-        for arg in args {
-            self.expression(arg)?;
+    fn compile_if(
+        &mut self,
+        condition: &Expr,
+        body: &Stmt,
+        next: &Option<Box<Stmt>>,
+    ) -> Result<(), CompileError> {
+        self.compile_expression(condition)?;
+        let next_index = self.add_instruction(Instruction::JumpIfFalse(0));
+        self.add_instruction(Instruction::Pop);
+        self.compile_statement(body)?;
+
+        if let Some(statement) = next {
+            let index = self.add_instruction(Instruction::Jump(0));
+            self.current_chunk_mut().patch_instruction(next_index);
+            self.add_instruction(Instruction::Pop);
+            self.compile_statement(statement)?;
+            self.current_chunk_mut().patch_instruction(index);
+        } else {
+            self.current_chunk_mut().patch_instruction(next_index);
         }
-        self.add_instruction(Instruction::Call(args.len()));
+
+        Ok(())
+    }
+
+    fn compile_while(&mut self, condition: &Expr, body: &Stmt) -> Result<(), CompileError> {
+        let start_jump = self.current_chunk().instructions.len();
+        self.compile_expression(condition)?;
+
+        let exit_jump = self.add_instruction(Instruction::JumpIfFalse(0));
+        self.add_instruction(Instruction::Pop);
+        self.compile_statement(body)?;
+
+        let loop_jump = self.add_instruction(Instruction::Jump(0));
+        self.current_chunk_mut()
+            .patch_instruction_to(loop_jump, start_jump);
+        self.current_chunk_mut().patch_instruction(exit_jump);
+        self.add_instruction(Instruction::Pop);
+
+        Ok(())
+    }
+
+    fn compile_function(
+        &mut self,
+        sym: &Sym,
+        params: &[Sym],
+        body: &[Stmt],
+    ) -> Result<(), CompileError> {
+        self.declare_variable(sym);
+        if self.current_context().locals.depth > 0 {
+            self.current_context_mut().locals.mark_initialized();
+        }
+
+        let enclosing = self.current_context().chunk_index as isize;
+        let chunk_index = self.module.add_chunk();
+        self.contexts.push(CompilerContext::new(
+            ContextType::Function,
+            enclosing,
+            chunk_index,
+        ));
+
+        self.current_context_mut().locals.enter_scope();
+
+        for param in params {
+            self.declare_variable(param);
+            self.define_variable(param);
+        }
+
+        self.compile_block(body)?;
+
+        match body.last() {
+            Some(Stmt::Return(_)) => (),
+            _ => {
+                self.add_instruction(Instruction::None);
+                self.add_instruction(Instruction::Return);
+            }
+        };
+        self.current_context_mut().locals.leave_scope();
+
+        let context = match self.contexts.pop() {
+            Some(c) => c,
+            None => return Err(CompileError::ContextStreamEmpty),
+        };
+        let upvalues = context.upvalues;
+
+        // println!("\nUpvalues for {:?}: {:?}", sym, upvalues);
+        // println!("Locals for {:?}: {:?}\n", sym, context.locals);
+
+        let function = Function {
+            name: *sym,
+            chunk_index,
+            arity: params.len(),
+        };
+
+        let closure = Closure {
+            function: function,
+            upvalues: upvalues,
+        };
+
+        let constant = self.add_constant(Constant::Closure(closure));
+        self.add_instruction(Instruction::Closure(constant));
+
+        self.define_variable(sym);
+
         Ok(())
     }
 }
