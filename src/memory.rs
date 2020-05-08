@@ -1,8 +1,13 @@
 use crate::constant::Constant;
+<<<<<<< HEAD
 use std::cmp;
 use std::collections::HashMap;
 use std::mem;
 use std::ops;
+=======
+use std::collections::HashMap;
+use std::mem;
+>>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 
 // This is a more efficient version of hashing a float value
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -24,7 +29,11 @@ impl Distance {
 
 impl From<f64> for Distance {
     fn from(item: f64) -> Self {
+<<<<<<< HEAD
         let bits: u64 = item.to_bits();
+=======
+        let bits: u64 = unsafe { mem::transmute(item) };
+>>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
         let sign: i8 = if bits >> 63 == 0 { 1 } else { -1 };
         let mut exponent: i16 = ((bits >> 52) & 0x7ff) as i16;
         let mantissa = if exponent == 0 {
@@ -49,6 +58,7 @@ impl Into<f64> for Distance {
     }
 }
 
+<<<<<<< HEAD
 impl Into<f64> for &Distance {
     fn into(self) -> f64 {
         (self.sign as f64) * (self.mantissa as f64) * (2f64.powf(self.exponent as f64))
@@ -110,6 +120,9 @@ impl cmp::PartialOrd for Distance {
 }
 
 #[derive(Debug, Clone)]
+=======
+#[derive(Debug)]
+>>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 pub struct ConstantPool {
     pool: Vec<Constant>,
     cache: HashMap<Constant, usize>,

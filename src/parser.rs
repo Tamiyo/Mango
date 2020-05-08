@@ -433,12 +433,7 @@ impl Parser {
         if self.peek()?.symbol == Symbol::Colon && self.peek_n(1)?.symbol == Symbol::Colon {
             self.consume(Symbol::Colon)?;
             self.consume(Symbol::Colon)?;
-            if self.peek()?.symbol != Symbol::RightSquare {
-                step = Some(Box::new(self.parse_expression(Precedence::None)?));
-                return Ok(Expr::Slice(None, None, step));
-            } else {
-                return Ok(Expr::Slice(None, None, None));
-            }
+            step = Some(Box::new(self.parse_expression(Precedence::None)?));
         } else if self.peek()?.symbol == Symbol::Colon {
             self.consume(Symbol::Colon)?;
             if self.peek()?.symbol != Symbol::RightSquare {
@@ -449,6 +444,7 @@ impl Parser {
                 }
             }
         } else {
+            self.consume(Symbol::Colon)?;
             return Ok(*start.unwrap());
         }
 

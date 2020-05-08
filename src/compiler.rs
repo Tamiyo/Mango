@@ -502,9 +502,6 @@ impl Compiler {
         };
         let upvalues = context.upvalues;
 
-        // println!("\nUpvalues for {:?}: {:?}", sym, upvalues);
-        // println!("Locals for {:?}: {:?}\n", sym, context.locals);
-
         let function = Function {
             name: *sym,
             chunk_index,

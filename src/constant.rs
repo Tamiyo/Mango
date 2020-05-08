@@ -10,7 +10,10 @@ pub enum Constant {
     Number(Distance),
     String(Sym),
     Boolean(bool),
+<<<<<<< HEAD
     None,
+=======
+>>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 
     // Data Structure Constants
     Array(Vec<Constant>),
