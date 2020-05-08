@@ -1,6 +1,7 @@
 use crate::memory::Distance;
 use crate::tokens::Token;
 use string_interner::Sym;
+
 #[derive(Debug, PartialEq)]
 pub enum Expr {
     Number(Distance),
@@ -26,9 +27,5 @@ pub enum Stmt {
     Block(Vec<Stmt>),
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
     While(Box<Expr>, Box<Stmt>),
-<<<<<<< HEAD
     Function(Sym, Vec<Sym>, Vec<Stmt>),
-=======
-    Function(Sym, Vec<Sym>, Box<Stmt>),
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 }

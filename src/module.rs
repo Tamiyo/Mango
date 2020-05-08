@@ -6,7 +6,6 @@ use crate::constant::Constant;
 use crate::memory::ConstantPool;
 use string_interner::StringInterner;
 use string_interner::Sym;
-<<<<<<< HEAD
 #[derive(Debug, Clone)]
 pub struct Module {
     pub chunks: Vec<Chunk>,
@@ -16,17 +15,6 @@ pub struct Module {
 
 impl Module {
     pub fn new(strings: StringInterner<Sym>) -> Self {
-=======
-#[derive(Debug)]
-pub struct Module<'a> {
-    pub chunks: Vec<Chunk>,
-    pub constants: ConstantPool,
-    pub strings: &'a StringInterner<Sym>,
-}
-
-impl<'a> Module<'a> {
-    pub fn new(strings: &'a StringInterner<Sym>) -> Self {
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
         Module {
             chunks: vec![],
             constants: ConstantPool::new(),
@@ -41,7 +29,6 @@ impl<'a> Module<'a> {
 
     pub fn get_chunk(&self, chunk_index: usize) -> &Chunk {
         &self.chunks[chunk_index]
-<<<<<<< HEAD
     }
 
     pub fn get_chunk_mut(&mut self, chunk_index: usize) -> &mut Chunk {
@@ -58,15 +45,5 @@ impl<'a> Module<'a> {
 
     pub fn constants(&self) -> &ConstantPool {
         &self.constants
-=======
-    }
-
-    pub fn get_chunk_mut(&mut self, chunk_index: usize) -> &mut Chunk {
-        &mut self.chunks[chunk_index]
-    }
-
-    pub fn add_constant(&mut self, constant: Constant) -> ConstantIndex {
-        self.constants.add(constant)
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
     }
 }

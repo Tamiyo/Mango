@@ -38,12 +38,8 @@ pub enum Instruction {
     SetUpvalue(StackIndex),
 
     Call(StackIndex),
-<<<<<<< HEAD
     Closure(ConstantIndex),
     // CloseUpValue,
-=======
-    Function(ConstantIndex),
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 
     Pop,
 
@@ -54,11 +50,7 @@ pub enum Instruction {
     Print,
     Return,
 }
-<<<<<<< HEAD
 #[derive(Debug, Clone)]
-=======
-#[derive(Debug)]
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 pub struct Chunk {
     pub instructions: Vec<Instruction>,
 }

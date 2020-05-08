@@ -181,15 +181,9 @@ impl<'a> Scanner<'a> {
 
 #[cfg(test)]
 mod tests {
-<<<<<<< HEAD
     use super::Distance;
     use super::Scanner;
     use super::Symbol;
-=======
-    use super::Scanner;
-    use super::Symbol;
-    use super::Distance;
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
 
     fn tokenize(buf: &str) -> Vec<Symbol> {
         let mut scanner = Scanner::new(buf);
@@ -239,7 +233,6 @@ mod tests {
             tokenize("\'4 -str\'"),
             [Symbol::String("4 -str".to_string()), Symbol::Eof]
         );
-<<<<<<< HEAD
         assert_eq!(
             tokenize("4"),
             [Symbol::Number(Distance::from(4 as f64)), Symbol::Eof]
@@ -248,10 +241,6 @@ mod tests {
             tokenize("4.5"),
             [Symbol::Number(Distance::from(4.5 as f64)), Symbol::Eof]
         );
-=======
-        assert_eq!(tokenize("4"), [Symbol::Number(Distance::from(4 as f64)), Symbol::Eof]);
-        assert_eq!(tokenize("4.5"), [Symbol::Number(Distance::from(4.5 as f64)), Symbol::Eof]);
->>>>>>> 382353fd91b0585622e95c4ebfd4e877abef4353
         assert_eq!(tokenize("and"), [Symbol::And, Symbol::Eof]);
         assert_eq!(tokenize("#"), [Symbol::Fun, Symbol::Eof]);
         assert_eq!(tokenize("@"), [Symbol::Struct, Symbol::Eof]);
