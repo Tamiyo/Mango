@@ -12,6 +12,7 @@ pub enum ParseError {
 pub enum CompileError {
     UndefinedVariable,
     ContextStreamEmpty,
+    UnexpectedExpression,
     UnexpectedBinaryOperator(Token),
     UnexpectedLogicalOperator(Token),
     UnexpectedUnaryOperator(Token),
@@ -27,5 +28,5 @@ pub enum RuntimeError {
     ExpectedStringConstant,
     ExpectedArray,
     ExpectedNumber,
-    ExpectedCallee
+    ExpectedCallee,
 }

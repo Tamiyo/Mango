@@ -3,6 +3,7 @@ use string_interner::Sym;
 
 use crate::class::Class;
 use crate::function::{Closure, Function};
+use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum Constant {
@@ -23,6 +24,22 @@ pub enum Constant {
 impl From<f64> for Constant {
     fn from(item: f64) -> Self {
         Constant::Number(Distance::from(item))
+    }
+}
+
+impl Display for Constant {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Constant::Number(n) => write!(f, "{}", Into::<f64>::into(n)),
+            Constant::Array(a) => {
+                write!(f, "[")?;
+                for e in a {
+                    write!(f, "{}, ", e)?;
+                }
+                write!(f, "]")
+            }
+            other => write!(f, "{:?}", other),
+        }
     }
 }
 

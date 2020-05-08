@@ -137,6 +137,7 @@ impl ConstantPool {
         &self.pool[constant_index]
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::ConstantPool;

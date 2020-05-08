@@ -26,7 +26,6 @@ forStmt ::= "for" IDENTIFIER "=" NUMBER ":" NUMBER (":" NUMBER)? blockStmt
 blockStmt ::= "{" statement* "}"
 
 expression ::= logic_or
-            | multi_select_list
             # | multi_select_hash 
 
 logic_or ::= logic_and ("or" logic_and)*
@@ -37,13 +36,16 @@ addition ::= multiplication ( ("+" | "-") multiplication)*
 multiplication ::= power ( ("*" | "/" | "%") power)*
 power ::= unary ("^" unary)*    
 unary ::= "!" unary | index
-index ::= IDENTIFIER bracket_specifier | call
+index ::= IDENTIFIER bracket_specifier 
+            | bracket_specifier
+            | call
 call ::= primary ( "(" identifier_list ")" | "." IDENTIFIER )*
 primary ::= "true" | "false" | "none" 
             | NUMBER | STRING | IDENTIFIER 
             | "(" expression ")"
+            | multi_select_list
 
-multi_select_list ::= "[" expression_list "]"
+multi_select_list ::= "[" expression_list "]
 # multi_select_hash ::= "{" key_value_expression ( "," key_value_expression )* "}"
 
 bracket_specifier ::= "[" (NUMBER | slice_expression) "]"

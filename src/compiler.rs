@@ -1,5 +1,4 @@
 use crate::ast::Expr;
-use crate::ast::Expr::Slice;
 use crate::ast::Stmt;
 use crate::chunk::Chunk;
 use crate::chunk::ConstantIndex;
@@ -139,7 +138,6 @@ impl Compiler {
     pub fn compile(&mut self, statements: &[Stmt]) -> Result<&Module, CompileError> {
         self.compile_program(statements)?;
 
-        // println!("Constants: {:?}", self.module.constants);
         for chunk in &self.module.chunks {
             chunk.disassemble(&self.module.constants);
             println!();
@@ -186,6 +184,7 @@ impl Compiler {
             Expr::Binary(ref left, ref op, ref right) => self.compile_binary(left, op, right),
             Expr::Logical(ref left, ref op, ref right) => self.compile_logical(left, op, right),
             Expr::Grouping(ref expr) => self.compile_grouping(expr),
+            Expr::Pair(ref left, ref right) => self.compile_pair(left, right),
             Expr::Unary(ref op, ref right) => self.compile_unary(op, right),
             Expr::Call(ref callee, ref arguments) => self.compile_call(callee, arguments),
         }?;
@@ -246,17 +245,40 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_index(&mut self, sym: &Sym, expression: &Expr) -> Result<(), CompileError> {
-        self.compile_variable(sym)?;
-        match expression {
-            Slice(_, _, _) => {
-                self.compile_expression(expression)?;
+    fn compile_index(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        match left {
+            Expr::Variable(_) => self.compile_expression(left)?,
+            Expr::Slice(_, _, _) => {
+                self.compile_expression(left)?;
             }
             _ => {
-                self.compile_expression(expression)?;
+                self.compile_expression(left)?;
                 self.add_instruction(Instruction::Index);
             }
         };
+
+        match right {
+            Expr::Pair(a, b) => {
+                match **a {
+                    Expr::Number(_) => {
+                        self.compile_expression(a)?;
+                        self.add_instruction(Instruction::Index);
+                    }
+                    Expr::None => (),
+                    _ => self.compile_expression(a)?,
+                };
+                match **b {
+                    Expr::Number(_) => {
+                        self.compile_expression(b)?;
+                        self.add_instruction(Instruction::Index);
+                    }
+                    Expr::None => (),
+                    _ => self.compile_expression(b)?,
+                };
+            }
+            _ => return Err(CompileError::UnexpectedExpression),
+        }
+
         Ok(())
     }
 
@@ -348,13 +370,32 @@ impl Compiler {
         Ok(())
     }
 
+    fn compile_pair(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        match left {
+            Expr::Number(_) => {
+                self.compile_expression(left)?;
+                self.add_instruction(Instruction::Index);
+            }
+            Expr::None => (),
+            _ => self.compile_expression(left)?,
+        };
+
+        match right {
+            Expr::Number(_) => {
+                self.compile_expression(right)?;
+                self.add_instruction(Instruction::Index);
+            }
+            Expr::None => (),
+            _ => self.compile_expression(right)?,
+        };
+        Ok(())
+    }
+
     fn compile_unary(&mut self, op: &Token, right: &Expr) -> Result<(), CompileError> {
         self.compile_expression(right)?;
         match op.symbol {
             Symbol::Not => self.add_instruction(Instruction::Not),
-            Symbol::Minus => {
-                self.add_instruction(Instruction::Negate)
-            }
+            Symbol::Minus => self.add_instruction(Instruction::Negate),
             _ => return Err(CompileError::UnexpectedUnaryOperator(op.clone())),
         };
         Ok(())

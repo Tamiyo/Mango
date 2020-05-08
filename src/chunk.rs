@@ -44,7 +44,7 @@ pub enum Instruction {
     Pop,
 
     List(usize),
-    Slice,
+       Slice,
     Index,
 
     Print,

@@ -28,10 +28,31 @@ mod local;
 mod vm;
 
 fn main() {
+    // let buf = "
+    // #PrintFunction() {
+    //     $y = 5;
+
+    //     #InnerFunction() {
+    //         print(y + 1);
+    //         return y + 2;
+    //     }
+
+    //     print('Hello World');
+    //     $x = 4;
+    //     print(3 + x);
+    //     return x;
+    // }";
+
     let buf = "
-        $A = [1,2,3];
-        print(A);
+        $A = [[[1, 2], [3, 4]], [4, 5, 6], [7, 8, 9]];
+        print(A[0]);
+        print(A[0][0]);
+        print(A[1:]);
+        print(A[2][1:]);
     ";
+
+    // Problem is in the parser for nested []. Maybe include a vec?
+    // Maybe a grammar problem...
 
     let mut parser = Parser::new(buf);
     let statements = match parser.parse() {

@@ -6,7 +6,6 @@ use crate::function::Function;
 use crate::memory::Distance;
 use crate::module::Module;
 use std::collections::HashMap;
-use std::num::Wrapping;
 use string_interner::Sym;
 
 #[derive(Debug, PartialEq)]
@@ -69,7 +68,13 @@ impl VM {
             &module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
 
-        // println!("Stack: {:?}", self.stack);
+        // println!("Instr: {:?}", instruction);
+
+        // print!("stack: [");
+        // for e in &self.stack {
+        //     print!("{} ", e);
+        // }
+        // println!("]");
 
         match instruction {
             Instruction::Constant(index) => {

@@ -91,6 +91,7 @@ impl Parser {
     fn consume(&mut self, expected: Symbol) -> Result<(), ParseError> {
         let token = self.peek()?;
         if token.symbol != expected {
+            println!("{:?}", expected);
             Err(ParseError::UnexpectedToken(token.clone()))
         } else {
             self.next()?;
@@ -267,13 +268,12 @@ impl Parser {
         }
 
         self.consume(Symbol::RightBrace)?;
-
         Ok(Stmt::Block(statements))
     }
 
     fn parse_expression_statement(&mut self) -> Result<Stmt, ParseError> {
         let expr = match self.peek()?.symbol {
-            Symbol::LeftSquare => self.parse_multi_select_list(),
+            // Symbol::LeftSquare => self.parse_multi_select_list(),
             _ => self.parse_expression(Precedence::None),
         }?;
         Ok(Stmt::Expression(Box::new(expr)))
@@ -390,8 +390,7 @@ impl Parser {
     fn parse_unary(&mut self) -> Result<Expr, ParseError> {
         let op = self.next()?;
         match op.symbol {
-            Symbol::Not => Ok(()),
-            Symbol::Minus => Ok(()),
+            Symbol::Not | Symbol::Minus => Ok(()),
             _ => Err(ParseError::UnexpectedToken(op.clone())),
         }?;
         let right = self.parse_expression(Precedence::None)?;
@@ -406,19 +405,20 @@ impl Parser {
     }
 
     fn parse_index(&mut self, left: Expr) -> Result<Expr, ParseError> {
-        if let Expr::Variable(sym) = left {
-            let bracket = self.parse_bracket_specifier()?;
-            Ok(Expr::Index(sym, Box::new(bracket)))
-        } else {
-            Err(ParseError::ExpectedIdentifier(self.peek()?.clone()))
-        }
+        let right = self.parse_bracket_specifier()?;
+        Ok(Expr::Index(Box::new(left), Box::new(right)))
     }
 
     fn parse_bracket_specifier(&mut self) -> Result<Expr, ParseError> {
-        self.consume(Symbol::LeftSquare)?;
-        let slice = self.parse_slice_expression();
-        self.consume(Symbol::RightSquare)?;
-        slice
+        let mut slice = Expr::None;
+
+        while self.peek()?.symbol == Symbol::LeftSquare {
+            self.consume(Symbol::LeftSquare)?;
+            slice = Expr::Pair(Box::new(slice), Box::new(self.parse_slice_expression()?));
+            self.consume(Symbol::RightSquare)?;
+        }
+
+        Ok(slice)
     }
 
     fn parse_slice_expression(&mut self) -> Result<Expr, ParseError> {
@@ -444,7 +444,6 @@ impl Parser {
                 }
             }
         } else {
-            self.consume(Symbol::Colon)?;
             return Ok(*start.unwrap());
         }
 
@@ -466,6 +465,7 @@ impl Parser {
             Symbol::True => Ok(Expr::Boolean(true)),
             Symbol::False => Ok(Expr::Boolean(false)),
             Symbol::Identifier(s) => Ok(Expr::Variable(self.strings.get_or_intern(s))),
+            Symbol::LeftSquare => self.parse_multi_select_list(),
             _ => Err(ParseError::ExpectedLiteral(token.clone())),
         }
     }
