@@ -35,6 +35,6 @@ fn constant_instruction(offset: usize, instruction: Instruction, constant: &Cons
         "{:#008x}\t\t{:<16}\t{:<16}",
         offset,
         format!("{:?}", instruction),
-        format!("{}", constant)
+        format!("{:?}", constant)
     );
 }

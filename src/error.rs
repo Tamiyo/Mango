@@ -6,12 +6,12 @@ pub enum ParseError {
     UnexpectedToken(Token),
     ExpectedIdentifier(Token),
     ExpectedLiteral(Token),
+    ExpectedArray,
     TokenStreamEmpty,
 }
 #[derive(Debug)]
 pub enum CompileError {
-    UndefinedVariable,
-    ContextStreamEmpty,
+    VariableNotInitialized,
     UnexpectedExpression,
     UnexpectedBinaryOperator(Token),
     UnexpectedLogicalOperator(Token),

@@ -1,6 +1,7 @@
 use crate::ast::Expr;
 use crate::ast::Stmt;
 use crate::error::ParseError;
+use crate::memory::Distance;
 use crate::scanner::Scanner;
 use crate::tokens::Symbol;
 use crate::tokens::Token;
@@ -159,7 +160,7 @@ impl Parser {
             Symbol::Return => self.parse_return_statement(),
             Symbol::If => self.parse_if_statement(),
             Symbol::While => self.parse_while_statement(),
-            // Symbol::For => {}
+            Symbol::For => self.parse_for_statement(),
             Symbol::LeftBrace => self.parse_block_statement(),
             _ => self.parse_expression_statement(),
         }
@@ -259,6 +260,66 @@ impl Parser {
         ))
     }
 
+    fn parse_for_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::For)?;
+
+        let next = self.next()?;
+        if let Symbol::Identifier(name) = next.symbol {
+            self.consume(Symbol::In)?;
+            let arr = self.parse_expression(Precedence::None)?;
+            let len = Expr::Call(
+                Box::new(Expr::Variable(self.strings.get_or_intern("len"))),
+                vec![
+                    Expr::Variable(self.strings.get_or_intern("$r$"))
+                ],
+            );
+
+            let body = self.parse_block_statement()?;
+
+            let index_sym = self.strings.get_or_intern("$i$");
+            let index_assign = Stmt::Assign(index_sym, Box::new(Expr::Number(Distance::from(0.0))));
+
+            let range_sym = self.strings.get_or_intern("$r$");
+            let range_assign = Stmt::Assign(range_sym, Box::new(arr.clone()));
+
+            let element_sym = self.strings.get_or_intern(name);
+            let element_index = Expr::Index(
+                Box::new(Expr::Variable(range_sym)),
+                Box::new(Expr::Pair(
+                    Box::new(Expr::Variable(index_sym)),
+                    Box::new(Expr::None),
+                )),
+            );
+            let element_assign = Stmt::Assign(element_sym, Box::new(element_index));
+
+            let condition = Expr::Binary(
+                Box::new(Expr::Variable(index_sym)),
+                Token::new(Symbol::Less, next.line, next.col),
+                Box::new(len),
+            );
+            let adder = Stmt::Assign(
+                index_sym,
+                Box::new(Expr::Binary(
+                    Box::new(Expr::Variable(index_sym)),
+                    Token::new(Symbol::Plus, next.line, next.col),
+                    Box::new(Expr::Number(Distance::from(1.0))),
+                )),
+            );
+
+            let after_statements: Vec<Stmt> = vec![element_assign, body, adder];
+
+            let combined: Vec<Stmt> = vec![
+                index_assign,
+                range_assign,
+                Stmt::While(Box::new(condition), Box::new(Stmt::Block(after_statements))),
+            ];
+
+            Ok(Stmt::Block(combined))
+        } else {
+            return Err(ParseError::ExpectedIdentifier(next));
+        }
+    }
+
     fn parse_block_statement(&mut self) -> Result<Stmt, ParseError> {
         self.consume(Symbol::LeftBrace)?;
 
@@ -272,10 +333,8 @@ impl Parser {
     }
 
     fn parse_expression_statement(&mut self) -> Result<Stmt, ParseError> {
-        let expr = match self.peek()?.symbol {
-            // Symbol::LeftSquare => self.parse_multi_select_list(),
-            _ => self.parse_expression(Precedence::None),
-        }?;
+        let expr = self.parse_expression(Precedence::None)?;
+        self.consume(Symbol::Semicolon)?;
         Ok(Stmt::Expression(Box::new(expr)))
     }
 
@@ -323,8 +382,8 @@ impl Parser {
                 | Symbol::False
                 | Symbol::Identifier(_) => parser.parse_primary(),
                 Symbol::Not | Symbol::Minus => parser.parse_unary(),
-                Symbol::LeftParen => parser.parse_grouping(),
                 Symbol::LeftSquare => parser.parse_multi_select_list(),
+                Symbol::LeftParen => parser.parse_grouping(),
                 _ => Err(ParseError::UnexpectedOperator(parser.peek()?.clone())),
             }
         }
@@ -341,7 +400,9 @@ impl Parser {
 
     fn parse_expression_list(&mut self) -> Result<Vec<Expr>, ParseError> {
         let mut expressions = Vec::new();
-        expressions.push(self.parse_expression(Precedence::None)?);
+        if self.peek()?.symbol != Symbol::RightParen {
+            expressions.push(self.parse_expression(Precedence::None)?);
+        }
 
         while self.peek()?.symbol == Symbol::Comma {
             self.consume(Symbol::Comma)?;
@@ -450,6 +511,18 @@ impl Parser {
         Ok(Expr::Slice(start, stop, step))
     }
 
+    fn parse_range_expression(&mut self, start: Expr) -> Result<Expr, ParseError> {
+        let start: Box<Expr> = Box::new(start);
+        let mut step: Option<Box<Expr>> = None;
+        self.consume(Symbol::Colon)?;
+        let stop = Box::new(self.parse_expression(Precedence::None)?);
+        if self.peek()?.symbol == Symbol::Colon {
+            self.consume(Symbol::Colon)?;
+            step = Some(Box::new(self.parse_expression(Precedence::None)?))
+        }
+        Ok(Expr::Range(start, stop, step))
+    }
+
     fn parse_call(&mut self, left: Expr) -> Result<Expr, ParseError> {
         self.consume(Symbol::LeftParen)?;
         let args = self.parse_expression_list()?;
@@ -460,7 +533,10 @@ impl Parser {
     fn parse_primary(&mut self) -> Result<Expr, ParseError> {
         let token = self.next()?;
         match token.symbol {
-            Symbol::Number(n) => Ok(Expr::Number(n)),
+            Symbol::Number(n) => match self.peek()?.symbol {
+                Symbol::Colon => self.parse_range_expression(Expr::Number(n)),
+                _ => Ok(Expr::Number(n)),
+            },
             Symbol::String(s) => Ok(Expr::String(self.strings.get_or_intern(s))),
             Symbol::True => Ok(Expr::Boolean(true)),
             Symbol::False => Ok(Expr::Boolean(false)),

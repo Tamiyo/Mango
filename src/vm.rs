@@ -1,8 +1,8 @@
 use crate::chunk::Instruction;
 use crate::constant::Constant;
 use crate::error::RuntimeError;
-use crate::function::Closure;
 use crate::function::Function;
+use crate::function::NativeFunction;
 use crate::memory::Distance;
 use crate::module::Module;
 use std::collections::HashMap;
@@ -16,7 +16,7 @@ pub enum InterpreterResult {
 
 #[derive(Debug)]
 pub struct CallFrame {
-    closure: Closure,
+    function: Function,
     ip: usize,
     base_counter: usize,
     chunk_index: usize,
@@ -40,6 +40,23 @@ impl VM {
         }
     }
 
+    pub fn set_native_fn(
+        &mut self,
+        identifier: &str,
+        arity: usize,
+        code: fn(&[Constant]) -> Result<Constant, RuntimeError>,
+    ) {
+        let sym = self.module.strings.get_or_intern(identifier.to_string());
+        let native_function = NativeFunction {
+            sym: sym,
+            arity: arity,
+            code: code,
+        };
+
+        self.globals
+            .insert(sym, Constant::NativeFunction(native_function));
+    }
+
     pub fn interpret(&mut self) -> Result<(), RuntimeError> {
         let function = Function {
             arity: 0,
@@ -47,9 +64,8 @@ impl VM {
             name: self.module.get_or_intern("$$top$$"),
         };
 
-        let closure = Closure::new(function);
         self.frames.push(CallFrame {
-            closure: closure,
+            function: function,
             ip: 0,
             base_counter: 0,
             chunk_index: 0,
@@ -67,14 +83,6 @@ impl VM {
             let module = self.module();
             &module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
-
-        // println!("Instr: {:?}", instruction);
-
-        // print!("stack: [");
-        // for e in &self.stack {
-        //     print!("{} ", e);
-        // }
-        // println!("]");
 
         match instruction {
             Instruction::Constant(index) => {
@@ -95,6 +103,18 @@ impl VM {
                         .to_string();
                     let str2 = self.module.strings.resolve(n1).expect("Expected a &str");
                     str1.push_str(str2);
+
+                    let sym = self.module.get_or_intern(&str1.as_str());
+                    self.push(Constant::String(sym))
+                }
+                (other, Constant::String(n1)) => {
+                    let mut str1 = self
+                        .module
+                        .strings
+                        .resolve(n1)
+                        .expect("Expected a &str")
+                        .to_string();
+                    str1.push_str(self.constant_to_string(&other, false)?.as_str());
 
                     let sym = self.module.get_or_intern(&str1.as_str());
                     self.push(Constant::String(sym))
@@ -218,10 +238,16 @@ impl VM {
             }
             Instruction::GetGlobal(index) => {
                 if let Constant::String(key) = self.module.constants.get(*index) {
+                    // println!(
+                    //     "global: {:?} | {:?}",
+                    //     self.module.strings.resolve(*key),
+                    //     self.globals.get(key)
+                    // );
                     if let Some(constant) = self.globals.get(key) {
                         let c = constant.clone();
                         self.push(c);
                     } else {
+                        println!("{:?}", self.module.strings.resolve(*key));
                         return Err(RuntimeError::UndefinedVariable);
                     }
                 } else {
@@ -232,7 +258,6 @@ impl VM {
                 let index = self.current_frame().base_counter + index;
                 self.push(self.stack[index].clone());
             }
-            Instruction::GetUpvalue(index) => {}
             Instruction::SetGlobal(index) => {
                 let module = self.module();
                 if let Constant::String(key) = module.constants.get(*index) {
@@ -248,17 +273,16 @@ impl VM {
                 let value = self.peek()?.clone();
                 self.stack[index] = value;
             }
-            Instruction::SetUpvalue(index) => {}
+            Instruction::Function(index) => {
+                let module = &self.module();
+                if let Constant::Function(function) = module.constants().get(*index) {
+                    let constant = Constant::from(function);
+                    self.push(constant);
+                }
+            }
             Instruction::Call(arity) => {
                 let a = *arity;
                 self.call(a)?;
-            }
-            Instruction::Closure(index) => {
-                let module = &self.module();
-                if let Constant::Closure(closure) = module.constants.get(*index) {
-                    let constant = Constant::Closure(closure.clone());
-                    self.push(constant);
-                }
             }
             Instruction::Pop => {
                 self.pop()?;
@@ -321,6 +345,42 @@ impl VM {
                     for i in (a..b).step_by(-c as usize) {
                         res.push(arr[i].clone());
                     }
+                };
+                self.push(Constant::Array(res));
+            }
+            Instruction::Range => {
+                let step = match self.pop()? {
+                    Constant::Number(n) => Some(n),
+                    Constant::None => None,
+                    _ => return Err(RuntimeError::ExpectedNumber),
+                };
+
+                let stop = match self.pop()? {
+                    Constant::Number(n) => Into::<f64>::into(n) as isize,
+                    _ => return Err(RuntimeError::ExpectedNumber),
+                };
+
+                let start = match self.pop()? {
+                    Constant::Number(n) => Into::<f64>::into(n) as isize,
+                    _ => return Err(RuntimeError::ExpectedNumber),
+                };
+
+                let mut res: Vec<Constant> = vec![];
+
+                let c = match step {
+                    Some(t) => Into::<f64>::into(t) as isize,
+                    None => 1,
+                };
+
+                if c > 0 {
+                    for i in (start..stop).step_by(c as usize) {
+                        res.push(Constant::from(i as f64));
+                    }
+                } else {
+                    for i in (start..stop).step_by(-c as usize) {
+                        res.push(Constant::from(i as f64));
+                    }
+                    res.reverse();
                 };
                 self.push(Constant::Array(res));
             }
@@ -390,6 +450,15 @@ impl VM {
         self.stack.pop().ok_or_else(|| RuntimeError::StackEmpty)
     }
 
+    fn pop_n(&mut self, n: usize) -> Result<Vec<Constant>, RuntimeError> {
+        let mut result = vec![];
+        while result.len() < n {
+            result.push(self.pop()?);
+        }
+
+        Ok(result)
+    }
+
     fn peek(&self) -> Result<&Constant, RuntimeError> {
         self.stack.last().ok_or_else(|| RuntimeError::StackEmpty)
     }
@@ -406,62 +475,83 @@ impl VM {
 
     fn print_constant(&mut self) -> Result<(), RuntimeError> {
         let constant = self.pop()?;
-        self.constant_to_string(&constant)?;
-        println!("");
+        let res = self.constant_to_string(&constant, false)?;
+        println!("{}", res);
         Ok(())
     }
 
-    fn constant_to_string(&mut self, constant: &Constant) -> Result<(), RuntimeError> {
+    fn constant_to_string(
+        &mut self,
+        constant: &Constant,
+        nested: bool,
+    ) -> Result<String, RuntimeError> {
         match constant {
             Constant::Number(n) => {
                 let f: f64 = Into::<f64>::into(n);
-                print!("{}", f);
+                Ok(format!("{}", f))
             }
-            Constant::String(s) => print!(
-                "{}",
-                self.module
+            Constant::String(s) => {
+                let string = self
+                    .module
                     .strings
                     .resolve(*s)
-                    .expect("Expected string in interner")
-            ),
-            Constant::Boolean(b) => print!("{}", b),
-            Constant::None => print!("none"),
+                    .expect("Expected string in interner");
+                if nested {
+                    Ok(format!("\'{}\'", string))
+                } else {
+                    Ok(format!("{}", string))
+                }
+            }
+            Constant::Boolean(b) => Ok(format!("{}", b)),
+            Constant::None => Ok(format!("none")),
             Constant::Array(elements) => {
-                print!("[");
+                let mut res: String = "[".to_string();
                 for (i, e) in elements.iter().enumerate() {
-                    self.constant_to_string(e)?;
+                    let next = self.constant_to_string(e, true)?;
+                    res.push_str(next.as_str());
                     if i != elements.len() - 1 {
-                        print!(", ");
+                        res.push_str(", ");
                     }
                 }
-                print!("]");
+                res.push_str("]");
+                Ok(res)
             }
-            Constant::Closure(_) => print!("Closure?"),
-            Constant::Class(_) => print!("Class?"),
-        };
-        Ok(())
+            Constant::Function(_) => Ok(format!("Function?")),
+            Constant::NativeFunction(_) => Ok(format!("NativeFunction?")),
+            Constant::Class(_) => Ok(format!("Class?")),
+        }
     }
 
     fn call(&mut self, arity: usize) -> Result<(), RuntimeError> {
-        let callee = self.peek_n(arity)?;
+        let callee = self.peek_n(arity)?.clone();
         match callee {
-            Constant::Closure(callee) => {
-                if callee.function.arity != arity {
+            Constant::Function(callee) => {
+                if callee.arity != arity {
                     return Err(RuntimeError::IncorrectArity);
                 }
                 let c = callee.clone();
                 self.begin_frame(c);
+            }
+            Constant::NativeFunction(callee) => {
+                if callee.arity != arity {
+                    return Err(RuntimeError::IncorrectArity);
+                }
+                let mut args = self.pop_n(arity)?;
+                args.reverse();
+                self.pop()?;
+                let result = (callee.code)(&args);
+                self.push(result?);
             }
             _ => return Err(RuntimeError::ExpectedCallee),
         }
         Ok(())
     }
 
-    fn begin_frame(&mut self, closure: Closure) {
-        let arity = closure.function.arity;
-        let index = closure.function.chunk_index;
+    fn begin_frame(&mut self, function: Function) {
+        let arity = function.arity;
+        let index = function.chunk_index;
         self.frames.push(CallFrame {
-            closure: closure,
+            function: function,
             ip: 0,
             base_counter: self.stack.len() - arity,
             chunk_index: index,

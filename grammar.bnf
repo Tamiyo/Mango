@@ -22,7 +22,8 @@ ifStmt ::= "if" expression blockStmt
             (("elif"  expression)*)? ("else" blockStmt)?
 
 whileStmt ::= "while" expression blockStmt
-forStmt ::= "for" IDENTIFIER "=" NUMBER ":" NUMBER (":" NUMBER)? blockStmt
+# forStmt ::= "for" IDENTIFIER "=" NUMBER ":" NUMBER (":" NUMBER)? blockStmt
+forStmt ::= "for" IDENTIFIER "in" expression blockStmt
 blockStmt ::= "{" statement* "}"
 
 expression ::= logic_or
@@ -44,6 +45,7 @@ primary ::= "true" | "false" | "none"
             | NUMBER | STRING | IDENTIFIER 
             | "(" expression ")"
             | multi_select_list
+            | range_expression
 
 multi_select_list ::= "[" expression_list "]
 # multi_select_hash ::= "{" key_value_expression ( "," key_value_expression )* "}"
@@ -59,6 +61,8 @@ slice_expression ::=  NUMBER ":" NUMBER ":" NUMBER
                     | ":" NUMBER
                     | ":" NUMBER ":" NUMBER
                     | ":" ":" NUMBER
+
+range_expression ::= NUMBER (':' NUMBER (':' NUMBER)?)?
 
 
 key_value_expression = expression ":" expression

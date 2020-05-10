@@ -2,7 +2,7 @@ use crate::memory::Distance;
 use crate::tokens::Token;
 use string_interner::Sym;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     Number(Distance),
     String(Sym),
@@ -12,6 +12,7 @@ pub enum Expr {
     List(Vec<Expr>),
     Index(Box<Expr>, Box<Expr>),
     Pair(Box<Expr>, Box<Expr>),
+    Range(Box<Expr>, Box<Expr>, Option<Box<Expr>>),
     Slice(Option<Box<Expr>>, Option<Box<Expr>>, Option<Box<Expr>>),
     Binary(Box<Expr>, Token, Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),

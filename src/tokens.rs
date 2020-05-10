@@ -41,6 +41,7 @@ pub enum Symbol {
     Fun,
     For,
     If,
+    In,
     My,
     None,
     Or,

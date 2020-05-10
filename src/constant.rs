@@ -1,9 +1,9 @@
+use crate::function::NativeFunction;
 use crate::memory::Distance;
 use string_interner::Sym;
 
 use crate::class::Class;
-use crate::function::{Closure, Function};
-use std::fmt::{self, Display, Formatter};
+use crate::function::Function;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum Constant {
@@ -17,29 +17,14 @@ pub enum Constant {
     Array(Vec<Constant>),
 
     // Non-Primitive Constants
-    Closure(Closure),
+    Function(Function),
+    NativeFunction(NativeFunction),
     Class(Class),
 }
 
 impl From<f64> for Constant {
     fn from(item: f64) -> Self {
         Constant::Number(Distance::from(item))
-    }
-}
-
-impl Display for Constant {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Constant::Number(n) => write!(f, "{}", Into::<f64>::into(n)),
-            Constant::Array(a) => {
-                write!(f, "[")?;
-                for e in a {
-                    write!(f, "{}, ", e)?;
-                }
-                write!(f, "]")
-            }
-            other => write!(f, "{:?}", other),
-        }
     }
 }
 
@@ -69,7 +54,19 @@ impl From<Vec<Constant>> for Constant {
 
 impl From<Function> for Constant {
     fn from(item: Function) -> Self {
-        Constant::Closure(Closure::new(item))
+        Constant::Function(item)
+    }
+}
+
+impl From<NativeFunction> for Constant {
+    fn from(item: NativeFunction) -> Self {
+        Constant::NativeFunction(item)
+    }
+}
+
+impl From<&Function> for Constant {
+    fn from(item: &Function) -> Self {
+        Constant::Function(item.clone())
     }
 }
 
@@ -78,3 +75,4 @@ impl From<Class> for Constant {
         Constant::Class(item)
     }
 }
+

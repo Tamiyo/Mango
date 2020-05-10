@@ -5,10 +5,8 @@ use crate::chunk::ConstantIndex;
 use crate::chunk::Instruction;
 use crate::constant::Constant;
 use crate::error::CompileError;
-use crate::function::Closure;
 use crate::function::Function;
 use crate::local::Locals;
-use crate::local::Upvalue;
 use crate::memory::Distance;
 use crate::tokens::Symbol;
 use crate::tokens::Token;
@@ -29,7 +27,6 @@ pub struct CompilerContext {
     pub enclosing: isize,
     pub chunk_index: usize,
     pub locals: Locals,
-    pub upvalues: Vec<Upvalue>,
 }
 
 impl CompilerContext {
@@ -39,7 +36,6 @@ impl CompilerContext {
             enclosing,
             chunk_index,
             locals: Locals::new(),
-            upvalues: vec![],
         }
     }
 
@@ -48,7 +44,8 @@ impl CompilerContext {
             if local.is_initialized {
                 Ok(Some(local.slot))
             } else {
-                Err(CompileError::UndefinedVariable)
+                println!("depth... {}", self.locals.depth);
+                Err(CompileError::VariableNotInitialized)
             }
         } else {
             Ok(None)
@@ -102,37 +99,19 @@ impl Compiler {
         self.module.add_constant(constant)
     }
 
-    fn resolve_upvalue(&mut self, sym: &Sym) -> Result<Option<usize>, CompileError> {
-        let enclosing = self.current_context().enclosing;
-
-        if enclosing < 0 {
-            Ok(None)
-        } else {
-            if let Some(local) = self.contexts[enclosing as usize].resolve_local(sym)? {
-                let upvalue = Upvalue::new(local, true, false);
-                for (i, existing) in (&self.current_context().upvalues).iter().enumerate() {
-                    if *existing == upvalue {
-                        return Ok(Some(i));
-                    }
-                }
-                self.contexts[enclosing as usize]
-                    .locals
-                    .get_mut(*sym)
-                    .unwrap_or_else(|| panic!("Expected Local @ {}", local))
-                    .is_captured = true;
-
-                self.current_context_mut()
-                    .upvalues
-                    .push(Upvalue::new(local, true, false));
-                Ok(Some(local))
-            } else {
-                Ok(None)
-            }
-        }
-    }
-
     fn resolve_local(&mut self, sym: &Sym) -> Result<Option<usize>, CompileError> {
         self.current_context_mut().resolve_local(sym)
+    }
+
+    fn begin_scope(&mut self) {
+        self.current_context_mut().locals.enter_scope();
+    }
+
+    fn end_scope(&mut self) {
+        let locals = self.current_context_mut().locals.leave_scope();
+        for local in locals.iter().rev() {
+            self.add_instruction(Instruction::Pop);
+        }
     }
 
     pub fn compile(&mut self, statements: &[Stmt]) -> Result<&Module, CompileError> {
@@ -181,6 +160,7 @@ impl Compiler {
             Expr::List(ref elements) => self.compile_list(elements),
             Expr::Index(ref sym, ref expr) => self.compile_index(sym, expr),
             Expr::Slice(ref start, ref stop, ref step) => self.compile_slice(start, stop, step),
+            Expr::Range(ref start, ref stop, ref step) => self.compile_range(start, stop, step),
             Expr::Binary(ref left, ref op, ref right) => self.compile_binary(left, op, right),
             Expr::Logical(ref left, ref op, ref right) => self.compile_logical(left, op, right),
             Expr::Grouping(ref expr) => self.compile_grouping(expr),
@@ -222,13 +202,7 @@ impl Compiler {
         // if local :-
         if let Some(local) = self.resolve_local(sym)? {
             self.add_instruction(Instruction::GetLocal(local));
-        }
-        // else if upvalue :-
-        else if let Some(upvalue) = self.resolve_upvalue(sym)? {
-            self.add_instruction(Instruction::GetUpvalue(upvalue));
-        }
-        // else global
-        else {
+        } else {
             let constant = self.add_constant(Constant::from(sym));
             self.add_instruction(Instruction::GetGlobal(constant));
         }
@@ -246,6 +220,7 @@ impl Compiler {
     }
 
     fn compile_index(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
+        println!("In Compile Index");
         match left {
             Expr::Variable(_) => self.compile_expression(left)?,
             Expr::Slice(_, _, _) => {
@@ -260,7 +235,7 @@ impl Compiler {
         match right {
             Expr::Pair(a, b) => {
                 match **a {
-                    Expr::Number(_) => {
+                    Expr::Number(_) | Expr::Variable(_) => {
                         self.compile_expression(a)?;
                         self.add_instruction(Instruction::Index);
                     }
@@ -268,7 +243,7 @@ impl Compiler {
                     _ => self.compile_expression(a)?,
                 };
                 match **b {
-                    Expr::Number(_) => {
+                    Expr::Number(_) | Expr::Variable(_) => {
                         self.compile_expression(b)?;
                         self.add_instruction(Instruction::Index);
                     }
@@ -277,8 +252,9 @@ impl Compiler {
                 };
             }
             _ => return Err(CompileError::UnexpectedExpression),
-        }
+        };
 
+        println!("Out Compile Index");
         Ok(())
     }
 
@@ -303,6 +279,23 @@ impl Compiler {
             _ => self.compile_none()?,
         };
         self.add_instruction(Instruction::Slice);
+        Ok(())
+    }
+
+    fn compile_range(
+        &mut self,
+        start: &Expr,
+        stop: &Expr,
+        step: &Option<Box<Expr>>,
+    ) -> Result<(), CompileError> {
+        self.compile_expression(start)?;
+        self.compile_expression(stop)?;
+
+        match step {
+            Some(expr) => self.compile_expression(expr)?,
+            _ => self.compile_none()?,
+        };
+        self.add_instruction(Instruction::Range);
         Ok(())
     }
 
@@ -449,6 +442,10 @@ impl Compiler {
         self.declare_variable(sym);
         self.compile_expression(expr)?;
         self.define_variable(sym);
+
+        if let Some(local) = self.resolve_local(sym)? {
+            self.add_instruction(Instruction::SetLocal(local));
+        }
         Ok(())
     }
 
@@ -519,7 +516,7 @@ impl Compiler {
             chunk_index,
         ));
 
-        self.current_context_mut().locals.enter_scope();
+        self.begin_scope();
 
         for param in params {
             self.declare_variable(param);
@@ -535,27 +532,17 @@ impl Compiler {
                 self.add_instruction(Instruction::Return);
             }
         };
-        self.current_context_mut().locals.leave_scope();
+        self.end_scope();
 
-        let context = match self.contexts.pop() {
-            Some(c) => c,
-            None => return Err(CompileError::ContextStreamEmpty),
-        };
-        let upvalues = context.upvalues;
-
+        self.contexts.pop();
         let function = Function {
             name: *sym,
             chunk_index,
             arity: params.len(),
         };
 
-        let closure = Closure {
-            function: function,
-            upvalues: upvalues,
-        };
-
-        let constant = self.add_constant(Constant::Closure(closure));
-        self.add_instruction(Instruction::Closure(constant));
+        let constant = self.add_constant(Constant::Function(function));
+        self.add_instruction(Instruction::Function(constant));
 
         self.define_variable(sym);
 

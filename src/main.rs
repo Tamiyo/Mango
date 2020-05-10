@@ -2,6 +2,11 @@ use crate::compiler::Compiler;
 use crate::parser::Parser;
 use crate::vm::VM;
 
+// Move these
+use crate::constant::Constant;
+use crate::error::RuntimeError;
+use crate::memory::Distance;
+
 // Bytecode
 mod chunk;
 mod class;
@@ -28,31 +33,15 @@ mod local;
 mod vm;
 
 fn main() {
-    // let buf = "
-    // #PrintFunction() {
-    //     $y = 5;
-
-    //     #InnerFunction() {
-    //         print(y + 1);
-    //         return y + 2;
-    //     }
-
-    //     print('Hello World');
-    //     $x = 4;
-    //     print(3 + x);
-    //     return x;
-    // }";
-
     let buf = "
-        $A = [[[1, 2], [3, 4]], [4, 5, 6], [7, 8, 9]];
-        print(A[0]);
-        print(A[0][0]);
-        print(A[1:]);
-        print(A[2][1:]);
+        $start = clock();
+        $A = ['Hello World', 'Goodbye World', 4, 12.0];
+        for j in A {
+            print(j);
+        }
+        print(A);
+        print('\nelapsed time: ' + (clock() - start));
     ";
-
-    // Problem is in the parser for nested []. Maybe include a vec?
-    // Maybe a grammar problem...
 
     let mut parser = Parser::new(buf);
     let statements = match parser.parse() {
@@ -69,6 +58,29 @@ fn main() {
     };
 
     let mut vm = VM::new(module.clone());
+
+    // TODO :- Move this to own library
+    vm.set_native_fn("clock", 0, |_args| {
+        use std::time::{SystemTime, UNIX_EPOCH};
+
+        let time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs_f64();
+        Ok(Constant::from(time))
+    });
+
+    vm.set_native_fn("len", 1, |_args| match &_args[0] {
+        Constant::Array(elements) => {
+            return Ok(Constant::from(elements.len() as f64));
+        }
+        _ => return Err(RuntimeError::ExpectedArray),
+    });
+
+    // vm.set_native_fn("len", |_args| {
+
+    // });
+
     match vm.interpret() {
         Ok(_) => (),
         Err(e) => panic!(format!("{:?}", e)),

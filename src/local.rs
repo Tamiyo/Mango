@@ -9,23 +9,6 @@ pub struct Local {
     pub is_captured: bool,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub struct Upvalue {
-    slot: usize,
-    is_local: bool,
-    is_closed: bool,
-}
-
-impl Upvalue {
-    pub fn new(slot: usize, is_local: bool, is_closed: bool) -> Self {
-        Upvalue {
-            slot,
-            is_local,
-            is_closed,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct Locals {
     pub stack: Vec<Local>,
@@ -44,9 +27,9 @@ impl Locals {
         self.depth += 1;
     }
 
-    pub fn leave_scope(&mut self) {
+    pub fn leave_scope(&mut self) -> Vec<Local> {
         self.depth -= 1;
-        let index = self    
+        let index = self
             .stack
             .iter()
             .enumerate()
@@ -59,6 +42,7 @@ impl Locals {
             })
             .unwrap_or_else(|| self.stack.len());
         self.stack.split_off(index);
+        self.stack.clone()
     }
 
     pub fn mark_initialized(&mut self) {

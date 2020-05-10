@@ -31,20 +31,21 @@ pub enum Instruction {
 
     GetGlobal(ConstantIndex),
     GetLocal(StackIndex),
-    GetUpvalue(StackIndex),
+    // GetUpvalue(StackIndex),
 
     SetGlobal(ConstantIndex),
     SetLocal(StackIndex),
-    SetUpvalue(StackIndex),
+    // SetUpvalue(StackIndex),
 
     Call(StackIndex),
-    Closure(ConstantIndex),
-    // CloseUpValue,
-
+    Function(ConstantIndex),
+    
+    // CloseUpvalue,
     Pop,
 
     List(usize),
-       Slice,
+    Slice,
+    Range,
     Index,
 
     Print,

@@ -98,6 +98,7 @@ impl<'a> Scanner<'a> {
             "false" => Symbol::False,
             "for" => Symbol::For,
             "if" => Symbol::If,
+            "in" => Symbol::In,
             "my" => Symbol::My,
             "none" => Symbol::None,
             "or" => Symbol::Or,
