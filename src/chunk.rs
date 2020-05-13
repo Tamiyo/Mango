@@ -31,16 +31,18 @@ pub enum Instruction {
 
     GetGlobal(ConstantIndex),
     GetLocal(StackIndex),
-    // GetUpvalue(StackIndex),
 
     SetGlobal(ConstantIndex),
     SetLocal(StackIndex),
-    // SetUpvalue(StackIndex),
 
     Call(StackIndex),
     Function(ConstantIndex),
-    
-    // CloseUpvalue,
+
+    Class(ConstantIndex),
+    GetProperty(ConstantIndex),
+    SetProperty(ConstantIndex),
+    Method,
+
     Pop,
 
     List(usize),
@@ -48,7 +50,7 @@ pub enum Instruction {
     Range,
     Index,
 
-    Print,
+    Print(usize),
     Return,
 }
 #[derive(Debug, Clone)]

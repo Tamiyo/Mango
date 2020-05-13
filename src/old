@@ -1,94 +1,3 @@
-use crate::chunk::Instruction;
-use crate::class::Instance;
-use crate::class::VMClass;
-use crate::constant::Constant;
-use crate::error::RuntimeError;
-use crate::function::Function;
-use crate::function::NativeFunction;
-use crate::memory::Value;
-use crate::module::Module;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use string_interner::Sym;
-
-#[derive(Debug, PartialEq)]
-pub enum InterpreterResult {
-    More,
-    Done,
-}
-
-#[derive(Debug)]
-pub struct CallFrame {
-    function: Function,
-    ip: usize,
-    base_counter: usize,
-    chunk_index: usize,
-}
-
-#[derive(Debug)]
-pub struct VM<'a> {
-    module: &'a mut Module,
-    frames: Vec<CallFrame>,
-    stack: Vec<Value>,
-    globals: HashMap<Sym, Value>,
-}
-
-impl<'a> VM<'a> {
-    pub fn new(module: &'a mut Module) -> Self {
-        VM {
-            module,
-            frames: vec![],
-            stack: vec![],
-            globals: HashMap::new(),
-        }
-    }
-
-    pub fn set_native_fn(
-        &mut self,
-        identifier: &str,
-        arity: usize,
-        code: fn(&[Value]) -> Result<Value, RuntimeError>,
-    ) {
-        let sym = self.module.strings.get_or_intern(identifier.to_string());
-        let native_function = NativeFunction {
-            sym: sym,
-            arity: arity,
-            code: code,
-        };
-
-        // self.globals
-        //     .insert(sym, Value::NativeFunction(manage(native_function)));
-
-        self.globals
-            .insert(sym, Value::NativeFunction(native_function));
-    }
-
-    pub fn interpret(&mut self) -> Result<(), RuntimeError> {
-        let function = Function {
-            arity: 0,
-            chunk_index: 0,
-            name: self.module.get_or_intern("$$top$$"),
-        };
-
-        self.frames.push(CallFrame {
-            function: function,
-            ip: 0,
-            base_counter: 0,
-            chunk_index: 0,
-        });
-
-        while self._interpret()? == InterpreterResult::More {}
-        println!("stack: {:?}", self.stack);
-        Ok(())
-    }
-
-    pub fn _interpret(&mut self) -> Result<InterpreterResult, RuntimeError> {
-        self.current_frame_mut().ip += 1;
-
-        let instruction: Instruction = {
-            let frame = self.current_frame();
-            self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1].clone()
-        };
         match instruction {
             Instruction::Constant(index) => {
                 let constant = self.module.constants.get(index).clone();
@@ -240,8 +149,7 @@ impl<'a> VM<'a> {
             Instruction::GetGlobal(index) => {
                 if let Constant::String(key) = self.module.constants.get(index) {
                     if let Some(constant) = self.globals.get(key) {
-                        let c = constant.clone();
-                        self.push(c);
+                        self.push(*constant);
                     } else {
                         return Err(RuntimeError::UndefinedVariable);
                     }
@@ -251,7 +159,7 @@ impl<'a> VM<'a> {
             }
             Instruction::GetLocal(index) => {
                 let index = self.current_frame().base_counter + index;
-                self.push(self.stack[index].clone());
+                self.push(self.stack[index]);
             }
             Instruction::SetGlobal(index) => {
                 if let Constant::String(key) = self.module.constants.get(index) {
@@ -265,7 +173,7 @@ impl<'a> VM<'a> {
             Instruction::SetLocal(index) => {
                 let index = self.current_frame().base_counter + index;
                 let value = self.peek()?.clone();
-                self.stack[index] = value;
+                self.stack[index] = *value;
             }
             Instruction::Call(arity) => {
                 let a = arity;
@@ -274,7 +182,7 @@ impl<'a> VM<'a> {
             Instruction::Function(index) => {
                 let module = &self.module;
                 if let Constant::Function(function) = module.constants.get(index) {
-                    let constant = Value::Function(function.clone());
+                    let constant = Value::Function(*function);
                     // let constant = Value::Function(manage(function.clone()));
                     self.push(constant);
                 }
@@ -502,158 +410,3 @@ impl<'a> VM<'a> {
                 self.push(res?);
             }
         };
-
-        Ok(InterpreterResult::More)
-    }
-
-    fn current_frame(&self) -> &CallFrame {
-        self.frames.last().expect("Expect &mut Callframe to exist")
-    }
-
-    fn current_frame_mut(&mut self) -> &mut CallFrame {
-        self.frames
-            .last_mut()
-            .expect("Expect &mut Callframe to exist")
-    }
-
-    fn pop(&mut self) -> Result<Value, RuntimeError> {
-        self.stack.pop().ok_or_else(|| RuntimeError::StackEmpty)
-    }
-
-    fn pop_n(&mut self, n: usize) -> Result<Vec<Value>, RuntimeError> {
-        let mut result = vec![];
-        while result.len() < n {
-            result.push(self.pop()?);
-        }
-
-        Ok(result)
-    }
-
-    fn peek(&self) -> Result<&Value, RuntimeError> {
-        self.stack.last().ok_or_else(|| RuntimeError::StackEmpty)
-    }
-
-    fn peek_n(&self, n: usize) -> Result<&Value, RuntimeError> {
-        let len = self.stack.len();
-        self.stack
-            .get(len - n - 1)
-            .ok_or_else(|| RuntimeError::StackEmpty)
-    }
-
-    fn push(&mut self, value: Value) {
-        self.stack.push(value)
-    }
-
-    fn print_value(&mut self, value: Value) -> Result<(), RuntimeError> {
-        let res = self.value_to_string(&value, false)?;
-        print!("{}", res);
-        Ok(())
-    }
-
-    fn value_to_string(&mut self, value: &Value, nested: bool) -> Result<String, RuntimeError> {
-        match value {
-            Value::Number(n) => Ok(format!("{}", n)),
-            Value::String(s) => {
-                let string = self
-                    .module
-                    .strings
-                    .resolve(*s)
-                    .expect("Expected string in interner");
-                if nested {
-                    Ok(format!("\'{}\'", string))
-                } else {
-                    Ok(format!("{}", string))
-                }
-            }
-            Value::Boolean(b) => Ok(format!("{}", b)),
-            Value::None => Ok(format!("none")),
-            Value::Array(elements) => {
-                let mut res: String = "[".to_string();
-                for (i, e) in elements.iter().enumerate() {
-                    let next = self.value_to_string(e, true)?;
-                    res.push_str(next.as_str());
-                    if i != elements.len() - 1 {
-                        res.push_str(", ");
-                    }
-                }
-                res.push_str("]");
-                Ok(res)
-            }
-            Value::Function(_) => Ok(format!("Function?")),
-            Value::NativeFunction(_) => Ok(format!("NativeFunction?")),
-            Value::Class(class) => Ok(format!(
-                "class '{}'\n\tmethods: {:?}",
-                self.module.strings.resolve(class.borrow().name).expect(""),
-                class
-                    .borrow()
-                    .methods
-                    .keys()
-                    .map(|key| self.module.strings.resolve(*key).expect(""))
-                    .collect::<Vec<&str>>()
-            )),
-            Value::Instance(instance) => {
-                // println!("stack: {:?}", self.stack);
-                Ok(format!(
-                    "instance of: {}",
-                    self.value_to_string(
-                        &Value::Class(RefCell::clone(&instance.borrow().class)),
-                        true
-                    )?
-                ))
-            }
-        }
-    }
-
-    fn call(&mut self, arity: usize) -> Result<(), RuntimeError> {
-        let callee = self.peek_n(arity)?.clone();
-        match callee {
-            Value::Function(c) => {
-                // let callee = (*c).deref();
-                let callee = c;
-                if callee.arity != arity {
-                    return Err(RuntimeError::IncorrectArity);
-                }
-                let c = callee.clone();
-                self.begin_frame(c);
-            }
-            Value::NativeFunction(c) => {
-                // let callee = (*c).deref();
-                let callee = c;
-                if callee.arity != arity {
-                    return Err(RuntimeError::IncorrectArity);
-                }
-                let mut args = self.pop_n(arity)?;
-                args.reverse();
-                self.pop()?;
-                let result = (callee.code)(&args);
-                self.push(result?);
-            }
-            Value::Class(class) => {
-                if arity > 0 {
-                    unimplemented!("Calling a class with arguments is not yet supported");
-                }
-                self.pop()?; //TODO Temporary, remove when arguments are supported
-
-                let instance = Instance {
-                    class: class,
-                    fields: HashMap::new(),
-                };
-
-                self.push(Value::Instance(RefCell::new(instance)));
-            }
-            _ => return Err(RuntimeError::ExpectedCallee),
-        }
-        Ok(())
-    }
-
-    fn begin_frame(&mut self, function: Function) {
-        let arity = function.arity;
-        let index = function.chunk_index;
-        self.frames.push(CallFrame {
-            function: function,
-            ip: 0,
-            base_counter: self.stack.len() - arity,
-            chunk_index: index,
-        });
-    }
-}

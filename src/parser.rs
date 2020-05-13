@@ -1,7 +1,7 @@
 use crate::ast::Expr;
 use crate::ast::Stmt;
+use crate::distance::Distance;
 use crate::error::ParseError;
-use crate::memory::Distance;
 use crate::scanner::Scanner;
 use crate::tokens::Symbol;
 use crate::tokens::Token;
@@ -36,8 +36,7 @@ impl From<&Token> for Precedence {
             Symbol::Carat => Precedence::Power,
             Symbol::Not => Precedence::Unary,
             Symbol::LeftSquare => Precedence::Index,
-            Symbol::LeftParen => Precedence::Call,
-            Symbol::Dot => Precedence::Call,
+            Symbol::LeftParen | Symbol::Dot => Precedence::Call,
             _ => Precedence::None,
         }
     }
@@ -92,7 +91,6 @@ impl Parser {
     fn consume(&mut self, expected: Symbol) -> Result<(), ParseError> {
         let token = self.peek()?;
         if token.symbol != expected {
-            println!("{:?}", expected);
             Err(ParseError::UnexpectedToken(token.clone()))
         } else {
             self.next()?;
@@ -102,10 +100,32 @@ impl Parser {
 
     fn parse_declaration(&mut self) -> Result<Stmt, ParseError> {
         match self.peek()?.symbol {
-            // Symbol::Struct => {}
+            Symbol::Class => self.parse_class(),
             Symbol::Fun => self.parse_function(),
             _ => self.parse_statement(),
         }
+    }
+
+    fn parse_method(&mut self) -> Result<Stmt, ParseError> {
+        self.parse_function()
+    }
+
+    fn parse_class(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(Symbol::Class)?;
+        let next = self.next()?;
+        let name = match next.symbol {
+            Symbol::Identifier(name) => Ok(self.strings.get_or_intern(name)),
+            _ => return Err(ParseError::ExpectedIdentifier(next.clone())),
+        }?;
+
+        self.consume(Symbol::LeftBrace)?;
+        let mut methods: Vec<Stmt> = Vec::new();
+        while self.peek()?.symbol != Symbol::RightBrace && self.peek()?.symbol != Symbol::Eof {
+            let method = self.parse_method()?;
+            methods.push(method);
+        }
+        self.consume(Symbol::RightBrace)?;
+        Ok(Stmt::Class(name, methods))
     }
 
     fn parse_identifier_list(&mut self) -> Result<Vec<Sym>, ParseError> {
@@ -129,11 +149,11 @@ impl Parser {
 
     fn parse_function(&mut self) -> Result<Stmt, ParseError> {
         self.consume(Symbol::Fun)?;
-        let name = match self.peek()?.symbol.clone() {
+        let next = self.next()?;
+        let name = match next.symbol {
             Symbol::Identifier(name) => Ok(self.strings.get_or_intern(name)),
             _ => Err(ParseError::ExpectedIdentifier(self.peek()?.clone())),
         }?;
-        self.next()?;
 
         self.consume(Symbol::LeftParen)?;
         let params: Vec<Sym> = if self.peek()?.symbol != Symbol::RightParen {
@@ -174,6 +194,7 @@ impl Parser {
         }?;
 
         self.consume(Symbol::Identifier(name.clone()))?;
+
         self.consume(Symbol::Equal)?;
 
         let expr = self.parse_expression(Precedence::None)?;
@@ -188,11 +209,11 @@ impl Parser {
     fn parse_print_statement(&mut self) -> Result<Stmt, ParseError> {
         self.consume(Symbol::Print)?;
         self.consume(Symbol::LeftParen)?;
-        let expr = self.parse_expression(Precedence::None)?;
+        let expr_list = self.parse_expression_list()?;
         self.consume(Symbol::RightParen)?;
         self.consume(Symbol::Semicolon)?;
 
-        Ok(Stmt::Print(Box::new(expr)))
+        Ok(Stmt::Print(expr_list))
     }
 
     fn parse_return_statement(&mut self) -> Result<Stmt, ParseError> {
@@ -269,17 +290,17 @@ impl Parser {
             let arr = self.parse_expression(Precedence::None)?;
             let len = Expr::Call(
                 Box::new(Expr::Variable(self.strings.get_or_intern("len"))),
-                vec![
-                    Expr::Variable(self.strings.get_or_intern("$r$"))
-                ],
+                vec![Expr::Variable(
+                    self.strings.get_or_intern(format!("$r{}$", name)),
+                )],
             );
 
             let body = self.parse_block_statement()?;
 
-            let index_sym = self.strings.get_or_intern("$i$");
+            let index_sym = self.strings.get_or_intern(format!("$i{}$", name));
             let index_assign = Stmt::Assign(index_sym, Box::new(Expr::Number(Distance::from(0.0))));
 
-            let range_sym = self.strings.get_or_intern("$r$");
+            let range_sym = self.strings.get_or_intern(format!("$r{}$", name));
             let range_assign = Stmt::Assign(range_sym, Box::new(arr.clone()));
 
             let element_sym = self.strings.get_or_intern(name);
@@ -325,7 +346,7 @@ impl Parser {
 
         let mut statements = Vec::new();
         while self.peek()?.symbol != Symbol::RightBrace && self.peek()?.symbol != Symbol::Eof {
-            statements.push(self.parse_statement()?);
+            statements.push(self.parse_declaration()?);
         }
 
         self.consume(Symbol::RightBrace)?;
@@ -368,6 +389,7 @@ impl Parser {
                 Symbol::And | Symbol::Or => parser.parse_logical(left),
                 Symbol::LeftSquare => parser.parse_index(left),
                 Symbol::LeftParen => parser.parse_call(left),
+                Symbol::Dot => parser.parse_dot(left),
 
                 _ => Err(ParseError::UnexpectedOperator(parser.peek()?.clone())),
             }
@@ -528,6 +550,24 @@ impl Parser {
         let args = self.parse_expression_list()?;
         self.consume(Symbol::RightParen)?;
         Ok(Expr::Call(Box::new(left), args))
+    }
+
+    fn parse_dot(&mut self, left: Expr) -> Result<Expr, ParseError> {
+        self.consume(Symbol::Dot)?;
+        let next = self.next()?;
+        let sym = match next.symbol {
+            Symbol::Identifier(s) => self.strings.get_or_intern(s),
+            _ => return Err(ParseError::ExpectedIdentifier(next.clone())),
+        };
+
+        match self.peek()?.symbol {
+            Symbol::Equal => {
+                self.consume(Symbol::Equal)?;
+                let right = self.parse_expression(Precedence::None)?;
+                Ok(Expr::Set(Box::new(left), sym, Box::new(right)))
+            }
+            _ => Ok(Expr::Get(Box::new(left), sym)),
+        }
     }
 
     fn parse_primary(&mut self) -> Result<Expr, ParseError> {

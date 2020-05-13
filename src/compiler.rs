@@ -3,11 +3,12 @@ use crate::ast::Stmt;
 use crate::chunk::Chunk;
 use crate::chunk::ConstantIndex;
 use crate::chunk::Instruction;
+use crate::class::ConstantClass;
 use crate::constant::Constant;
+use crate::distance::Distance;
 use crate::error::CompileError;
 use crate::function::Function;
 use crate::local::Locals;
-use crate::memory::Distance;
 use crate::tokens::Symbol;
 use crate::tokens::Token;
 use string_interner::StringInterner;
@@ -44,7 +45,6 @@ impl CompilerContext {
             if local.is_initialized {
                 Ok(Some(local.slot))
             } else {
-                println!("depth... {}", self.locals.depth);
                 Err(CompileError::VariableNotInitialized)
             }
         } else {
@@ -135,8 +135,8 @@ impl Compiler {
 
     fn compile_statement(&mut self, statement: &Stmt) -> Result<(), CompileError> {
         match statement {
-            Stmt::Expression(ref expr) => self.compile_expression(expr),
-            Stmt::Print(ref expr) => self.compile_print(expr),
+            Stmt::Expression(ref expr) => self.compile_expression_statement(expr),
+            Stmt::Print(ref expr_list) => self.compile_print(expr_list),
             Stmt::Return(ref expr) => self.compile_return(expr),
             Stmt::Assign(ref sym, ref expr) => self.compile_assign(sym, expr),
             Stmt::Block(ref statements) => self.compile_block(statements),
@@ -145,8 +145,15 @@ impl Compiler {
             Stmt::Function(ref sym, ref params, ref body) => {
                 self.compile_function(sym, params, body)
             }
+            Stmt::Class(ref sym, ref methods) => self.compile_class(sym, methods),
         }?;
 
+        Ok(())
+    }
+
+    fn compile_expression_statement(&mut self, expr: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(expr)?;
+        self.add_instruction(Instruction::Pop);
         Ok(())
     }
 
@@ -167,13 +174,15 @@ impl Compiler {
             Expr::Pair(ref left, ref right) => self.compile_pair(left, right),
             Expr::Unary(ref op, ref right) => self.compile_unary(op, right),
             Expr::Call(ref callee, ref arguments) => self.compile_call(callee, arguments),
+            Expr::Get(ref left, ref sym) => self.compile_get(left, sym),
+            Expr::Set(ref left, ref sym, ref right) => self.compile_set(left, sym, right),
         }?;
 
         Ok(())
     }
 
     fn compile_number(&mut self, distance: &Distance) -> Result<(), CompileError> {
-        let constant = self.add_constant(Constant::from(distance));
+        let constant = self.add_constant(Constant::from(Into::<f64>::into(distance)));
         self.add_instruction(Instruction::Constant(constant));
         Ok(())
     }
@@ -199,7 +208,6 @@ impl Compiler {
     }
 
     fn compile_variable(&mut self, sym: &Sym) -> Result<(), CompileError> {
-        // if local :-
         if let Some(local) = self.resolve_local(sym)? {
             self.add_instruction(Instruction::GetLocal(local));
         } else {
@@ -220,7 +228,6 @@ impl Compiler {
     }
 
     fn compile_index(&mut self, left: &Expr, right: &Expr) -> Result<(), CompileError> {
-        println!("In Compile Index");
         match left {
             Expr::Variable(_) => self.compile_expression(left)?,
             Expr::Slice(_, _, _) => {
@@ -254,7 +261,6 @@ impl Compiler {
             _ => return Err(CompileError::UnexpectedExpression),
         };
 
-        println!("Out Compile Index");
         Ok(())
     }
 
@@ -308,7 +314,9 @@ impl Compiler {
         self.compile_expression(left)?;
         self.compile_expression(right)?;
 
-        match op.symbol {
+        let sym = &op.symbol;
+
+        match sym {
             Symbol::Plus => self.add_instruction(Instruction::Add),
             Symbol::Minus => self.add_instruction(Instruction::Subtract),
             Symbol::Star => self.add_instruction(Instruction::Multiply),
@@ -321,7 +329,7 @@ impl Compiler {
             Symbol::GreaterEqual => self.add_instruction(Instruction::GreaterEqual),
             Symbol::NotEqual => self.add_instruction(Instruction::NotEqual),
             Symbol::EqualEqual => self.add_instruction(Instruction::EqualEqual),
-            _ => return Err(CompileError::UnexpectedBinaryOperator(op.clone())),
+            _ => unreachable!(),
         };
 
         Ok(())
@@ -336,7 +344,7 @@ impl Compiler {
         match op.symbol {
             Symbol::And => self.compile_and(left, right),
             Symbol::Or => self.compile_or(left, right),
-            _ => Err(CompileError::UnexpectedLogicalOperator(op.clone())),
+            _ => unreachable!(),
         }
     }
 
@@ -389,7 +397,7 @@ impl Compiler {
         match op.symbol {
             Symbol::Not => self.add_instruction(Instruction::Not),
             Symbol::Minus => self.add_instruction(Instruction::Negate),
-            _ => return Err(CompileError::UnexpectedUnaryOperator(op.clone())),
+            _ => unreachable!(),
         };
         Ok(())
     }
@@ -403,9 +411,28 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_print(&mut self, expr: &Expr) -> Result<(), CompileError> {
-        self.compile_expression(expr)?;
-        self.add_instruction(Instruction::Print);
+    fn compile_get(&mut self, left: &Expr, sym: &Sym) -> Result<(), CompileError> {
+        self.compile_expression(left)?;
+        let constant = self.add_constant(Constant::from(sym));
+        self.add_instruction(Instruction::GetProperty(constant));
+        Ok(())
+    }
+
+    fn compile_set(&mut self, left: &Expr, sym: &Sym, right: &Expr) -> Result<(), CompileError> {
+        self.compile_expression(left)?;
+        self.compile_expression(right)?;
+
+        let constant = self.add_constant(Constant::from(sym));
+        self.add_instruction(Instruction::SetProperty(constant));
+
+        Ok(())
+    }
+
+    fn compile_print(&mut self, expr_list: &[Expr]) -> Result<(), CompileError> {
+        for expr in expr_list {
+            self.compile_expression(expr)?;
+        }
+        self.add_instruction(Instruction::Print(expr_list.len()));
         Ok(())
     }
 
@@ -486,6 +513,7 @@ impl Compiler {
 
         let exit_jump = self.add_instruction(Instruction::JumpIfFalse(0));
         self.add_instruction(Instruction::Pop);
+
         self.compile_statement(body)?;
 
         let loop_jump = self.add_instruction(Instruction::Jump(0));
@@ -545,6 +573,24 @@ impl Compiler {
         self.add_instruction(Instruction::Function(constant));
 
         self.define_variable(sym);
+        Ok(())
+    }
+
+    fn compile_class(&mut self, sym: &Sym, methods: &[Stmt]) -> Result<(), CompileError> {
+        self.declare_variable(sym);
+        let constant = self.add_constant(Constant::Class(ConstantClass { name: *sym }));
+        self.add_instruction(Instruction::Class(constant));
+        self.define_variable(sym);
+
+        // println!("methods: {:?}", methods);
+        // self.compile_variable(sym)?;
+
+        // self.begin_scope();
+        // for method in methods {
+        //     self.compile_statement(method)?;
+        //     self.add_instruction(Instruction::Method);
+        // }
+        // self.end_scope();
 
         Ok(())
     }

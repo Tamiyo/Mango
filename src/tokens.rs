@@ -1,4 +1,4 @@
-use crate::memory::Distance;
+use crate::distance::Distance;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Symbol {
@@ -34,7 +34,7 @@ pub enum Symbol {
     Number(Distance),
     // Keywords.
     And,
-    Struct,
+    Class,
     Elif,
     Else,
     False,

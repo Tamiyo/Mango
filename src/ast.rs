@@ -1,4 +1,4 @@
-use crate::memory::Distance;
+use crate::distance::Distance;
 use crate::tokens::Token;
 use string_interner::Sym;
 
@@ -19,15 +19,19 @@ pub enum Expr {
     Grouping(Box<Expr>),
     Unary(Token, Box<Expr>),
     Call(Box<Expr>, Vec<Expr>),
+    Get(Box<Expr>, Sym),
+    Set(Box<Expr>, Sym, Box<Expr>),
 }
+
 #[derive(Debug, PartialEq)]
 pub enum Stmt {
     Expression(Box<Expr>),
-    Print(Box<Expr>),
+    Print(Vec<Expr>),
     Return(Option<Box<Expr>>),
     Assign(Sym, Box<Expr>),
     Block(Vec<Stmt>),
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
     While(Box<Expr>, Box<Stmt>),
     Function(Sym, Vec<Sym>, Vec<Stmt>),
+    Class(Sym, Vec<Stmt>),
 }

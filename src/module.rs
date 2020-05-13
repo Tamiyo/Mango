@@ -1,9 +1,8 @@
 use crate::chunk::Chunk;
 use crate::chunk::ChunkIndex;
 use crate::chunk::ConstantIndex;
-use crate::chunk::Instruction;
 use crate::constant::Constant;
-use crate::memory::ConstantPool;
+use std::collections::HashMap;
 use string_interner::StringInterner;
 use string_interner::Sym;
 #[derive(Debug, Clone)]
@@ -43,7 +42,36 @@ impl Module {
         self.strings.get_or_intern(name)
     }
 
-    pub fn constants(&self) -> &ConstantPool {
-        &self.constants
+    pub fn get_constant(&self, index: usize) -> &Constant {
+        self.constants.get(index)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ConstantPool {
+    pub pool: Vec<Constant>,
+    pub cache: HashMap<Constant, usize>,
+}
+
+impl ConstantPool {
+    pub fn new() -> Self {
+        ConstantPool {
+            pool: vec![],
+            cache: HashMap::<Constant, usize>::new(),
+        }
+    }
+
+    pub fn add(&mut self, constant: Constant) -> usize {
+        if self.cache.contains_key(&constant) {
+            *self.cache.get(&constant).unwrap()
+        } else {
+            self.cache.insert(constant.clone(), self.pool.len());
+            self.pool.push(constant);
+            self.pool.len() - 1
+        }
+    }
+
+    pub fn get(&self, constant_index: usize) -> &Constant {
+        &self.pool[constant_index]
     }
 }

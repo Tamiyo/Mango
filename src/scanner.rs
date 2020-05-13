@@ -1,4 +1,4 @@
-use crate::memory::Distance;
+use crate::distance::Distance;
 use crate::tokens::Symbol;
 use crate::tokens::Token;
 use std::iter::Peekable;
@@ -74,11 +74,10 @@ impl<'a> Scanner<'a> {
             result.push_str(decimal.as_str());
         }
 
-        Symbol::Number(Distance::from(
-            result
-                .parse::<f64>()
-                .expect("expected f64 parse conversion"),
-        ))
+        let res_f = result
+            .parse::<f64>()
+            .expect("expected f64 parse conversion");
+        Symbol::Number(Distance::from(res_f))
     }
 
     fn string(&mut self, delim: char) -> Symbol {
@@ -165,7 +164,7 @@ impl<'a> Scanner<'a> {
                 ':' => Symbol::Colon,
                 ';' => Symbol::Semicolon,
                 '#' => Symbol::Fun,
-                '@' => Symbol::Struct,
+                '@' => Symbol::Class,
                 '$' => Symbol::Var,
                 x if x.is_numeric() => self.number(x),
                 x if x.is_alphabetic() => self.identifier(x),
@@ -244,7 +243,7 @@ mod tests {
         );
         assert_eq!(tokenize("and"), [Symbol::And, Symbol::Eof]);
         assert_eq!(tokenize("#"), [Symbol::Fun, Symbol::Eof]);
-        assert_eq!(tokenize("@"), [Symbol::Struct, Symbol::Eof]);
+        assert_eq!(tokenize("@"), [Symbol::Class, Symbol::Eof]);
         assert_eq!(tokenize("elif"), [Symbol::Elif, Symbol::Eof]);
         assert_eq!(tokenize("else"), [Symbol::Else, Symbol::Eof]);
         assert_eq!(tokenize("false"), [Symbol::False, Symbol::Eof]);

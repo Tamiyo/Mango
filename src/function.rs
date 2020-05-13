@@ -1,6 +1,6 @@
 use crate::chunk::ChunkIndex;
-use crate::constant::Constant;
 use crate::error::RuntimeError;
+use crate::memory::Value;
 use std::hash::Hash;
 use std::hash::Hasher;
 use string_interner::Sym;
@@ -16,7 +16,7 @@ pub struct Function {
 pub struct NativeFunction {
     pub sym: Sym,
     pub arity: usize,
-    pub code: fn(&[Constant]) -> Result<Constant, RuntimeError>,
+    pub code: fn(&[Value]) -> Result<Value, RuntimeError>,
 }
 
 impl std::fmt::Debug for NativeFunction {
