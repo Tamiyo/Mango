@@ -1,25 +1,27 @@
+use crate::class::Class;
 use crate::class::Instance;
-use crate::class::VMClass;
 use crate::function::Function;
 use crate::function::NativeFunction;
+use crate::managed::Managed;
 use core::cell::RefCell;
 use string_interner::Sym;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum Value {
+    // Primitives
     Number(f64),
     String(Sym),
     Boolean(bool),
     None,
 
-    // Data Structure Constants
-    Array(Vec<Value>),
+    // Data Structures
+    Array(Managed<Vec<Value>>),
 
-    // Non-Primitive Constants
-    Function(Function),
-    NativeFunction(NativeFunction),
-    Class(RefCell<VMClass>),
-    Instance(RefCell<Instance>),
+    // Objects
+    Function(Managed<Function>),
+    NativeFunction(Managed<NativeFunction>),
+    Class(Managed<RefCell<Class>>),
+    Instance(Managed<RefCell<Instance>>),
 }
 
 impl PartialEq<Value> for Value {
@@ -35,29 +37,5 @@ impl PartialEq<Value> for Value {
             (Value::Instance(a), Value::Instance(b)) => a == b,
             _ => false,
         }
-    }
-}
-
-impl From<f64> for Value {
-    fn from(item: f64) -> Self {
-        Value::Number(item)
-    }
-}
-
-impl From<Sym> for Value {
-    fn from(item: Sym) -> Self {
-        Value::String(item)
-    }
-}
-
-impl From<bool> for Value {
-    fn from(item: bool) -> Self {
-        Value::Boolean(item)
-    }
-}
-
-impl From<Vec<Value>> for Value {
-    fn from(item: Vec<Value>) -> Self {
-        Value::Array(item)
     }
 }

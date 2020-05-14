@@ -5,6 +5,7 @@ use crate::constant::Constant;
 use std::collections::HashMap;
 use string_interner::StringInterner;
 use string_interner::Sym;
+
 #[derive(Debug, Clone)]
 pub struct Module {
     pub chunks: Vec<Chunk>,

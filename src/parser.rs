@@ -7,6 +7,7 @@ use crate::tokens::Symbol;
 use crate::tokens::Token;
 use string_interner::StringInterner;
 use string_interner::Sym;
+
 #[derive(Debug, PartialEq, PartialOrd)]
 enum Precedence {
     None,

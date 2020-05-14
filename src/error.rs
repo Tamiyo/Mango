@@ -8,12 +8,14 @@ pub enum ParseError {
     ExpectedLiteral(Token),
     TokenStreamEmpty,
 }
+
 #[derive(Debug)]
 pub enum CompileError {
     VariableNotInitialized,
     UnexpectedExpression,
     ReturnInScript,
 }
+
 #[derive(Debug)]
 pub enum RuntimeError {
     StackEmpty,

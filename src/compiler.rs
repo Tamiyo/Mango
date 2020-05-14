@@ -25,16 +25,14 @@ pub enum ContextType {
 #[derive(Debug)]
 pub struct CompilerContext {
     pub context_type: ContextType,
-    pub enclosing: isize,
     pub chunk_index: usize,
     pub locals: Locals,
 }
 
 impl CompilerContext {
-    pub fn new(context_type: ContextType, enclosing: isize, chunk_index: usize) -> Self {
+    pub fn new(context_type: ContextType, chunk_index: usize) -> Self {
         CompilerContext {
             context_type,
-            enclosing,
             chunk_index,
             locals: Locals::new(),
         }
@@ -65,7 +63,7 @@ impl Compiler {
         let chunk_index = module.add_chunk();
 
         let mut contexts: Vec<CompilerContext> = vec![];
-        contexts.push(CompilerContext::new(ContextType::Script, -1, chunk_index));
+        contexts.push(CompilerContext::new(ContextType::Script, chunk_index));
 
         Compiler { module, contexts }
     }
@@ -109,7 +107,7 @@ impl Compiler {
 
     fn end_scope(&mut self) {
         let locals = self.current_context_mut().locals.leave_scope();
-        for local in locals.iter().rev() {
+        for _ in locals.iter().rev() {
             self.add_instruction(Instruction::Pop);
         }
     }
@@ -536,13 +534,9 @@ impl Compiler {
             self.current_context_mut().locals.mark_initialized();
         }
 
-        let enclosing = self.current_context().chunk_index as isize;
         let chunk_index = self.module.add_chunk();
-        self.contexts.push(CompilerContext::new(
-            ContextType::Function,
-            enclosing,
-            chunk_index,
-        ));
+        self.contexts
+            .push(CompilerContext::new(ContextType::Function, chunk_index));
 
         self.begin_scope();
 
@@ -582,15 +576,14 @@ impl Compiler {
         self.add_instruction(Instruction::Class(constant));
         self.define_variable(sym);
 
-        // println!("methods: {:?}", methods);
-        // self.compile_variable(sym)?;
+        self.compile_variable(sym)?;
 
-        // self.begin_scope();
-        // for method in methods {
-        //     self.compile_statement(method)?;
-        //     self.add_instruction(Instruction::Method);
-        // }
-        // self.end_scope();
+        self.begin_scope();
+        for method in methods {
+            self.compile_statement(method)?;
+            self.add_instruction(Instruction::Method);
+        }
+        self.end_scope();
 
         Ok(())
     }

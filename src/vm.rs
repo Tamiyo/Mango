@@ -1,10 +1,12 @@
 use crate::chunk::Instruction;
+use crate::class::Class;
 use crate::class::Instance;
-use crate::class::VMClass;
 use crate::constant::Constant;
 use crate::error::RuntimeError;
 use crate::function::Function;
 use crate::function::NativeFunction;
+use crate::managed::make_managed;
+use crate::managed::Managed;
 use crate::memory::Value;
 use crate::module::Module;
 use std::cell::RefCell;
@@ -17,9 +19,9 @@ pub enum InterpreterResult {
     Done,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct CallFrame {
-    function: Function,
+    function: Managed<Function>,
     ip: usize,
     base_counter: usize,
     chunk_index: usize,
@@ -50,14 +52,11 @@ impl<'a> VM<'a> {
         code: fn(&[Value]) -> Result<Value, RuntimeError>,
     ) {
         let sym = self.module.strings.get_or_intern(identifier.to_string());
-        let native_function = NativeFunction {
-            sym: sym,
+        let native_function = make_managed(NativeFunction {
+            name: sym,
             arity: arity,
             code: code,
-        };
-
-        // self.globals
-        //     .insert(sym, Value::NativeFunction(manage(native_function)));
+        });
 
         self.globals
             .insert(sym, Value::NativeFunction(native_function));
@@ -71,14 +70,13 @@ impl<'a> VM<'a> {
         };
 
         self.frames.push(CallFrame {
-            function: function,
+            function: make_managed(function),
             ip: 0,
             base_counter: 0,
             chunk_index: 0,
         });
 
         while self._interpret()? == InterpreterResult::More {}
-        println!("stack: {:?}", self.stack);
         Ok(())
     }
 
@@ -89,6 +87,9 @@ impl<'a> VM<'a> {
             let frame = self.current_frame();
             self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1].clone()
         };
+
+        println!("instruction: {:?}", instruction);
+
         match instruction {
             Instruction::Constant(index) => {
                 let constant = self.module.constants.get(index).clone();
@@ -99,11 +100,11 @@ impl<'a> VM<'a> {
                     Constant::Class(_) => (),
                 };
             }
-            Instruction::True => self.stack.push(Value::Boolean(true)),
-            Instruction::False => self.stack.push(Value::Boolean(false)),
-            Instruction::None => self.stack.push(Value::None),
+            Instruction::True => self.push(Value::Boolean(true)),
+            Instruction::False => self.push(Value::Boolean(false)),
+            Instruction::None => self.push(Value::None),
             Instruction::Add => match (self.pop()?, self.pop()?) {
-                (Value::Number(n1), Value::Number(n2)) => self.push(Value::from(n1 + n2)),
+                (Value::Number(n1), Value::Number(n2)) => self.push(Value::Number(n1 + n2)),
                 (Value::String(n1), Value::String(n2)) => {
                     let mut str1 = self
                         .module
@@ -131,44 +132,44 @@ impl<'a> VM<'a> {
                 }
                 (Value::Array(e2), Value::Array(e1)) => {
                     let v = [&e1[..], &e2[..]].concat();
-                    self.push(Value::Array(v));
+                    self.push(Value::Array(make_managed(v)));
                 }
                 (n1, n2) => panic!(format!("Add not implemented for '{:?}' and '{:?}'", n1, n2)),
             },
             Instruction::Subtract => match (self.pop()?, self.pop()?) {
-                (Value::Number(n1), Value::Number(n2)) => self.push(Value::from(n2 - n1)),
+                (Value::Number(n1), Value::Number(n2)) => self.push(Value::Number(n2 - n1)),
                 (n1, n2) => panic!(format!(
                     "Subtract not implemented for '{:?}' and '{:?}'",
                     n1, n2
                 )),
             },
             Instruction::Negate => match self.pop()? {
-                Value::Number(n) => self.push(Value::from(-1.0 * n)),
+                Value::Number(n) => self.push(Value::Number(-1.0 * n)),
                 n => panic!(format!("Negate not implemented for '{:?}''", n)),
             },
             Instruction::Multiply => match (self.pop()?, self.pop()?) {
-                (Value::Number(n1), Value::Number(n2)) => self.push(Value::from(n2 * n1)),
+                (Value::Number(n1), Value::Number(n2)) => self.push(Value::Number(n2 * n1)),
                 (n1, n2) => panic!(format!(
                     "Multiply not implemented for '{:?}' and '{:?}'",
                     n1, n2
                 )),
             },
             Instruction::Divide => match (self.pop()?, self.pop()?) {
-                (Value::Number(n1), Value::Number(n2)) => self.push(Value::from(n2 / n1)),
+                (Value::Number(n1), Value::Number(n2)) => self.push(Value::Number(n2 / n1)),
                 (n1, n2) => panic!(format!(
                     "Divide not implemented for '{:?}' and '{:?}'",
                     n1, n2
                 )),
             },
             Instruction::Modulo => match (self.pop()?, self.pop()?) {
-                (Value::Number(n1), Value::Number(n2)) => self.push(Value::from(n2 % n1)),
+                (Value::Number(n1), Value::Number(n2)) => self.push(Value::Number(n2 % n1)),
                 (n1, n2) => panic!(format!(
                     "Modulo not implemented for '{:?}' and '{:?}'",
                     n1, n2
                 )),
             },
             Instruction::Pow => match (self.pop()?, self.pop()?) {
-                (Value::Number(n1), Value::Number(n2)) => self.push(Value::from(f64::powf(
+                (Value::Number(n1), Value::Number(n2)) => self.push(Value::Number(f64::powf(
                     Into::<f64>::into(n2),
                     Into::<f64>::into(n1),
                 ))),
@@ -268,24 +269,22 @@ impl<'a> VM<'a> {
                 self.stack[index] = value;
             }
             Instruction::Call(arity) => {
-                let a = arity;
-                self.call(a)?;
+                self.call(arity)?;
             }
             Instruction::Function(index) => {
                 let module = &self.module;
                 if let Constant::Function(function) = module.constants.get(index) {
-                    let constant = Value::Function(function.clone());
-                    // let constant = Value::Function(manage(function.clone()));
+                    let constant = Value::Function(make_managed(function.clone()));
                     self.push(constant);
                 }
             }
             Instruction::Class(index) => {
                 if let Constant::Class(class) = self.module.constants.get(index) {
-                    let class = VMClass {
+                    let class = Class {
                         name: class.name.clone(),
                         methods: HashMap::new(),
                     };
-                    self.push(Value::Class(RefCell::new(class)));
+                    self.push(Value::Class(make_managed(RefCell::new(class))));
                 } else {
                     return Err(RuntimeError::UnexpectedConstant);
                 }
@@ -321,36 +320,7 @@ impl<'a> VM<'a> {
                     return Err(RuntimeError::UnexpectedConstant);
                 }
             }
-            Instruction::Method => {
-                // let peek = self.peek()?.clone();
-                // let next_mut = self.peek_n_mut(1)?;
-
-                // match next_mut {
-                //     Value::Class(class) => match &peek {
-                //         Value::Function(function) => {
-                //             let name = function.name;
-                //             class.methods.insert(name, peek.clone());
-                //             self.pop()?;
-                //         }
-                //         _ => return Err(RuntimeError::ExpectedCallee),
-                //     },
-                //     _ => return Err(RuntimeError::ExpectedClass),
-                // }
-                if let Value::Function(function) = self.peek()? {
-                    if let Value::Class(class) = self.peek_n(1)? {
-                        let name = function.name;
-                        class
-                            .borrow_mut()
-                            .methods
-                            .insert(name, Value::Function(function.clone()));
-                        self.pop()?;
-                    } else {
-                        return Err(RuntimeError::ExpectedClass);
-                    }
-                } else {
-                    return Err(RuntimeError::ExpectedCallee);
-                }
-            }
+            Instruction::Method => {}
             Instruction::Pop => {
                 self.pop()?;
             }
@@ -360,7 +330,7 @@ impl<'a> VM<'a> {
                     elements.push(self.pop()?);
                 }
                 elements.reverse();
-                self.stack.push(Value::Array(elements))
+                self.push(Value::Array(make_managed(elements)))
             }
             Instruction::Slice => {
                 let step = match self.pop()? {
@@ -382,7 +352,7 @@ impl<'a> VM<'a> {
                 };
 
                 let mut arr: Vec<Value> = match self.pop()? {
-                    Value::Array(elements) => elements,
+                    Value::Array(elements) => (*elements).clone(),
                     _ => return Err(RuntimeError::ExpectedArray),
                 };
 
@@ -413,7 +383,7 @@ impl<'a> VM<'a> {
                         res.push(arr[i].clone());
                     }
                 };
-                self.push(Value::Array(res));
+                self.push(Value::Array(make_managed(res)));
             }
             Instruction::Range => {
                 let step = match self.pop()? {
@@ -441,15 +411,15 @@ impl<'a> VM<'a> {
 
                 if c > 0 {
                     for i in (start..stop).step_by(c as usize) {
-                        res.push(Value::from(i as f64));
+                        res.push(Value::Number(i as f64));
                     }
                 } else {
                     for i in (start..stop).step_by(-c as usize) {
-                        res.push(Value::from(i as f64));
+                        res.push(Value::Number(i as f64));
                     }
                     res.reverse();
                 };
-                self.push(Value::Array(res));
+                self.push(Value::Array(make_managed(res)));
             }
             Instruction::Index => {
                 let index: isize = match self.pop()? {
@@ -591,34 +561,21 @@ impl<'a> VM<'a> {
                     .map(|key| self.module.strings.resolve(*key).expect(""))
                     .collect::<Vec<&str>>()
             )),
-            Value::Instance(instance) => {
-                // println!("stack: {:?}", self.stack);
-                Ok(format!(
-                    "instance of: {}",
-                    self.value_to_string(
-                        &Value::Class(RefCell::clone(&instance.borrow().class)),
-                        true
-                    )?
-                ))
-            }
+            Value::Instance(_) => Ok(format!("instance",)),
         }
     }
 
     fn call(&mut self, arity: usize) -> Result<(), RuntimeError> {
-        let callee = self.peek_n(arity)?.clone();
+        let callee = *self.peek_n(arity)?;
         match callee {
-            Value::Function(c) => {
-                // let callee = (*c).deref();
-                let callee = c;
+            Value::Function(callee) => {
                 if callee.arity != arity {
                     return Err(RuntimeError::IncorrectArity);
                 }
-                let c = callee.clone();
-                self.begin_frame(c);
+                self.begin_frame(callee);
             }
-            Value::NativeFunction(c) => {
-                // let callee = (*c).deref();
-                let callee = c;
+            Value::NativeFunction(callee) => {
+                println!("arity: {:?} ; callee: {:?}", arity, (*callee).arity);
                 if callee.arity != arity {
                     return Err(RuntimeError::IncorrectArity);
                 }
@@ -639,14 +596,14 @@ impl<'a> VM<'a> {
                     fields: HashMap::new(),
                 };
 
-                self.push(Value::Instance(RefCell::new(instance)));
+                self.push(Value::Instance(make_managed(RefCell::new(instance))));
             }
             _ => return Err(RuntimeError::ExpectedCallee),
         }
         Ok(())
     }
 
-    fn begin_frame(&mut self, function: Function) {
+    fn begin_frame(&mut self, function: Managed<Function>) {
         let arity = function.arity;
         let index = function.chunk_index;
         self.frames.push(CallFrame {

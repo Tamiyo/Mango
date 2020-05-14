@@ -2,7 +2,8 @@ pub type ChunkIndex = usize;
 pub type InstructionIndex = usize;
 pub type StackIndex = usize;
 pub type ConstantIndex = usize;
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Copy, Clone)]
 pub enum Instruction {
     Constant(ConstantIndex),
     True,
@@ -53,6 +54,7 @@ pub enum Instruction {
     Print(usize),
     Return,
 }
+
 #[derive(Debug, Clone)]
 pub struct Chunk {
     pub instructions: Vec<Instruction>,
