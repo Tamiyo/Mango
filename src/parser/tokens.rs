@@ -1,4 +1,4 @@
-use crate::distance::Distance;
+use crate::bytecode::distance::Distance;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Symbol {

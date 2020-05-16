@@ -2,7 +2,7 @@ use std::cmp;
 use std::ops;
 
 // This is a more efficient version of hashing a float value
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
 pub struct Distance {
     mantissa: u64,
     exponent: i16,

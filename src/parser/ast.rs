@@ -1,5 +1,5 @@
-use crate::distance::Distance;
-use crate::tokens::Token;
+use crate::bytecode::distance::Distance;
+use crate::parser::tokens::Token;
 use string_interner::Sym;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -21,6 +21,7 @@ pub enum Expr {
     Call(Box<Expr>, Vec<Expr>),
     Get(Box<Expr>, Sym),
     Set(Box<Expr>, Sym, Box<Expr>),
+    My(Sym),
 }
 
 #[derive(Debug, PartialEq)]

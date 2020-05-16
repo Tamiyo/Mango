@@ -1,6 +1,6 @@
-use crate::distance::Distance;
-use crate::tokens::Symbol;
-use crate::tokens::Token;
+use crate::bytecode::distance::Distance;
+use crate::parser::tokens::Symbol;
+use crate::parser::tokens::Token;
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -49,15 +49,30 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    fn whitespace(&mut self) {
+    fn whitespace(&mut self) -> Option<Symbol> {
         while let Some(ch) = self.it.peek() {
             match ch {
                 '\n' | '\r' | '\t' | ' ' => {
                     self.it.next();
                 }
+                '/' => {
+                    self.it.next();
+                    if *self.it.peek().unwrap() == '/' {
+                        while let Some(ch) = self.it.peek() {
+                            match ch {
+                                '\n' => break,
+                                _ => self.it.next(),
+                            };
+                        }
+                    } else {
+                        return Some(Symbol::Slash);
+                    }
+                }
                 _ => break,
             }
         }
+
+        None
     }
 
     fn number(&mut self, x: char) -> Symbol {
@@ -127,7 +142,13 @@ impl<'a> Scanner<'a> {
         let mut tokens: Vec<Token> = Vec::new();
 
         loop {
-            self.whitespace();
+            match self.whitespace() {
+                Some(symbol) => {
+                    tokens.push(Token::new(symbol, self.line, self.column));
+                    self.whitespace();
+                }
+                None => (),
+            };
 
             let ch = match self.it.next() {
                 Some(ch) => {
@@ -169,21 +190,31 @@ impl<'a> Scanner<'a> {
                 x if x.is_numeric() => self.number(x),
                 x if x.is_alphabetic() => self.identifier(x),
                 '\'' | '"' => self.string(ch),
-                _ => break,
+                _ => {
+                    println!("Broke on: {:?}", ch);
+                    break;
+                }
             };
 
             tokens.push(Token::new(result, self.line, self.column));
         }
         tokens.push(Token::new(Symbol::Eof, self.line, self.column));
+        println!(
+            "tokens: {:?}\n",
+            tokens
+                .iter()
+                .map(|t| t.symbol.clone())
+                .collect::<Vec<Symbol>>()
+        );
         tokens
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Distance;
     use super::Scanner;
-    use super::Symbol;
+    use crate::bytecode::distance::Distance;
+    use crate::parser::tokens::Symbol;
 
     fn tokenize(buf: &str) -> Vec<Symbol> {
         let mut scanner = Scanner::new(buf);
@@ -235,11 +266,11 @@ mod tests {
         );
         assert_eq!(
             tokenize("4"),
-            [Symbol::Number(Distance::from(4 as f64)), Symbol::Eof]
+            [Symbol::Number(Distance::from(4.0)), Symbol::Eof]
         );
         assert_eq!(
             tokenize("4.5"),
-            [Symbol::Number(Distance::from(4.5 as f64)), Symbol::Eof]
+            [Symbol::Number(Distance::from(4.5)), Symbol::Eof]
         );
         assert_eq!(tokenize("and"), [Symbol::And, Symbol::Eof]);
         assert_eq!(tokenize("#"), [Symbol::Fun, Symbol::Eof]);

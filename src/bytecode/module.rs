@@ -1,7 +1,7 @@
-use crate::chunk::Chunk;
-use crate::chunk::ChunkIndex;
-use crate::chunk::ConstantIndex;
-use crate::constant::Constant;
+use crate::bytecode::chunk::Chunk;
+use crate::bytecode::chunk::ChunkIndex;
+use crate::bytecode::chunk::ConstantIndex;
+use crate::bytecode::constant::Constant;
 use std::collections::HashMap;
 use string_interner::StringInterner;
 use string_interner::Sym;

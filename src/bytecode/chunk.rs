@@ -32,12 +32,16 @@ pub enum Instruction {
 
     GetGlobal(ConstantIndex),
     GetLocal(StackIndex),
+    GetUpvalue(usize),
 
     SetGlobal(ConstantIndex),
     SetLocal(StackIndex),
+    SetUpvalue(usize),
+
+    CloseUpvalue,
 
     Call(StackIndex),
-    Function(ConstantIndex),
+    Closure(ConstantIndex),
 
     Class(ConstantIndex),
     GetProperty(ConstantIndex),

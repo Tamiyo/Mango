@@ -1,10 +1,10 @@
-use crate::ast::Expr;
-use crate::ast::Stmt;
-use crate::distance::Distance;
-use crate::error::ParseError;
-use crate::scanner::Scanner;
-use crate::tokens::Symbol;
-use crate::tokens::Token;
+use crate::bytecode::distance::Distance;
+use crate::parser::ast::Expr;
+use crate::parser::ast::Stmt;
+use crate::parser::error::ParseError;
+use crate::parser::scanner::Scanner;
+use crate::parser::tokens::Symbol;
+use crate::parser::tokens::Token;
 use string_interner::StringInterner;
 use string_interner::Sym;
 
@@ -302,7 +302,7 @@ impl Parser {
             let index_assign = Stmt::Assign(index_sym, Box::new(Expr::Number(Distance::from(0.0))));
 
             let range_sym = self.strings.get_or_intern(format!("$r{}$", name));
-            let range_assign = Stmt::Assign(range_sym, Box::new(arr.clone()));
+            let range_assign = Stmt::Assign(range_sym, Box::new(arr));
 
             let element_sym = self.strings.get_or_intern(name);
             let element_index = Expr::Index(
@@ -582,6 +582,7 @@ impl Parser {
             Symbol::True => Ok(Expr::Boolean(true)),
             Symbol::False => Ok(Expr::Boolean(false)),
             Symbol::Identifier(s) => Ok(Expr::Variable(self.strings.get_or_intern(s))),
+            Symbol::My => Ok(Expr::My(self.strings.get_or_intern("my"))),
             Symbol::LeftSquare => self.parse_multi_select_list(),
             _ => Err(ParseError::ExpectedLiteral(token.clone())),
         }

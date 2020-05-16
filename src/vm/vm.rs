@@ -1,14 +1,17 @@
-use crate::chunk::Instruction;
-use crate::class::Class;
-use crate::class::Instance;
-use crate::constant::Constant;
-use crate::error::RuntimeError;
-use crate::function::Function;
-use crate::function::NativeFunction;
-use crate::managed::make_managed;
-use crate::managed::Managed;
-use crate::memory::Value;
-use crate::module::Module;
+use crate::bytecode::chunk::Instruction;
+use crate::bytecode::constant::Constant;
+use crate::bytecode::module::Module;
+use crate::vm::class::BoundMethod;
+use crate::vm::class::Class;
+use crate::vm::class::Instance;
+use crate::vm::error::RuntimeError;
+use crate::vm::function::Closure;
+use crate::vm::function::Function;
+use crate::vm::function::NativeFunction;
+use crate::vm::gc;
+use crate::vm::managed::Managed;
+use crate::vm::memory::Upvalue;
+use crate::vm::memory::Value;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use string_interner::Sym;
@@ -21,7 +24,7 @@ pub enum InterpreterResult {
 
 #[derive(Debug, Copy, Clone)]
 pub struct CallFrame {
-    function: Managed<Function>,
+    closure: Managed<Closure>,
     ip: usize,
     base_counter: usize,
     chunk_index: usize,
@@ -33,6 +36,7 @@ pub struct VM<'a> {
     frames: Vec<CallFrame>,
     stack: Vec<Value>,
     globals: HashMap<Sym, Value>,
+    upvalues: Vec<Managed<RefCell<Upvalue>>>,
 }
 
 impl<'a> VM<'a> {
@@ -42,35 +46,41 @@ impl<'a> VM<'a> {
             frames: vec![],
             stack: vec![],
             globals: HashMap::new(),
+            upvalues: vec![],
         }
     }
 
+    #[allow(dead_code)]
     pub fn set_native_fn(
         &mut self,
         identifier: &str,
         arity: usize,
         code: fn(&[Value]) -> Result<Value, RuntimeError>,
     ) {
-        let sym = self.module.strings.get_or_intern(identifier.to_string());
-        let native_function = make_managed(NativeFunction {
-            name: sym,
+        let name = self.module.strings.get_or_intern(identifier.to_string());
+        let native = gc::manage(NativeFunction {
+            name: name,
             arity: arity,
             code: code,
         });
 
-        self.globals
-            .insert(sym, Value::NativeFunction(native_function));
+        self.globals.insert(name, Value::NativeFunction(native));
     }
 
     pub fn interpret(&mut self) -> Result<(), RuntimeError> {
         let function = Function {
             arity: 0,
             chunk_index: 0,
-            name: self.module.get_or_intern("$$top$$"),
+            name: self.module.get_or_intern(""),
+        };
+
+        let closure = Closure {
+            function: gc::manage(function),
+            upvalues: vec![],
         };
 
         self.frames.push(CallFrame {
-            function: make_managed(function),
+            closure: gc::manage(closure),
             ip: 0,
             base_counter: 0,
             chunk_index: 0,
@@ -85,18 +95,29 @@ impl<'a> VM<'a> {
 
         let instruction: Instruction = {
             let frame = self.current_frame();
-            self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1].clone()
+            self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
 
-        println!("instruction: {:?}", instruction);
+        // println!("instruction: {:?}", instruction);
+        // println!("stack: {:?}", self.stack);
+        // println!("globals:");
+        // for (key, value) in self.globals.iter() {
+        //     println!("\t{:?}: {:?}", key, value);
+        // }
 
         match instruction {
             Instruction::Constant(index) => {
-                let constant = self.module.constants.get(index).clone();
+                let constant = self.module.constants.get(index);
                 match constant {
-                    Constant::Number(n) => self.push(Value::Number(Into::<f64>::into(n))),
-                    Constant::String(sym) => self.push(Value::String(sym)),
-                    Constant::Function(_) => (),
+                    Constant::Number(dist) => {
+                        let f64_fr_dist = Into::<f64>::into(*dist);
+                        self.push(Value::Number(f64_fr_dist));
+                    }
+                    Constant::String(sym) => {
+                        let string = *sym;
+                        self.push(Value::String(string))
+                    }
+                    Constant::Closure(_) => (),
                     Constant::Class(_) => (),
                 };
             }
@@ -132,7 +153,7 @@ impl<'a> VM<'a> {
                 }
                 (Value::Array(e2), Value::Array(e1)) => {
                     let v = [&e1[..], &e2[..]].concat();
-                    self.push(Value::Array(make_managed(v)));
+                    self.push(Value::Array(gc::manage(v)));
                 }
                 (n1, n2) => panic!(format!("Add not implemented for '{:?}' and '{:?}'", n1, n2)),
             },
@@ -240,10 +261,11 @@ impl<'a> VM<'a> {
             }
             Instruction::GetGlobal(index) => {
                 if let Constant::String(key) = self.module.constants.get(index) {
-                    if let Some(constant) = self.globals.get(key) {
-                        let c = constant.clone();
-                        self.push(c);
+                    let glob_key = self.globals.get(key).cloned();
+                    if let Some(constant) = glob_key {
+                        self.push(constant);
                     } else {
+                        println!("Variable: {:?}", key);
                         return Err(RuntimeError::UndefinedVariable);
                     }
                 } else {
@@ -252,39 +274,93 @@ impl<'a> VM<'a> {
             }
             Instruction::GetLocal(index) => {
                 let index = self.current_frame().base_counter + index;
-                self.push(self.stack[index].clone());
+                self.push(self.stack[index]);
+            }
+            Instruction::GetUpvalue(index) => {
+                let upvalue = self.current_frame().closure.upvalues[index];
+                let value = match *upvalue.borrow() {
+                    Upvalue::Open(index) => self.stack[index],
+                    Upvalue::Closed(value) => value,
+                };
+                self.push(value);
             }
             Instruction::SetGlobal(index) => {
+                let value = *self.peek()?;
                 if let Constant::String(key) = self.module.constants.get(index) {
-                    let _key = key.clone();
-                    let value = self.pop()?;
-                    self.globals.insert(_key, value);
+                    self.globals.insert(*key, value);
+                    self.pop()?;
                 } else {
                     panic!("Expected String Constant!");
                 }
             }
             Instruction::SetLocal(index) => {
                 let index = self.current_frame().base_counter + index;
-                let value = self.peek()?.clone();
+                let value = *self.peek()?;
                 self.stack[index] = value;
+            }
+            Instruction::SetUpvalue(index) => {
+                let value = self.peek()?;
+                let upvalue = self.current_frame().closure.upvalues[index];
+                match &mut *upvalue.borrow_mut() {
+                    Upvalue::Closed(v) => *v = *value,
+                    Upvalue::Open(index) => self.stack[*index] = *value,
+                };
             }
             Instruction::Call(arity) => {
                 self.call(arity)?;
             }
-            Instruction::Function(index) => {
-                let module = &self.module;
-                if let Constant::Function(function) = module.constants.get(index) {
-                    let constant = Value::Function(make_managed(function.clone()));
-                    self.push(constant);
+            Instruction::Closure(index) => {
+                if let Constant::Closure(closure) = self.module.get_constant(index) {
+                    let mut upvalues: Vec<Managed<RefCell<Upvalue>>> = vec![];
+
+                    for u in &closure.upvalues {
+                        if u.is_local {
+                            let frame = &self.frames[self.frames.len() - 1];
+                            let base = frame.base_counter;
+                            let index = base + index;
+
+                            let mut upvalue: Option<Managed<RefCell<Upvalue>>> = None;
+                            for managed in self.upvalues.iter().rev() {
+                                if (*managed).borrow().is_open(index) {
+                                    upvalue = Some(*managed);
+                                }
+                            }
+
+                            match upvalue {
+                                Some(up) => upvalues.push(up),
+                                None => {
+                                    let managed = gc::manage(RefCell::new(Upvalue::Open(index)));
+                                    self.upvalues.push(managed.clone());
+                                    upvalues.push(managed);
+                                }
+                            }
+                        } else {
+                            let frame = self.frames[self.frames.len() - 1];
+                            upvalues.push(frame.closure.upvalues[index]);
+                        }
+                    }
+
+                    let function = gc::manage(Function {
+                        name: closure.function.name,
+                        chunk_index: closure.function.chunk_index,
+                        arity: closure.function.arity,
+                    });
+
+                    let closure = gc::manage(Closure {
+                        function: function,
+                        upvalues: upvalues,
+                    });
+
+                    self.push(Value::Closure(closure));
                 }
             }
             Instruction::Class(index) => {
                 if let Constant::Class(class) = self.module.constants.get(index) {
                     let class = Class {
-                        name: class.name.clone(),
+                        name: class.name,
                         methods: HashMap::new(),
                     };
-                    self.push(Value::Class(make_managed(RefCell::new(class))));
+                    self.push(Value::Class(gc::manage(RefCell::new(class))));
                 } else {
                     return Err(RuntimeError::UnexpectedConstant);
                 }
@@ -293,7 +369,16 @@ impl<'a> VM<'a> {
                 if let Value::Instance(instance) = self.pop()? {
                     if let Constant::String(property) = self.module.get_constant(index) {
                         if let Some(value) = instance.borrow().fields.get(property) {
-                            self.push(value.clone());
+                            self.push(*value);
+                        } else if let Some(method) =
+                            instance.borrow().class.borrow().methods.get(property)
+                        {
+                            let bounded = BoundMethod {
+                                receiver: Value::Instance(instance),
+                                method: *method,
+                            };
+                            let constant = Value::BoundMethod(gc::manage(bounded));
+                            self.push(constant);
                         } else {
                             return Err(RuntimeError::UndefinedProperty);
                         }
@@ -320,17 +405,41 @@ impl<'a> VM<'a> {
                     return Err(RuntimeError::UnexpectedConstant);
                 }
             }
-            Instruction::Method => {}
+            Instruction::Method => {
+                // println!("Method Stack: {:?}", self.stack);
+                // if let Value::Closure(closure) = self.peek()? {
+                //     if let Value::Class(class) = self.peek_n(1)? {
+                //         let name = function.name;
+                //         class.borrow_mut().methods.insert(name, *function);
+                //         self.pop()?;
+                //     } else {
+                //         return Err(RuntimeError::ExpectedClass);
+                //     }
+                // } else {
+                //     return Err(RuntimeError::ExpectedCallee);
+                // }
+            }
+            Instruction::CloseUpvalue => {
+                let index = self.stack.len() - 1;
+                let value = self.stack[index]; //TODO Result
+                for root in &self.upvalues {
+                    if root.borrow().is_open(index) {
+                        root.replace(Upvalue::Closed(value));
+                    }
+                }
+                self.stack.pop().ok_or(RuntimeError::StackEmpty)?;
+            }
             Instruction::Pop => {
                 self.pop()?;
             }
             Instruction::List(length) => {
                 let mut elements = Vec::new();
                 for _ in 0..length {
-                    elements.push(self.pop()?);
+                    let e = self.pop()?;
+                    elements.push(e);
                 }
                 elements.reverse();
-                self.push(Value::Array(make_managed(elements)))
+                self.push(Value::Array(gc::manage(elements)))
             }
             Instruction::Slice => {
                 let step = match self.pop()? {
@@ -383,7 +492,7 @@ impl<'a> VM<'a> {
                         res.push(arr[i].clone());
                     }
                 };
-                self.push(Value::Array(make_managed(res)));
+                self.push(Value::Array(gc::manage(res)));
             }
             Instruction::Range => {
                 let step = match self.pop()? {
@@ -419,7 +528,7 @@ impl<'a> VM<'a> {
                     }
                     res.reverse();
                 };
-                self.push(Value::Array(make_managed(res)));
+                self.push(Value::Array(gc::manage(res)));
             }
             Instruction::Index => {
                 let index: isize = match self.pop()? {
@@ -447,12 +556,11 @@ impl<'a> VM<'a> {
                     _ => return Err(RuntimeError::ExpectedNumber),
                 };
             }
-            Instruction::Print(ref n) => {
-                let no_elem = *n;
-                let mut elements = self.pop_n(no_elem)?;
+            Instruction::Print(n) => {
+                let mut elements = self.pop_n(n)?;
                 elements.reverse();
                 for e in elements {
-                    self.print_value(e)?;
+                    self.print_value(&e)?;
                     print!(" ");
                 }
                 println!("");
@@ -464,7 +572,7 @@ impl<'a> VM<'a> {
                     .pop()
                     .ok_or_else(|| RuntimeError::CallFrameEmpty)?;
 
-                self.stack.split_off(frame.base_counter);
+                self.stack.truncate(frame.base_counter);
 
                 if self.frames.is_empty() {
                     return Ok(InterpreterResult::Done);
@@ -514,8 +622,8 @@ impl<'a> VM<'a> {
         self.stack.push(value)
     }
 
-    fn print_value(&mut self, value: Value) -> Result<(), RuntimeError> {
-        let res = self.value_to_string(&value, false)?;
+    fn print_value(&mut self, value: &Value) -> Result<(), RuntimeError> {
+        let res = self.value_to_string(value, false)?;
         print!("{}", res);
         Ok(())
     }
@@ -549,7 +657,7 @@ impl<'a> VM<'a> {
                 res.push_str("]");
                 Ok(res)
             }
-            Value::Function(_) => Ok(format!("Function?")),
+            Value::Closure(_) => Ok(format!("Closure?")),
             Value::NativeFunction(_) => Ok(format!("NativeFunction?")),
             Value::Class(class) => Ok(format!(
                 "class '{}'\n\tmethods: {:?}",
@@ -562,20 +670,27 @@ impl<'a> VM<'a> {
                     .collect::<Vec<&str>>()
             )),
             Value::Instance(_) => Ok(format!("instance",)),
+            Value::BoundMethod(bounded) => Ok(format!(
+                "bound_method: <{:?}>",
+                self.module.strings.resolve((*(**bounded).method).name)
+            )),
         }
     }
 
     fn call(&mut self, arity: usize) -> Result<(), RuntimeError> {
         let callee = *self.peek_n(arity)?;
         match callee {
-            Value::Function(callee) => {
-                if callee.arity != arity {
+            Value::Closure(callee) => {
+                if callee.function.arity != arity {
+                    println!(
+                        "arity: {:?} ; callee: {:?}, on {:?}",
+                        arity, callee.function.arity, callee.function.name
+                    );
                     return Err(RuntimeError::IncorrectArity);
                 }
                 self.begin_frame(callee);
             }
             Value::NativeFunction(callee) => {
-                println!("arity: {:?} ; callee: {:?}", arity, (*callee).arity);
                 if callee.arity != arity {
                     return Err(RuntimeError::IncorrectArity);
                 }
@@ -596,20 +711,40 @@ impl<'a> VM<'a> {
                     fields: HashMap::new(),
                 };
 
-                self.push(Value::Instance(make_managed(RefCell::new(instance))));
+                self.push(Value::Instance(gc::manage(RefCell::new(instance))));
             }
+            // Value::BoundMethod(callee) => {
+            //     if (*(*callee).method).arity != arity {
+            //         println!(
+            //             "arity: {:?} ; callee: {:?}, on {:?}",
+            //             arity,
+            //             (*(*callee).method).arity,
+            //             (*(*callee).method).name
+            //         );
+            //         return Err(RuntimeError::IncorrectArity);
+            //     }
+
+            //     let len = self.stack.len();
+            //     println!("callee.receiver: {:?}", (*callee).receiver);
+            //     println!("stack: {:?}", self.stack);
+            //     self.stack[len - arity - 1] = (*callee).receiver;
+            //     // self.stack.push((*callee).receiver);
+            //     println!("stack: {:?}", self.stack);
+
+            //     self.begin_frame((*callee).method);
+            // }
             _ => return Err(RuntimeError::ExpectedCallee),
         }
         Ok(())
     }
 
-    fn begin_frame(&mut self, function: Managed<Function>) {
-        let arity = function.arity;
-        let index = function.chunk_index;
+    fn begin_frame(&mut self, closure: Managed<Closure>) {
+        let arity = closure.function.arity;
+        let index = closure.function.chunk_index;
         self.frames.push(CallFrame {
-            function: function,
+            closure: closure,
             ip: 0,
-            base_counter: self.stack.len() - arity,
+            base_counter: self.stack.len() - arity - 1, // Care of this -1 here...
             chunk_index: index,
         });
     }

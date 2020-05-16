@@ -1,44 +1,68 @@
-use crate::ast::Expr;
-use crate::ast::Stmt;
-use crate::chunk::Chunk;
-use crate::chunk::ConstantIndex;
-use crate::chunk::Instruction;
-use crate::class::ConstantClass;
-use crate::constant::Constant;
-use crate::distance::Distance;
-use crate::error::CompileError;
-use crate::function::Function;
-use crate::local::Locals;
-use crate::tokens::Symbol;
-use crate::tokens::Token;
+use crate::bytecode::chunk::Chunk;
+use crate::bytecode::chunk::ConstantIndex;
+use crate::bytecode::chunk::Instruction;
+use crate::bytecode::constant::Constant;
+use crate::bytecode::distance::Distance;
+use crate::bytecode::module::Module;
+use crate::compiler::class::Class;
+use crate::compiler::error::CompileError;
+use crate::compiler::function::Closure;
+use crate::compiler::function::Function;
+use crate::compiler::local::Locals;
+use crate::compiler::local::Upvalue;
+use crate::parser::ast::Expr;
+use crate::parser::ast::Stmt;
+use crate::parser::tokens::Symbol;
+use crate::parser::tokens::Token;
 use string_interner::StringInterner;
 use string_interner::Sym;
-
-use crate::module::Module;
-
 #[derive(Debug, PartialEq)]
 pub enum ContextType {
     Function,
+    Method,
     Script,
 }
 
 #[derive(Debug)]
 pub struct CompilerContext {
     pub context_type: ContextType,
+    pub enclosing: usize,
     pub chunk_index: usize,
     pub locals: Locals,
+    pub upvalues: Vec<Upvalue>,
 }
 
 impl CompilerContext {
-    pub fn new(context_type: ContextType, chunk_index: usize) -> Self {
+    pub fn new(
+        context_type: ContextType,
+        enclosing: usize,
+        chunk_index: usize,
+        strings: &mut StringInterner<Sym>,
+    ) -> Self {
+        let mut locals = Locals::new();
+
+        match context_type {
+            ContextType::Function => {
+                let sym = strings.get_or_intern("");
+                locals.insert(&sym);
+            }
+            _ => {
+                let sym = strings.get_or_intern("my");
+                locals.insert(&sym);
+                locals.mark_initialized();
+            }
+        };
+
         CompilerContext {
             context_type,
+            enclosing,
             chunk_index,
-            locals: Locals::new(),
+            locals: locals,
+            upvalues: vec![],
         }
     }
 
-    pub fn resolve_local(&mut self, sym: &Sym) -> Result<Option<usize>, CompileError> {
+    pub fn resolve_local(&self, sym: &Sym) -> Result<Option<usize>, CompileError> {
         if let Some(local) = self.locals.get(*sym) {
             if local.is_initialized {
                 Ok(Some(local.slot))
@@ -59,11 +83,19 @@ pub struct Compiler {
 
 impl Compiler {
     pub fn new(strings: StringInterner<Sym>) -> Self {
-        let mut module = Module::new(strings);
-        let chunk_index = module.add_chunk();
+        let mut strings = strings;
+        let chunk_index = 0;
 
         let mut contexts: Vec<CompilerContext> = vec![];
-        contexts.push(CompilerContext::new(ContextType::Script, chunk_index));
+        contexts.push(CompilerContext::new(
+            ContextType::Script,
+            0,
+            chunk_index,
+            &mut strings,
+        ));
+
+        let mut module = Module::new(strings);
+        module.add_chunk();
 
         Compiler { module, contexts }
     }
@@ -101,14 +133,59 @@ impl Compiler {
         self.current_context_mut().resolve_local(sym)
     }
 
+    fn add_upvalue(&mut self, slot: usize, is_local: bool) -> Option<usize> {
+        for (index, upvalue) in self.current_context().upvalues.iter().enumerate() {
+            if upvalue.slot == slot && upvalue.is_local == is_local {
+                return Some(index);
+            }
+        }
+        return None;
+    }
+
+    fn resolve_upvalue(
+        &mut self,
+        context_index: usize,
+        sym: &Sym,
+    ) -> Result<Option<usize>, CompileError> {
+        let context = &self.contexts[context_index];
+        let len = context.upvalues.len();
+        if context.context_type == ContextType::Script {
+            return Ok(None);
+        } else {
+            let enclosing = context.enclosing;
+
+            if let Some(slot) = self.contexts[enclosing].resolve_local(sym)? {
+                let mut enclosing_mut = &mut self.contexts[enclosing];
+                enclosing_mut.locals.stack[slot].is_captured = true;
+
+                let upvalue = Upvalue {
+                    slot: slot,
+                    is_local: true,
+                };
+
+                self.add_upvalue(slot, true);
+                self.current_context_mut().upvalues.push(upvalue);
+
+                return Ok(Some(len));
+            } else if let Some(slot) = self.resolve_upvalue(enclosing, sym)? {
+                self.add_upvalue(slot, false);
+            }
+            Ok(None)
+        }
+    }
+
     fn begin_scope(&mut self) {
         self.current_context_mut().locals.enter_scope();
     }
 
     fn end_scope(&mut self) {
         let locals = self.current_context_mut().locals.leave_scope();
-        for _ in locals.iter().rev() {
-            self.add_instruction(Instruction::Pop);
+        for local in locals.iter().rev() {
+            if local.is_captured {
+                self.add_instruction(Instruction::CloseUpvalue);
+            } else {
+                self.add_instruction(Instruction::Pop);
+            }
         }
     }
 
@@ -127,6 +204,7 @@ impl Compiler {
         for statement in statements {
             self.compile_statement(statement)?;
         }
+        self.add_instruction(Instruction::None);
         self.add_instruction(Instruction::Return);
         Ok(())
     }
@@ -174,19 +252,20 @@ impl Compiler {
             Expr::Call(ref callee, ref arguments) => self.compile_call(callee, arguments),
             Expr::Get(ref left, ref sym) => self.compile_get(left, sym),
             Expr::Set(ref left, ref sym, ref right) => self.compile_set(left, sym, right),
+            Expr::My(ref sym) => self.compile_my(sym),
         }?;
 
         Ok(())
     }
 
     fn compile_number(&mut self, distance: &Distance) -> Result<(), CompileError> {
-        let constant = self.add_constant(Constant::from(Into::<f64>::into(distance)));
+        let constant = self.add_constant(Constant::Number(*distance));
         self.add_instruction(Instruction::Constant(constant));
         Ok(())
     }
 
     fn compile_string(&mut self, sym: &Sym) -> Result<(), CompileError> {
-        let constant = self.add_constant(Constant::from(sym));
+        let constant = self.add_constant(Constant::String(*sym));
         self.add_instruction(Instruction::Constant(constant));
         Ok(())
     }
@@ -208,8 +287,12 @@ impl Compiler {
     fn compile_variable(&mut self, sym: &Sym) -> Result<(), CompileError> {
         if let Some(local) = self.resolve_local(sym)? {
             self.add_instruction(Instruction::GetLocal(local));
+        } else if let Some(upvalue) =
+            self.resolve_upvalue(self.current_context().chunk_index, sym)?
+        {
+            self.add_instruction(Instruction::GetUpvalue(upvalue));
         } else {
-            let constant = self.add_constant(Constant::from(sym));
+            let constant = self.add_constant(Constant::String(*sym));
             self.add_instruction(Instruction::GetGlobal(constant));
         }
         Ok(())
@@ -411,7 +494,7 @@ impl Compiler {
 
     fn compile_get(&mut self, left: &Expr, sym: &Sym) -> Result<(), CompileError> {
         self.compile_expression(left)?;
-        let constant = self.add_constant(Constant::from(sym));
+        let constant = self.add_constant(Constant::String(*sym));
         self.add_instruction(Instruction::GetProperty(constant));
         Ok(())
     }
@@ -420,10 +503,14 @@ impl Compiler {
         self.compile_expression(left)?;
         self.compile_expression(right)?;
 
-        let constant = self.add_constant(Constant::from(sym));
+        let constant = self.add_constant(Constant::String(*sym));
         self.add_instruction(Instruction::SetProperty(constant));
 
         Ok(())
+    }
+
+    fn compile_my(&mut self, sym: &Sym) -> Result<(), CompileError> {
+        self.compile_variable(sym)
     }
 
     fn compile_print(&mut self, expr_list: &[Expr]) -> Result<(), CompileError> {
@@ -458,7 +545,7 @@ impl Compiler {
         if self.current_context().locals.depth > 0 {
             self.current_context_mut().locals.mark_initialized();
         } else {
-            let constant = self.add_constant(Constant::from(sym));
+            let constant = self.add_constant(Constant::String(*sym));
             self.add_instruction(Instruction::SetGlobal(constant));
         }
     }
@@ -470,6 +557,10 @@ impl Compiler {
 
         if let Some(local) = self.resolve_local(sym)? {
             self.add_instruction(Instruction::SetLocal(local));
+        } else if let Some(upvalue) =
+            self.resolve_upvalue(self.current_context().chunk_index, sym)?
+        {
+            self.add_instruction(Instruction::SetUpvalue(upvalue));
         }
         Ok(())
     }
@@ -535,8 +626,13 @@ impl Compiler {
         }
 
         let chunk_index = self.module.add_chunk();
-        self.contexts
-            .push(CompilerContext::new(ContextType::Function, chunk_index));
+        let enclosing = self.current_context().chunk_index;
+        self.contexts.push(CompilerContext::new(
+            ContextType::Function,
+            enclosing,
+            chunk_index,
+            &mut self.module.strings,
+        ));
 
         self.begin_scope();
 
@@ -556,15 +652,83 @@ impl Compiler {
         };
         self.end_scope();
 
-        self.contexts.pop();
+        let context = self
+            .contexts
+            .pop()
+            .expect("Expect a context during function compilation");
         let function = Function {
             name: *sym,
             chunk_index,
             arity: params.len(),
         };
 
-        let constant = self.add_constant(Constant::Function(function));
-        self.add_instruction(Instruction::Function(constant));
+        let closure = Closure {
+            function: function,
+            upvalues: context.upvalues,
+        };
+
+        let constant = self.add_constant(Constant::Closure(closure));
+        self.add_instruction(Instruction::Closure(constant));
+
+        self.define_variable(sym);
+        Ok(())
+    }
+
+    fn compile_method(
+        &mut self,
+        sym: &Sym,
+        params: &[Sym],
+        body: &[Stmt],
+    ) -> Result<(), CompileError> {
+        self.declare_variable(sym);
+        if self.current_context().locals.depth > 0 {
+            self.current_context_mut().locals.mark_initialized();
+        }
+
+        let chunk_index = self.module.add_chunk();
+        let enclosing = self.current_context().chunk_index;
+        self.contexts.push(CompilerContext::new(
+            ContextType::Method,
+            enclosing,
+            chunk_index,
+            &mut self.module.strings,
+        ));
+
+        self.begin_scope();
+
+        for param in params {
+            self.declare_variable(param);
+            self.define_variable(param);
+        }
+
+        self.compile_block(body)?;
+
+        match body.last() {
+            Some(Stmt::Return(_)) => (),
+            _ => {
+                self.add_instruction(Instruction::None);
+                self.add_instruction(Instruction::Return);
+            }
+        };
+        self.end_scope();
+
+        let context = self
+            .contexts
+            .pop()
+            .expect("Expect a context during function compilation");
+        let function = Function {
+            name: *sym,
+            chunk_index,
+            arity: params.len(),
+        };
+
+        let closure = Closure {
+            function: function,
+            upvalues: context.upvalues,
+        };
+
+        let constant = self.add_constant(Constant::Closure(closure));
+        self.add_instruction(Instruction::Closure(constant));
 
         self.define_variable(sym);
         Ok(())
@@ -572,7 +736,7 @@ impl Compiler {
 
     fn compile_class(&mut self, sym: &Sym, methods: &[Stmt]) -> Result<(), CompileError> {
         self.declare_variable(sym);
-        let constant = self.add_constant(Constant::Class(ConstantClass { name: *sym }));
+        let constant = self.add_constant(Constant::Class(Class { name: *sym }));
         self.add_instruction(Instruction::Class(constant));
         self.define_variable(sym);
 
@@ -580,7 +744,9 @@ impl Compiler {
 
         self.begin_scope();
         for method in methods {
-            self.compile_statement(method)?;
+            if let Stmt::Function(ref sym, ref params, ref body) = method {
+                self.compile_method(sym, params, body)?;
+            }
             self.add_instruction(Instruction::Method);
         }
         self.end_scope();

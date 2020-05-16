@@ -8,6 +8,11 @@ pub struct Local {
     pub is_initialized: bool,
     pub is_captured: bool,
 }
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct Upvalue {
+    pub slot: usize,
+    pub is_local: bool,
+}
 
 #[derive(Debug)]
 pub struct Locals {

@@ -1,7 +1,7 @@
-use crate::chunk::Chunk;
-use crate::chunk::Instruction;
-use crate::constant::Constant;
-use crate::module::ConstantPool;
+use crate::bytecode::chunk::Chunk;
+use crate::bytecode::chunk::Instruction;
+use crate::bytecode::constant::Constant;
+use crate::bytecode::module::ConstantPool;
 
 impl Chunk {
     pub fn disassemble(&self, pool: &ConstantPool) {
