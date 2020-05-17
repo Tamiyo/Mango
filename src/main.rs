@@ -1,6 +1,6 @@
-use crate::parser::parser::Parser;
-use crate::compiler::compiler::Compiler;
 use crate::bytecode::module::Module;
+use crate::compiler::compiler::Compiler;
+use crate::parser::parser::Parser;
 use crate::vm::vm::VM;
 
 mod bytecode;
