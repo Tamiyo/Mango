@@ -1,6 +1,6 @@
-use crate::vm::managed::Managed;
 use crate::vm::managed::Allocation;
 use crate::vm::managed::Header;
+use crate::vm::managed::Managed;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;

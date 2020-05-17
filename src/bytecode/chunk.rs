@@ -26,9 +26,9 @@ pub enum Instruction {
     Less,
     LessEqual,
 
-    JumpIfTrue(StackIndex),
-    JumpIfFalse(StackIndex),
-    Jump(StackIndex),
+    JumpIfTrue(InstructionIndex),
+    JumpIfFalse(InstructionIndex),
+    Jump(InstructionIndex),
 
     GetGlobal(ConstantIndex),
     GetLocal(StackIndex),
@@ -40,7 +40,7 @@ pub enum Instruction {
 
     CloseUpvalue,
 
-    Call(StackIndex),
+    Call(usize),
     Closure(ConstantIndex),
 
     Class(ConstantIndex),
