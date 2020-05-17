@@ -46,13 +46,19 @@ impl Locals {
                 }
             })
             .unwrap_or_else(|| self.stack.len());
-        self.stack.split_off(index);
-        self.stack.clone()
+        self.stack.split_off(index)
     }
 
     pub fn mark_initialized(&mut self) {
         let index = self.stack.len() - 1;
         self.stack[index].is_initialized = true;
+    }
+
+    pub fn mark_captured(&mut self, slot: usize) {
+        let local = self.stack.iter_mut().find(|l| l.slot == slot);
+        if let Some(local) = local {
+            local.is_captured = true;
+        }
     }
 
     pub fn insert(&mut self, sym: &Sym) {

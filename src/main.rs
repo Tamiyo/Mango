@@ -10,15 +10,21 @@ mod vm;
 
 fn main() {
     let buf = "
-        #function() {
-            $x = 4;
-            #inner() {
-                print(x);
+        @MyClass {
+            #MyFunction() {
+                $x = 4;
+                print('Hello World!');
+                #InnerFunction() {
+                    print('The Upvalue is:', x);
+                    print('my.name =', my.name);
+                }
+                InnerFunction();
             }
-            inner();
         }
 
-        function();
+        $C = MyClass();
+        C.name = 'PleaseWork.exe';
+        C.MyFunction();
     ";
 
     let mut parser = Parser::new(buf);

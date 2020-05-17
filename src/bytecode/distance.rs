@@ -2,7 +2,7 @@ use std::cmp;
 use std::ops;
 
 // This is a more efficient version of hashing a float value
-#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
+#[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct Distance {
     mantissa: u64,
     exponent: i16,
@@ -103,5 +103,11 @@ impl cmp::PartialOrd for Distance {
         let n1 = Into::<f64>::into(self.clone());
         let n2 = Into::<f64>::into(other.clone());
         n1.partial_cmp(&n2)
+    }
+}
+
+impl std::fmt::Debug for Distance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", Into::<f64>::into(self))
     }
 }

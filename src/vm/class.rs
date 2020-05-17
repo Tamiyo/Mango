@@ -1,4 +1,4 @@
-use crate::vm::function::Function;
+use crate::vm::function::Closure;
 use crate::vm::gc::Trace;
 use crate::vm::managed::Managed;
 use crate::vm::memory::Value;
@@ -9,7 +9,7 @@ use string_interner::Sym;
 #[derive(Debug, PartialEq)]
 pub struct Class {
     pub name: Sym,
-    pub methods: HashMap<Sym, Managed<Function>>,
+    pub methods: HashMap<Sym, Managed<Closure>>,
 }
 
 impl Trace for Class {
@@ -32,7 +32,7 @@ impl Trace for Instance {
 #[derive(Debug)]
 pub struct BoundMethod {
     pub receiver: Value,
-    pub method: Managed<Function>,
+    pub method: Managed<Closure>,
 }
 
 impl Trace for BoundMethod {

@@ -1,5 +1,6 @@
 use crate::vm::gc::Trace;
 use std::cell::Cell;
+use std::fmt;
 use std::ops::Deref;
 use std::ptr::NonNull;
 #[derive(Debug)]
@@ -27,7 +28,7 @@ impl<T: 'static + Trace + ?Sized> Trace for Allocation<T> {
         }
     }
 }
-#[derive(Debug)]
+
 pub struct Managed<T: 'static + Trace + ?Sized> {
     pub ptr: NonNull<Allocation<T>>,
 }
@@ -48,7 +49,7 @@ impl<T: 'static + Trace + ?Sized> Clone for Managed<T> {
 
 impl<T: 'static + Trace + PartialEq + ?Sized> PartialEq<Managed<T>> for Managed<T> {
     fn eq(&self, other: &Managed<T>) -> bool {
-        *self == *other
+        self.ptr == other.ptr
     }
 }
 
@@ -63,5 +64,12 @@ impl<T: 'static + Trace + ?Sized> Deref for Managed<T> {
 impl<T: 'static + Trace + ?Sized> Trace for Managed<T> {
     fn trace(&self) {
         self.allocation().trace();
+    }
+}
+
+impl<T: 'static + fmt::Debug + Trace + ?Sized> std::fmt::Debug for Managed<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let inner: &T = &*self;
+        write!(f, "Managed({:?})", inner)
     }
 }

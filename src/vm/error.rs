@@ -10,6 +10,7 @@ pub enum RuntimeError {
     ExpectedNumber,
     ExpectedCallee,
     ExpectedInstance,
+    ExpectedClosure,
     ExpectedClass,
     UndefinedProperty,
     UnexpectedValue,

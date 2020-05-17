@@ -98,12 +98,16 @@ impl<'a> VM<'a> {
             self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
 
-        // println!("instruction: {:?}", instruction);
-        // println!("stack: {:?}", self.stack);
-        // println!("globals:");
-        // for (key, value) in self.globals.iter() {
-        //     println!("\t{:?}: {:?}", key, value);
-        // }
+        // Debug Code
+        if true {
+            // println!("upvalues: {:?}", self.upvalues);
+            // println!("instruction: {:?}", instruction);
+            // println!("stack: {:?}", self.stack);
+            // println!("globals:");
+            // for (key, value) in self.globals.iter() {
+            //     println!("\t{:?}: {:?}", key, value);
+            // }
+        }
 
         match instruction {
             Instruction::Constant(index) => {
@@ -317,12 +321,13 @@ impl<'a> VM<'a> {
                         if u.is_local {
                             let frame = &self.frames[self.frames.len() - 1];
                             let base = frame.base_counter;
-                            let index = base + index;
+                            let index = base + u.slot;
 
                             let mut upvalue: Option<Managed<RefCell<Upvalue>>> = None;
                             for managed in self.upvalues.iter().rev() {
                                 if (*managed).borrow().is_open(index) {
                                     upvalue = Some(*managed);
+                                    break;
                                 }
                             }
 
@@ -336,10 +341,9 @@ impl<'a> VM<'a> {
                             }
                         } else {
                             let frame = self.frames[self.frames.len() - 1];
-                            upvalues.push(frame.closure.upvalues[index]);
+                            upvalues.push(frame.closure.upvalues[u.slot]);
                         }
                     }
-
                     let function = gc::manage(Function {
                         name: closure.function.name,
                         chunk_index: closure.function.chunk_index,
@@ -352,6 +356,8 @@ impl<'a> VM<'a> {
                     });
 
                     self.push(Value::Closure(closure));
+                } else {
+                    return Err(RuntimeError::ExpectedClosure);
                 }
             }
             Instruction::Class(index) => {
@@ -406,27 +412,21 @@ impl<'a> VM<'a> {
                 }
             }
             Instruction::Method => {
-                // println!("Method Stack: {:?}", self.stack);
-                // if let Value::Closure(closure) = self.peek()? {
-                //     if let Value::Class(class) = self.peek_n(1)? {
-                //         let name = function.name;
-                //         class.borrow_mut().methods.insert(name, *function);
-                //         self.pop()?;
-                //     } else {
-                //         return Err(RuntimeError::ExpectedClass);
-                //     }
-                // } else {
-                //     return Err(RuntimeError::ExpectedCallee);
-                // }
+                if let Value::Closure(closure) = self.peek()? {
+                    if let Value::Class(class) = self.peek_n(1)? {
+                        let name = closure.function.name;
+                        class.borrow_mut().methods.insert(name, *closure);
+                        self.pop()?;
+                    } else {
+                        return Err(RuntimeError::ExpectedClass);
+                    }
+                } else {
+                    return Err(RuntimeError::ExpectedCallee);
+                }
             }
             Instruction::CloseUpvalue => {
                 let index = self.stack.len() - 1;
-                let value = self.stack[index]; //TODO Result
-                for root in &self.upvalues {
-                    if root.borrow().is_open(index) {
-                        root.replace(Upvalue::Closed(value));
-                    }
-                }
+                self.close_upvalues(index);
                 self.stack.pop().ok_or(RuntimeError::StackEmpty)?;
             }
             Instruction::Pop => {
@@ -572,6 +572,10 @@ impl<'a> VM<'a> {
                     .pop()
                     .ok_or_else(|| RuntimeError::CallFrameEmpty)?;
 
+                for i in frame.base_counter..self.stack.len() {
+                    self.close_upvalues(i);
+                }
+
                 self.stack.truncate(frame.base_counter);
 
                 if self.frames.is_empty() {
@@ -657,8 +661,17 @@ impl<'a> VM<'a> {
                 res.push_str("]");
                 Ok(res)
             }
-            Value::Closure(_) => Ok(format!("Closure?")),
-            Value::NativeFunction(_) => Ok(format!("NativeFunction?")),
+            Value::Closure(closure) => Ok(format!(
+                "closure<{:?}>",
+                self.module
+                    .strings
+                    .resolve(closure.function.name)
+                    .expect("")
+            )),
+            Value::NativeFunction(native) => Ok(format!(
+                "native_function<{:?}>",
+                self.module.strings.resolve(native.name).expect("")
+            )),
             Value::Class(class) => Ok(format!(
                 "class '{}'\n\tmethods: {:?}",
                 self.module.strings.resolve(class.borrow().name).expect(""),
@@ -669,10 +682,16 @@ impl<'a> VM<'a> {
                     .map(|key| self.module.strings.resolve(*key).expect(""))
                     .collect::<Vec<&str>>()
             )),
-            Value::Instance(_) => Ok(format!("instance",)),
+            Value::Instance(instance) => Ok(format!(
+                "instance_of<{:?}>",
+                self.module
+                    .strings
+                    .resolve((*(*instance).borrow().class).borrow().name)
+                    .expect("")
+            )),
             Value::BoundMethod(bounded) => Ok(format!(
                 "bound_method: <{:?}>",
-                self.module.strings.resolve((*(**bounded).method).name)
+                self.module.strings.resolve(bounded.method.function.name)
             )),
         }
     }
@@ -713,29 +732,34 @@ impl<'a> VM<'a> {
 
                 self.push(Value::Instance(gc::manage(RefCell::new(instance))));
             }
-            // Value::BoundMethod(callee) => {
-            //     if (*(*callee).method).arity != arity {
-            //         println!(
-            //             "arity: {:?} ; callee: {:?}, on {:?}",
-            //             arity,
-            //             (*(*callee).method).arity,
-            //             (*(*callee).method).name
-            //         );
-            //         return Err(RuntimeError::IncorrectArity);
-            //     }
+            Value::BoundMethod(callee) => {
+                if callee.method.function.arity != arity {
+                    println!(
+                        "arity: {:?} ; callee: {:?}, on {:?}",
+                        arity, callee.method.function.arity, callee.method.function.name
+                    );
+                    return Err(RuntimeError::IncorrectArity);
+                }
 
-            //     let len = self.stack.len();
-            //     println!("callee.receiver: {:?}", (*callee).receiver);
-            //     println!("stack: {:?}", self.stack);
-            //     self.stack[len - arity - 1] = (*callee).receiver;
-            //     // self.stack.push((*callee).receiver);
-            //     println!("stack: {:?}", self.stack);
-
-            //     self.begin_frame((*callee).method);
-            // }
+                let len = self.stack.len();
+                self.stack[len - arity - 1] = (*callee).receiver;
+                self.begin_frame((*callee).method);
+            }
             _ => return Err(RuntimeError::ExpectedCallee),
         }
         Ok(())
+    }
+
+    fn close_upvalues(&mut self, index: usize) {
+        for i in index..self.stack.len() {
+            let value = self.stack[i];
+            for root in &self.upvalues {
+                if root.borrow().is_open(i) {
+                    root.replace(Upvalue::Closed(value));
+                }
+            }
+        }
+        self.upvalues.retain(|u| u.borrow().open());
     }
 
     fn begin_frame(&mut self, closure: Managed<Closure>) {
