@@ -4,4 +4,5 @@ pub enum CompileError {
     UnexpectedExpression,
     MyUsedOutsideClass,
     ReturnInScript,
+    ReturnInInitializer,
 }

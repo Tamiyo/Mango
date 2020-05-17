@@ -37,16 +37,19 @@ pub struct VM<'a> {
     stack: Vec<Value>,
     globals: HashMap<Sym, Value>,
     upvalues: Vec<Managed<RefCell<Upvalue>>>,
+    init_string: Sym,
 }
 
 impl<'a> VM<'a> {
     pub fn new(module: &'a mut Module) -> Self {
+        let init_string = module.strings.get_or_intern("init");
         VM {
             module,
             frames: vec![],
             stack: vec![],
             globals: HashMap::new(),
             upvalues: vec![],
+            init_string,
         }
     }
 
@@ -662,14 +665,14 @@ impl<'a> VM<'a> {
                 Ok(res)
             }
             Value::Closure(closure) => Ok(format!(
-                "closure<{:?}>",
+                "closure: <{:?}>",
                 self.module
                     .strings
                     .resolve(closure.function.name)
                     .expect("")
             )),
             Value::NativeFunction(native) => Ok(format!(
-                "native_function<{:?}>",
+                "native_function: <{:?}>",
                 self.module.strings.resolve(native.name).expect("")
             )),
             Value::Class(class) => Ok(format!(
@@ -683,7 +686,7 @@ impl<'a> VM<'a> {
                     .collect::<Vec<&str>>()
             )),
             Value::Instance(instance) => Ok(format!(
-                "instance_of<{:?}>",
+                "instance_of: <{:?}>",
                 self.module
                     .strings
                     .resolve((*(*instance).borrow().class).borrow().name)
@@ -701,10 +704,6 @@ impl<'a> VM<'a> {
         match callee {
             Value::Closure(callee) => {
                 if callee.function.arity != arity {
-                    println!(
-                        "arity: {:?} ; callee: {:?}, on {:?}",
-                        arity, callee.function.arity, callee.function.name
-                    );
                     return Err(RuntimeError::IncorrectArity);
                 }
                 self.begin_frame(callee);
@@ -720,24 +719,25 @@ impl<'a> VM<'a> {
                 self.push(result?);
             }
             Value::Class(class) => {
-                if arity > 0 {
-                    unimplemented!("Calling a class with arguments is not yet supported");
-                }
-                self.pop()?; //TODO Temporary, remove when arguments are supported
-
                 let instance = Instance {
                     class: class,
                     fields: HashMap::new(),
                 };
 
-                self.push(Value::Instance(gc::manage(RefCell::new(instance))));
+                let len = self.stack.len();
+                self.stack[len - arity - 1] = Value::Instance(gc::manage(RefCell::new(instance)));
+
+                if let Some(method) = class.borrow().methods.get(&self.init_string) {
+                    if method.function.arity != arity {
+                        return Err(RuntimeError::IncorrectArity);
+                    }
+                    self.begin_frame(*method);
+                } else if arity > 0 {
+                    return Err(RuntimeError::IncorrectArity);
+                }
             }
             Value::BoundMethod(callee) => {
                 if callee.method.function.arity != arity {
-                    println!(
-                        "arity: {:?} ; callee: {:?}, on {:?}",
-                        arity, callee.method.function.arity, callee.method.function.name
-                    );
                     return Err(RuntimeError::IncorrectArity);
                 }
 
@@ -768,7 +768,7 @@ impl<'a> VM<'a> {
         self.frames.push(CallFrame {
             closure: closure,
             ip: 0,
-            base_counter: self.stack.len() - arity - 1, // Care of this -1 here...
+            base_counter: self.stack.len() - arity - 1,
             chunk_index: index,
         });
     }

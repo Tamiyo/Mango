@@ -11,20 +11,14 @@ mod vm;
 fn main() {
     let buf = "
         @MyClass {
-            #MyFunction() {
-                $x = 4;
-                print('Hello World!');
-                #InnerFunction() {
-                    print('The Upvalue is:', x);
-                    print('my.name =', my.name);
-                }
-                InnerFunction();
+            #init(x, y) {
+               my.x = x;
+               my.y = y;
             }
         }
 
-        $C = MyClass();
-        C.name = 'PleaseWork.exe';
-        C.MyFunction();
+        $C = MyClass(2, 4);
+        print(C.x, C.y);
     ";
 
     let mut parser = Parser::new(buf);
@@ -34,12 +28,6 @@ fn main() {
     };
 
     println!("ast: {:?}\n", statements);
-    println!("Strings:");
-    for (key, value) in parser.strings.iter() {
-        println!("{:?} = {:?}", key, value);
-    }
-    println!();
-
     let mut compiler = Compiler::new(parser.strings);
     let mut module: Module = match compiler.compile(&statements) {
         Ok(module) => module.clone(),

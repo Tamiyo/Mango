@@ -22,6 +22,7 @@ use string_interner::Sym;
 pub enum ContextType {
     Function,
     Method,
+    Initializer,
     Script,
 }
 
@@ -188,19 +189,6 @@ impl Compiler {
             }
         }
         Ok(None)
-
-        // for i in (0..(self.contexts.len() - 1)).rev() {
-        //     if let Some(local) = self.contexts[i].resolve_local(sym)? {
-        //         self.contexts[i].locals.mark_captured(local);
-        //         let mut upvalue = self.contexts[i + 1].add_upvalue(local, true);
-        //         for j in (i + 2)..self.contexts.len() {
-        //             upvalue = self.contexts[j].add_upvalue(upvalue, false);
-        //         }
-        //         return Ok(Some(upvalue));
-        //     }
-        // }
-
-        // Ok(None)
     }
 
     fn begin_scope(&mut self) {
@@ -558,6 +546,8 @@ impl Compiler {
     fn compile_return(&mut self, expr: &Option<Box<Expr>>) -> Result<(), CompileError> {
         if self.current_context().context_type == ContextType::Script {
             Err(CompileError::ReturnInScript)
+        } else if self.current_context().context_type == ContextType::Initializer {
+            Err(CompileError::ReturnInInitializer)
         } else {
             if let Some(expr) = expr {
                 self.compile_expression(expr)?;
@@ -728,8 +718,15 @@ impl Compiler {
 
         let chunk_index = self.module.add_chunk();
         let enclosing = self.current_context().chunk_index;
+
+        let method_type = if self.module.strings.get_or_intern("init") == *sym {
+            ContextType::Initializer
+        } else {
+            ContextType::Method
+        };
+
         self.contexts.push(CompilerContext::new(
-            ContextType::Method,
+            method_type,
             enclosing,
             chunk_index,
             &mut self.module.strings,
@@ -747,7 +744,11 @@ impl Compiler {
         match body.last() {
             Some(Stmt::Return(_)) => (),
             _ => {
-                self.add_instruction(Instruction::None);
+                if self.current_context().context_type == ContextType::Initializer {
+                    self.add_instruction(Instruction::GetLocal(0));
+                } else {
+                    self.add_instruction(Instruction::None);
+                }
                 self.add_instruction(Instruction::Return);
             }
         };
