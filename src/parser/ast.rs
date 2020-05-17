@@ -30,6 +30,7 @@ pub enum Stmt {
     Expression(Box<Expr>),
     Print(Vec<Expr>),
     Return(Option<Box<Expr>>),
+    Assign(Sym, Box<Expr>),
     Block(Vec<Stmt>),
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
     While(Box<Expr>, Box<Stmt>),

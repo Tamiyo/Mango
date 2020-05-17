@@ -179,7 +179,7 @@ impl Compiler {
             if self.contexts[enclosing].context_type != ContextType::Script {
                 if let Some(slot) = self.contexts[enclosing].resolve_local(sym)? {
                     let enclosing_mut = &mut self.contexts[enclosing];
-                    enclosing_mut.locals.stack[slot].is_captured = true;
+                    enclosing_mut.locals.mark_captured(slot);
                     let index = self.contexts[context_index].add_upvalue(slot, true);
                     return Ok(Some(index));
                 } else if let Some(slot) = self.resolve_upvalue(enclosing, sym)? {

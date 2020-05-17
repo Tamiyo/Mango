@@ -33,7 +33,7 @@ impl Upvalue {
 impl Trace for Upvalue {
     fn trace(&self) {
         match self {
-            Upvalue::Open(index) => (),
+            Upvalue::Open(_) => (),
             Upvalue::Closed(value) => value.trace(),
         };
     }
