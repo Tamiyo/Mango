@@ -245,8 +245,15 @@ impl Compiler {
     }
 
     fn compile_expression_statement(&mut self, expr: &Expr) -> Result<(), CompileError> {
-        self.compile_expression(expr)?;
-        self.add_instruction(Instruction::Pop);
+        match expr {
+            Expr::Assign(_, _) => {
+                self.compile_expression(expr)?;
+            }
+            _ => {
+                self.compile_expression(expr)?;
+                self.add_instruction(Instruction::Pop);
+            }
+        }
         Ok(())
     }
 
@@ -257,6 +264,7 @@ impl Compiler {
             Expr::Boolean(ref boolean) => self.compile_boolean(boolean),
             Expr::None => self.compile_none(),
             Expr::Variable(ref sym) => self.compile_variable(sym),
+            Expr::Assign(ref sym, ref right) => self.compile_assign(sym, right),
             Expr::List(ref elements) => self.compile_list(elements),
             Expr::Index(ref sym, ref expr) => self.compile_index(sym, expr),
             Expr::Slice(ref start, ref stop, ref step) => self.compile_slice(start, stop, step),

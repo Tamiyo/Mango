@@ -11,6 +11,7 @@ use string_interner::Sym;
 #[derive(Debug, PartialEq, PartialOrd)]
 enum Precedence {
     None,
+    Assign,
     Or,
     And,
     Equality,
@@ -26,6 +27,7 @@ enum Precedence {
 impl From<&Token> for Precedence {
     fn from(token: &Token) -> Precedence {
         match token.symbol {
+            Symbol::Equal => Precedence::Assign,
             Symbol::Or => Precedence::Or,
             Symbol::And => Precedence::And,
             Symbol::NotEqual | Symbol::EqualEqual => Precedence::Equality,
@@ -387,6 +389,7 @@ impl Parser {
                 | Symbol::Modulo
                 | Symbol::Carat => parser.parse_binary(left),
 
+                Symbol::Equal => parser.parse_assign(left),
                 Symbol::And | Symbol::Or => parser.parse_logical(left),
                 Symbol::LeftSquare => parser.parse_index(left),
                 Symbol::LeftParen => parser.parse_call(left),
@@ -457,6 +460,16 @@ impl Parser {
         // Do Constant Folding Here...
 
         Ok(Expr::Binary(Box::new(left), op, Box::new(right)))
+    }
+
+    fn parse_assign(&mut self, left: Expr) -> Result<Expr, ParseError> {
+        self.consume(Symbol::Equal)?;
+        let right = self.parse_expression(Precedence::None)?;
+        match left {
+            Expr::Variable(i) => Ok(Expr::Assign(i, Box::new(right))),
+            Expr::Get(l, i) => Ok(Expr::Set(l, i, Box::new(right))),
+            _ => Err(ParseError::ExpectedAssignableValue)
+        }
     }
 
     fn parse_logical(&mut self, left: Expr) -> Result<Expr, ParseError> {

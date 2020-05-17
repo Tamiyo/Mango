@@ -17,7 +17,7 @@ fn main() {
             }
         }
 
-        $C = MyClass(2, 4);
+        C = MyClass(2, 4);
         print(C.x, C.y);
     ";
 
