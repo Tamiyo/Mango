@@ -468,7 +468,7 @@ impl Parser {
         match left {
             Expr::Variable(i) => Ok(Expr::Assign(i, Box::new(right))),
             Expr::Get(l, i) => Ok(Expr::Set(l, i, Box::new(right))),
-            _ => Err(ParseError::ExpectedAssignableValue)
+            _ => Err(ParseError::ExpectedAssignableValue),
         }
     }
 
@@ -579,6 +579,12 @@ impl Parser {
                 self.consume(Symbol::Equal)?;
                 let right = self.parse_expression(Precedence::None)?;
                 Ok(Expr::Set(Box::new(left), sym, Box::new(right)))
+            }
+            Symbol::LeftParen => {
+                self.consume(Symbol::LeftParen)?;
+                let args = self.parse_expression_list()?;
+                self.consume(Symbol::RightParen)?;
+                Ok(Expr::Invoke(Box::new(left), sym, args))
             }
             _ => Ok(Expr::Get(Box::new(left), sym)),
         }

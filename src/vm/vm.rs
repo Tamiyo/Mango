@@ -42,6 +42,7 @@ pub struct VM<'a> {
 
 impl<'a> VM<'a> {
     pub fn new(module: &'a mut Module) -> Self {
+        // TODO :- Move to another things
         let init_string = module.strings.get_or_intern("init");
         VM {
             module,
@@ -100,17 +101,6 @@ impl<'a> VM<'a> {
             let frame = self.current_frame();
             self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
-
-        // Debug Code
-        if true {
-            // println!("upvalues: {:?}", self.upvalues);
-            // println!("instruction: {:?}", instruction);
-            // println!("stack: {:?}", self.stack);
-            // println!("globals:");
-            // for (key, value) in self.globals.iter() {
-            //     println!("\t{:?}: {:?}", key, value);
-            // }
-        }
 
         match instruction {
             Instruction::Constant(index) => {
@@ -272,7 +262,6 @@ impl<'a> VM<'a> {
                     if let Some(constant) = glob_key {
                         self.push(constant);
                     } else {
-                        println!("Variable: {:?}", key);
                         return Err(RuntimeError::UndefinedVariable);
                     }
                 } else {
@@ -314,7 +303,8 @@ impl<'a> VM<'a> {
                 };
             }
             Instruction::Call(arity) => {
-                self.call(arity)?;
+                let callee = *self.peek_n(arity)?;
+                self.call(callee, arity)?;
             }
             Instruction::Closure(index) => {
                 if let Constant::Closure(closure) = self.module.get_constant(index) {
@@ -338,12 +328,12 @@ impl<'a> VM<'a> {
                                 Some(up) => upvalues.push(up),
                                 None => {
                                     let managed = gc::manage(RefCell::new(Upvalue::Open(index)));
-                                    self.upvalues.push(managed.clone());
+                                    self.upvalues.push(managed);
                                     upvalues.push(managed);
                                 }
                             }
                         } else {
-                            let frame = self.frames[self.frames.len() - 1];
+                            let frame = &self.frames[self.frames.len() - 1];
                             upvalues.push(frame.closure.upvalues[u.slot]);
                         }
                     }
@@ -426,6 +416,9 @@ impl<'a> VM<'a> {
                 } else {
                     return Err(RuntimeError::ExpectedCallee);
                 }
+            }
+            Instruction::Invoke(sym, arity) => {
+                self.invoke(sym, arity)?;
             }
             Instruction::CloseUpvalue => {
                 let index = self.stack.len() - 1;
@@ -569,7 +562,7 @@ impl<'a> VM<'a> {
                 println!("");
             }
             Instruction::Return => {
-                let res = self.pop();
+                let res = self.pop()?;
                 let frame = self
                     .frames
                     .pop()
@@ -584,7 +577,7 @@ impl<'a> VM<'a> {
                 if self.frames.is_empty() {
                     return Ok(InterpreterResult::Done);
                 }
-                self.push(res?);
+                self.push(res);
             }
         };
 
@@ -686,11 +679,12 @@ impl<'a> VM<'a> {
                     .collect::<Vec<&str>>()
             )),
             Value::Instance(instance) => Ok(format!(
-                "instance_of: <{:?}>",
+                "instance_of: <{:?}>\n\t{:?}",
                 self.module
                     .strings
                     .resolve((*(*instance).borrow().class).borrow().name)
-                    .expect("")
+                    .expect(""),
+                instance.borrow().fields
             )),
             Value::BoundMethod(bounded) => Ok(format!(
                 "bound_method: <{:?}>",
@@ -699,8 +693,29 @@ impl<'a> VM<'a> {
         }
     }
 
-    fn call(&mut self, arity: usize) -> Result<(), RuntimeError> {
-        let callee = *self.peek_n(arity)?;
+    fn invoke(&mut self, name: Sym, arity: usize) -> Result<(), RuntimeError> {
+        let receiver = *self.peek_n(arity)?;
+        match receiver {
+            Value::Instance(instance) => {
+                if let Some(value) = instance.borrow().fields.get(&name) {
+                    let len = self.stack.len();
+                    self.stack[len - arity - 1] = *value;
+                    self.call(*value, arity)?;
+                } else if let Some(closure) = instance.borrow().class.borrow().methods.get(&name) {
+                    if closure.function.arity != arity {
+                        return Err(RuntimeError::IncorrectArity);
+                    }
+                    self.begin_frame(*closure);
+                } else {
+                    return Err(RuntimeError::UndefinedProperty);
+                }
+            }
+            _ => return Err(RuntimeError::ExpectedInstance),
+        };
+        Ok(())
+    }
+
+    fn call(&mut self, callee: Value, arity: usize) -> Result<(), RuntimeError> {
         match callee {
             Value::Closure(callee) => {
                 if callee.function.arity != arity {
@@ -751,14 +766,14 @@ impl<'a> VM<'a> {
     }
 
     fn close_upvalues(&mut self, index: usize) {
-        for i in index..self.stack.len() {
-            let value = self.stack[i];
-            for root in &self.upvalues {
-                if root.borrow().is_open(i) {
-                    root.replace(Upvalue::Closed(value));
-                }
+        let value = self.stack[index];
+
+        for upvalue in &self.upvalues {
+            if upvalue.borrow().is_open(index) {
+                upvalue.replace(Upvalue::Closed(value));
             }
         }
+
         self.upvalues.retain(|u| u.borrow().open());
     }
 

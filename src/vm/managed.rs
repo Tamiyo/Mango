@@ -2,6 +2,7 @@ use crate::vm::gc::Trace;
 use std::cell::Cell;
 use std::fmt;
 use std::ops::Deref;
+use std::ops::DerefMut;
 use std::ptr::NonNull;
 #[derive(Debug)]
 pub struct Header {
@@ -36,6 +37,10 @@ pub struct Managed<T: 'static + Trace + ?Sized> {
 impl<T: 'static + Trace + ?Sized> Managed<T> {
     fn allocation(&self) -> &Allocation<T> {
         unsafe { &self.ptr.as_ref() }
+    }
+
+    fn allocation_mut(&mut self) -> &mut Allocation<T> {
+        unsafe { self.ptr.as_mut() }
     }
 }
 

@@ -23,6 +23,7 @@ pub enum Expr {
     Get(Box<Expr>, Sym),
     Set(Box<Expr>, Sym, Box<Expr>),
     My(Sym),
+    Invoke(Box<Expr>, Sym, Vec<Expr>),
 }
 
 #[derive(Debug, PartialEq)]

@@ -18,10 +18,16 @@ impl Trace for Function {
     fn trace(&self) {}
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(PartialEq, Clone)]
 pub struct Closure {
     pub function: Managed<Function>,
     pub upvalues: Vec<Managed<RefCell<Upvalue>>>,
+}
+
+impl std::fmt::Debug for Closure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Closure({:?})", self.function)
+    }
 }
 
 impl Trace for Closure {

@@ -10,15 +10,25 @@ mod vm;
 
 fn main() {
     let buf = "
-        @MyClass {
-            #init(x, y) {
-               my.x = x;
-               my.y = y;
+       @Oops {
+           #init() {
+                #f() {
+                    #g() {
+                        #j() {
+                            my.r = 4;
+                        }
+                        j();
+                    }
+                    print('Not a method');
+                    g();
+                }
+                my.field = f;
             }
-        }
+       }
 
-        C = MyClass(2, 4);
-        print(C.x, C.y);
+       oops = Oops();
+       oops.field();
+       print(oops.r);
     ";
 
     let mut parser = Parser::new(buf);

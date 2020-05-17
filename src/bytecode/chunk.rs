@@ -1,3 +1,5 @@
+use string_interner::Sym;
+
 pub type ChunkIndex = usize;
 pub type InstructionIndex = usize;
 pub type StackIndex = usize;
@@ -47,6 +49,7 @@ pub enum Instruction {
     GetProperty(ConstantIndex),
     SetProperty(ConstantIndex),
     Method,
+    Invoke(Sym, usize),
 
     Pop,
 

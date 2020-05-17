@@ -278,6 +278,7 @@ impl Compiler {
             Expr::Get(ref left, ref sym) => self.compile_get(left, sym),
             Expr::Set(ref left, ref sym, ref right) => self.compile_set(left, sym, right),
             Expr::My(ref sym) => self.compile_my(sym),
+            Expr::Invoke(ref left, ref sym, ref args) => self.compile_invoke(left, sym, args),
         }?;
 
         Ok(())
@@ -543,6 +544,20 @@ impl Compiler {
         self.compile_variable(sym)
     }
 
+    fn compile_invoke(
+        &mut self,
+        left: &Expr,
+        sym: &Sym,
+        args: &[Expr],
+    ) -> Result<(), CompileError> {
+        self.compile_expression(left)?;
+        for arg in args {
+            self.compile_expression(arg)?;
+        }
+        self.add_instruction(Instruction::Invoke(*sym, args.len()));
+        Ok(())
+    }
+
     fn compile_print(&mut self, expr_list: &[Expr]) -> Result<(), CompileError> {
         for expr in expr_list {
             self.compile_expression(expr)?;
@@ -679,7 +694,11 @@ impl Compiler {
         match body.last() {
             Some(Stmt::Return(_)) => (),
             _ => {
-                self.add_instruction(Instruction::None);
+                if self.current_context().context_type == ContextType::Initializer {
+                    self.add_instruction(Instruction::GetLocal(0));
+                } else {
+                    self.add_instruction(Instruction::None);
+                }
                 self.add_instruction(Instruction::Return);
             }
         };
@@ -748,6 +767,7 @@ impl Compiler {
         }
 
         self.compile_block(body)?;
+        self.end_scope();
 
         match body.last() {
             Some(Stmt::Return(_)) => (),
@@ -760,7 +780,6 @@ impl Compiler {
                 self.add_instruction(Instruction::Return);
             }
         };
-        self.end_scope();
 
         let context = self
             .contexts
