@@ -22,6 +22,8 @@ As of writing this I'm graduating college with my bachelors and about to start a
 
 I don't know what will happen with Mango, I do find working on programming languages to be an __extremely__ fun pastime, so who knows? Maybe one day I'll make Mango into a full fledged programming language that I can feel comfortable using on a day-to-day basis.
 
+Oh yeah... I made a [Trello Board for Mango](https://trello.com/b/VPZSVFDs/mango-programming-language), so if I do start to begin working on Mango again you can see my progress there.
+
 ## Acknowledgements
 
  Mango also takes HEAVY inspiration from [Darksecond's Lox Implementation](https://github.com/Darksecond/lox), so much so that many section of the code looks very similar. I am somewhat new to Rust and using Darksecond's implementation to help me understand the "Rust way of doing things" on many occasions and was a very helpful resource. It also helped provide a solid framework to build upon while converting the C based [Crafting Interpreters](https://www.craftinginterpreters.com/) code into Rust.
