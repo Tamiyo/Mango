@@ -24,6 +24,6 @@ I don't know what will happen with Mango, I do find working on programming langu
 
 ## Acknowledgements
 
- Mango also takes HEAVY inspiration from [Darksecond's Lox Implementation](https://github.com/Darksecond/lox), so much so that many section of the code looks very similar. I am somewhat new to Rust and using Darksecond's implementation to help me understand the "Rust way of doing things" on many occasions and was a very helpful resource. It also helped provide a solid framework to build upon while converting the C based Crafting Interpreters](https://www.craftinginterpreters.com/) code into Rust.
+ Mango also takes HEAVY inspiration from [Darksecond's Lox Implementation](https://github.com/Darksecond/lox), so much so that many section of the code looks very similar. I am somewhat new to Rust and using Darksecond's implementation to help me understand the "Rust way of doing things" on many occasions and was a very helpful resource. It also helped provide a solid framework to build upon while converting the C based [Crafting Interpreters](https://www.craftinginterpreters.com/) code into Rust.
 
  I do not take any credit for original design on any parts of the language except those of which were not defined in [Darksecond's Lox Implementation](https://github.com/Darksecond/lox) or [Crafting Interpreters](https://www.craftinginterpreters.com/).
