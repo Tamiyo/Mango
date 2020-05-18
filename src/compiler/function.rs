@@ -1,3 +1,5 @@
+/// Defines a compile-time implementation of 'Function'
+/// and 'Closure' to use during compilation
 use crate::bytecode::chunk::ChunkIndex;
 use crate::compiler::local::Upvalue;
 use string_interner::Sym;

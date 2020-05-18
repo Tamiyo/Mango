@@ -1,3 +1,10 @@
+/// The VM, the beating heart of the language.
+///
+/// The VM takes in a set of bytecode and executes the bytecode.
+/// Bytecode execution "rules" are defined here as well, though it
+/// may be better to move them out to a seperate stage at some point.
+
+use crate::vm::gc::managed::UniqueRoot;
 use crate::bytecode::chunk::Instruction;
 use crate::bytecode::constant::Constant;
 use crate::bytecode::module::Module;
@@ -8,8 +15,9 @@ use crate::vm::error::RuntimeError;
 use crate::vm::function::Closure;
 use crate::vm::function::Function;
 use crate::vm::function::NativeFunction;
-use crate::vm::gc;
-use crate::vm::managed::Managed;
+use crate::vm::gc::gc;
+use crate::vm::gc::managed::Gc;
+use crate::vm::gc::managed::Root;
 use crate::vm::memory::Upvalue;
 use crate::vm::memory::Value;
 use std::cell::RefCell;
@@ -22,9 +30,9 @@ pub enum InterpreterResult {
     Done,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct CallFrame {
-    closure: Managed<Closure>,
+    closure: Root<Closure>,
     ip: usize,
     base_counter: usize,
     chunk_index: usize,
@@ -34,21 +42,21 @@ pub struct CallFrame {
 pub struct VM<'a> {
     module: &'a mut Module,
     frames: Vec<CallFrame>,
-    stack: Vec<Value>,
-    globals: HashMap<Sym, Value>,
-    upvalues: Vec<Managed<RefCell<Upvalue>>>,
+    stack: UniqueRoot<Vec<Value>>,
+    globals: UniqueRoot<HashMap<Sym, Value>>,
+    upvalues: Vec<Root<RefCell<Upvalue>>>,
     init_string: Sym,
 }
 
 impl<'a> VM<'a> {
     pub fn new(module: &'a mut Module) -> Self {
-        // TODO :- Move to another things
+        // TODO :- Move to another init file
         let init_string = module.strings.get_or_intern("init");
         VM {
             module,
             frames: vec![],
-            stack: vec![],
-            globals: HashMap::new(),
+            stack: gc::unique(vec![]),
+            globals: gc::unique(HashMap::new()),
             upvalues: vec![],
             init_string,
         }
@@ -68,23 +76,24 @@ impl<'a> VM<'a> {
             code: code,
         });
 
-        self.globals.insert(name, Value::NativeFunction(native));
+        self.globals
+            .insert(name, Value::NativeFunction(native.as_gc()));
     }
 
     pub fn interpret(&mut self) -> Result<(), RuntimeError> {
-        let function = Function {
+        let function = gc::manage(Function {
             arity: 0,
             chunk_index: 0,
             name: self.module.get_or_intern(""),
-        };
+        });
 
-        let closure = Closure {
-            function: gc::manage(function),
+        let closure = gc::manage(Closure {
+            function: function.as_gc(),
             upvalues: vec![],
-        };
+        });
 
         self.frames.push(CallFrame {
-            closure: gc::manage(closure),
+            closure: closure,
             ip: 0,
             base_counter: 0,
             chunk_index: 0,
@@ -149,8 +158,8 @@ impl<'a> VM<'a> {
                     self.push(Value::String(sym))
                 }
                 (Value::Array(e2), Value::Array(e1)) => {
-                    let v = [&e1[..], &e2[..]].concat();
-                    self.push(Value::Array(gc::manage(v)));
+                    let concat = [&e1[..], &e2[..]].concat();
+                    self.push(Value::Array(gc::manage(concat).as_gc()));
                 }
                 (n1, n2) => panic!(format!("Add not implemented for '{:?}' and '{:?}'", n1, n2)),
             },
@@ -308,7 +317,7 @@ impl<'a> VM<'a> {
             }
             Instruction::Closure(index) => {
                 if let Constant::Closure(closure) = self.module.get_constant(index) {
-                    let mut upvalues: Vec<Managed<RefCell<Upvalue>>> = vec![];
+                    let mut upvalues: Vec<Gc<RefCell<Upvalue>>> = vec![];
 
                     for u in &closure.upvalues {
                         if u.is_local {
@@ -316,10 +325,10 @@ impl<'a> VM<'a> {
                             let base = frame.base_counter;
                             let index = base + u.slot;
 
-                            let mut upvalue: Option<Managed<RefCell<Upvalue>>> = None;
+                            let mut upvalue: Option<Gc<RefCell<Upvalue>>> = None;
                             for managed in self.upvalues.iter().rev() {
                                 if (*managed).borrow().is_open(index) {
-                                    upvalue = Some(*managed);
+                                    upvalue = Some(managed.as_gc());
                                     break;
                                 }
                             }
@@ -328,8 +337,8 @@ impl<'a> VM<'a> {
                                 Some(up) => upvalues.push(up),
                                 None => {
                                     let managed = gc::manage(RefCell::new(Upvalue::Open(index)));
-                                    self.upvalues.push(managed);
-                                    upvalues.push(managed);
+                                    self.upvalues.push(managed.clone());
+                                    upvalues.push(managed.as_gc());
                                 }
                             }
                         } else {
@@ -344,28 +353,29 @@ impl<'a> VM<'a> {
                     });
 
                     let closure = gc::manage(Closure {
-                        function: function,
+                        function: function.as_gc(),
                         upvalues: upvalues,
                     });
 
-                    self.push(Value::Closure(closure));
+                    self.push(Value::Closure(closure.as_gc()));
                 } else {
                     return Err(RuntimeError::ExpectedClosure);
                 }
             }
             Instruction::Class(index) => {
                 if let Constant::Class(class) = self.module.constants.get(index) {
-                    let class = Class {
+                    let class = gc::manage(RefCell::new(Class {
                         name: class.name,
                         methods: HashMap::new(),
-                    };
-                    self.push(Value::Class(gc::manage(RefCell::new(class))));
+                    }));
+                    self.push(Value::Class(class.as_gc()));
                 } else {
                     return Err(RuntimeError::UnexpectedConstant);
                 }
             }
             Instruction::GetProperty(index) => {
                 if let Value::Instance(instance) = self.pop()? {
+                    let instance = gc::root(instance);
                     if let Constant::String(property) = self.module.get_constant(index) {
                         if let Some(value) = instance.borrow().fields.get(property) {
                             self.push(*value);
@@ -373,10 +383,10 @@ impl<'a> VM<'a> {
                             instance.borrow().class.borrow().methods.get(property)
                         {
                             let bounded = BoundMethod {
-                                receiver: Value::Instance(instance),
+                                receiver: instance.as_gc(),
                                 method: *method,
                             };
-                            let constant = Value::BoundMethod(gc::manage(bounded));
+                            let constant = Value::BoundMethod(gc::manage(bounded).as_gc());
                             self.push(constant);
                         } else {
                             return Err(RuntimeError::UndefinedProperty);
@@ -435,7 +445,7 @@ impl<'a> VM<'a> {
                     elements.push(e);
                 }
                 elements.reverse();
-                self.push(Value::Array(gc::manage(elements)))
+                self.push(Value::Array(gc::manage(elements).as_gc()))
             }
             Instruction::Slice => {
                 let step = match self.pop()? {
@@ -488,7 +498,7 @@ impl<'a> VM<'a> {
                         res.push(arr[i].clone());
                     }
                 };
-                self.push(Value::Array(gc::manage(res)));
+                self.push(Value::Array(gc::manage(res).as_gc()));
             }
             Instruction::Range => {
                 let step = match self.pop()? {
@@ -524,7 +534,7 @@ impl<'a> VM<'a> {
                     }
                     res.reverse();
                 };
-                self.push(Value::Array(gc::manage(res)));
+                self.push(Value::Array(gc::manage(res).as_gc()));
             }
             Instruction::Index => {
                 let index: isize = match self.pop()? {
@@ -734,13 +744,13 @@ impl<'a> VM<'a> {
                 self.push(result?);
             }
             Value::Class(class) => {
-                let instance = Instance {
+                let instance = gc::manage(RefCell::new(Instance {
                     class: class,
                     fields: HashMap::new(),
-                };
+                }));
 
                 let len = self.stack.len();
-                self.stack[len - arity - 1] = Value::Instance(gc::manage(RefCell::new(instance)));
+                self.stack[len - arity - 1] = Value::Instance(instance.as_gc());
 
                 if let Some(method) = class.borrow().methods.get(&self.init_string) {
                     if method.function.arity != arity {
@@ -757,7 +767,7 @@ impl<'a> VM<'a> {
                 }
 
                 let len = self.stack.len();
-                self.stack[len - arity - 1] = (*callee).receiver;
+                self.stack[len - arity - 1] = Value::Instance(callee.receiver);
                 self.begin_frame((*callee).method);
             }
             _ => return Err(RuntimeError::ExpectedCallee),
@@ -777,11 +787,11 @@ impl<'a> VM<'a> {
         self.upvalues.retain(|u| u.borrow().open());
     }
 
-    fn begin_frame(&mut self, closure: Managed<Closure>) {
+    fn begin_frame(&mut self, closure: Gc<Closure>) {
         let arity = closure.function.arity;
         let index = closure.function.chunk_index;
         self.frames.push(CallFrame {
-            closure: closure,
+            closure: gc::root(closure),
             ip: 0,
             base_counter: self.stack.len() - arity - 1,
             chunk_index: index,

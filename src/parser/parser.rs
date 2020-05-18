@@ -1,3 +1,11 @@
+/// Main Parser Code
+///
+/// The parser will take a given tokeninzed source input and do two things:
+///     1. Determine if the source code is semantically valid
+///     2. Construct an AST for the source code that will get passed
+///        on to the compiler.
+/// 
+/// The parser also takes advantage of Pratt Parsing to parse expressions
 use crate::bytecode::distance::Distance;
 use crate::parser::ast::Expr;
 use crate::parser::ast::Stmt;

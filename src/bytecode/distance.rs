@@ -1,7 +1,14 @@
+/// Since I am trying some performance optimizations in the compiler, I need to hash 
+/// constants. 
+/// 
+/// Rust prevents me from hashing floats directly, so I've defined the Distance
+/// struct to convert each float into it's integer form. 
+/// 
+/// See https://stackoverflow.com/questions/39638363/how-can-i-use-a-hashmap-with-f64-as-key-in-rust
+
 use std::cmp;
 use std::ops;
 
-// This is a more efficient version of hashing a float value
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct Distance {
     mantissa: u64,

@@ -1,3 +1,4 @@
+/// Error Enum to define possible problems during parsing.
 use crate::parser::tokens::Token;
 
 #[derive(Debug)]

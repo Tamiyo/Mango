@@ -1,3 +1,4 @@
+/// Manages local variables and scoping during compilation.
 use string_interner::Sym;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]

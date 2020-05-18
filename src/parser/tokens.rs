@@ -1,3 +1,4 @@
+/// Defines the valid set of Tokens that the Scanner will recoginze.
 use crate::bytecode::distance::Distance;
 
 #[derive(Debug, PartialEq, Clone)]

@@ -1,13 +1,19 @@
+/// Defines a runtime implementation of 'Function', 'Closure', and 'NativeFunction'
+/// to use during program execution.
+///
+/// The runtime implementation of these structs keep track of more state than their
+/// compile-time counterparts, and as such it is more efficient to redefine their
+/// new states here.
 use crate::bytecode::chunk::ChunkIndex;
 use crate::vm::error::RuntimeError;
-use crate::vm::gc::Trace;
-use crate::vm::managed::Managed;
+use crate::vm::gc::managed::Gc;
+use crate::vm::gc::managed::Trace;
 use crate::vm::memory::Upvalue;
 use crate::vm::memory::Value;
 use core::cell::RefCell;
 use string_interner::Sym;
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(PartialEq, Debug)]
 pub struct Function {
     pub name: Sym,
     pub chunk_index: ChunkIndex,
@@ -17,11 +23,10 @@ pub struct Function {
 impl Trace for Function {
     fn trace(&self) {}
 }
-
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq)]
 pub struct Closure {
-    pub function: Managed<Function>,
-    pub upvalues: Vec<Managed<RefCell<Upvalue>>>,
+    pub function: Gc<Function>,
+    pub upvalues: Vec<Gc<RefCell<Upvalue>>>,
 }
 
 impl std::fmt::Debug for Closure {

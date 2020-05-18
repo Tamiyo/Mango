@@ -1,3 +1,13 @@
+/// Main Compiler Code
+///
+/// The Compiler will take an AST (A vector of AST elements) and
+/// compiles both Statements and Expressions into Mango bytecode.
+///
+/// Current the compiler spits out a Module with the compiled chunks of bytecode inside
+/// and directly sends it off to the VM for execution. This works OK for now... but it
+/// might be better in the future to compile the bytecode into a file, kinda like how
+/// Java compiles files into a myfile.c containing Java bytecode before execution to add
+/// some more developer flexibility.
 use crate::bytecode::chunk::Chunk;
 use crate::bytecode::chunk::ConstantIndex;
 use crate::bytecode::chunk::Instruction;

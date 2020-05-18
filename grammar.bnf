@@ -2,7 +2,7 @@ declaration ::= classDecl
                 | funDecl
                 | statement
 
-classDecl ::= "@" IDENTIFIER '{' function* "}"
+classDecl ::= "@" IDENTIFIER (':' IDENTIFER)? '{' function* "}"
 funDecl ::= "#" function
 
 statement ::= exprStmt

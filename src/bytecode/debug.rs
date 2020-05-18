@@ -1,3 +1,6 @@
+/// Debug code that will print out the instructions of each chunk with their 
+/// given offsets and operands.
+
 use crate::bytecode::chunk::Chunk;
 use crate::bytecode::chunk::Instruction;
 use crate::bytecode::constant::Constant;

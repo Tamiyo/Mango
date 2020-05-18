@@ -1,3 +1,10 @@
+/// Defines the Scanner
+/// 
+/// The Scanner takes a user's source code as a &str and converts it into
+/// a vector of Tokens. 
+/// 
+/// The vector of tokens then gets sent to the parser to parse.
+
 use crate::bytecode::distance::Distance;
 use crate::parser::tokens::Symbol;
 use crate::parser::tokens::Token;

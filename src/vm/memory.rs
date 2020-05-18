@@ -1,11 +1,17 @@
+/// The runtime implementation of possible Values that present themselves
+/// during execution.
+///
+/// The Values here are given more state than their compile-time constants
+/// brethern, and thus a redefinition of them here is needed to keep track
+/// of the new state.
 use crate::bytecode::chunk::StackIndex;
 use crate::vm::class::BoundMethod;
 use crate::vm::class::Class;
 use crate::vm::class::Instance;
 use crate::vm::function::Closure;
 use crate::vm::function::NativeFunction;
-use crate::vm::gc::Trace;
-use crate::vm::managed::Managed;
+use crate::vm::gc::managed::Gc;
+use crate::vm::gc::managed::Trace;
 use core::cell::RefCell;
 use string_interner::Sym;
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -48,16 +54,16 @@ pub enum Value {
     None,
 
     // Data Structures
-    Array(Managed<Vec<Value>>),
+    Array(Gc<Vec<Value>>),
 
     // Objects
-    Closure(Managed<Closure>),
-    NativeFunction(Managed<NativeFunction>),
+    Closure(Gc<Closure>),
+    NativeFunction(Gc<NativeFunction>),
 
-    Class(Managed<RefCell<Class>>),
-    Instance(Managed<RefCell<Instance>>),
+    Class(Gc<RefCell<Class>>),
+    Instance(Gc<RefCell<Instance>>),
 
-    BoundMethod(Managed<BoundMethod>),
+    BoundMethod(Gc<BoundMethod>),
 }
 
 impl PartialEq<Value> for Value {

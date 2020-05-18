@@ -1,3 +1,9 @@
+/// (Current & Temporary) main point of execution for Mango code.
+///
+/// Takes in a string of input and then begins Scanning/Parsing/Compiling/Running the
+/// user's source code.
+///
+/// Eventually this should be turned into a REPL with the ability to run Mango source code files.
 use crate::bytecode::module::Module;
 use crate::compiler::compiler::Compiler;
 use crate::parser::parser::Parser;
