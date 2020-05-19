@@ -4,6 +4,9 @@
 pub enum CompileError {
     VariableNotInitialized,
     UnexpectedExpression,
+    ClassCannotSuperItself,
+    SuperUsedWithoutSuperclass,
+    SuperUsedOutsideClass,
     MyUsedOutsideClass,
     ReturnInScript,
     ReturnInInitializer,

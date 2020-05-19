@@ -1,3 +1,8 @@
+/// The VM, the beating heart of the language.
+///
+/// The VM takes in a set of bytecode and executes the bytecode.
+/// Bytecode execution "rules" are defined here as well, though it
+/// may be better to move them out to a seperate stage at some point.
 use crate::bytecode::chunk::Instruction;
 use crate::bytecode::constant::Constant;
 use crate::bytecode::module::Module;
@@ -11,11 +16,6 @@ use crate::vm::function::NativeFunction;
 use crate::vm::gc::gc;
 use crate::vm::gc::managed::Gc;
 use crate::vm::gc::managed::Root;
-/// The VM, the beating heart of the language.
-///
-/// The VM takes in a set of bytecode and executes the bytecode.
-/// Bytecode execution "rules" are defined here as well, though it
-/// may be better to move them out to a seperate stage at some point.
 use crate::vm::gc::managed::UniqueRoot;
 use crate::vm::memory::Upvalue;
 use crate::vm::memory::Value;
@@ -105,6 +105,14 @@ impl<'a> VM<'a> {
             let frame = self.current_frame();
             self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
+
+        if false {
+            println!("instruction: {:?}", instruction);
+            println!("stack:");
+            for e in &*self.stack {
+                println!("\t{:?}", e);
+            }
+        }
 
         match instruction {
             Instruction::Constant(index) => {
@@ -266,6 +274,11 @@ impl<'a> VM<'a> {
                     if let Some(constant) = glob_key {
                         self.push(constant);
                     } else {
+                        println!(
+                            "undefined: {:?} / {:?}",
+                            self.module.strings.resolve(*key),
+                            key
+                        );
                         return Err(RuntimeError::UndefinedVariable);
                     }
                 } else {
@@ -283,6 +296,28 @@ impl<'a> VM<'a> {
                     Upvalue::Closed(value) => value,
                 };
                 self.push(value);
+            }
+            Instruction::GetSuper(index) => {
+                let class = self.pop()?;
+                if let Constant::String(key) = self.module.constants.get(index) {
+                    if let Value::Class(superclass) = class {
+                        if let Some(method) = superclass.borrow().methods.get(key) {
+                            let bounded = BoundMethod {
+                                receiver: gc::manage(RefCell::new(class)).as_gc(),
+                                method: *method,
+                            };
+                            let constant = Value::BoundMethod(gc::manage(bounded).as_gc());
+                            self.push(constant);
+                        } else {
+                            return Err(RuntimeError::UndefinedProperty);
+                        }
+                    } else {
+                        println!("got instead: {:?}", class);
+                        return Err(RuntimeError::ExpectedClass);
+                    }
+                } else {
+                    return Err(RuntimeError::ExpectedStringConstant);
+                }
             }
             Instruction::SetGlobal(index) => {
                 let value = *self.peek()?;
@@ -368,8 +403,27 @@ impl<'a> VM<'a> {
                     return Err(RuntimeError::UnexpectedConstant);
                 }
             }
+            Instruction::Inherit => {
+                if let Value::Class(superclass) = self.peek_n(1)? {
+                    if let Value::Class(subclass) = self.peek()? {
+                        let superclass_methods = superclass.borrow().methods.clone();
+                        let mut subclass = subclass.borrow_mut();
+                        subclass.methods.extend(
+                            superclass_methods
+                                .into_iter()
+                                .map(|(k, v)| (k.clone(), v.clone())),
+                        );
+                    } else {
+                        return Err(RuntimeError::ExpectedClass);
+                    }
+                } else {
+                    return Err(RuntimeError::ExpectedClass);
+                }
+                self.pop()?;
+            }
             Instruction::GetProperty(index) => {
-                if let Value::Instance(instance) = self.pop()? {
+                let instance_popped = self.pop()?;
+                if let Value::Instance(instance) = instance_popped {
                     let instance = gc::root(instance);
                     if let Constant::String(property) = self.module.get_constant(index) {
                         if let Some(value) = instance.borrow().fields.get(property) {
@@ -378,7 +432,7 @@ impl<'a> VM<'a> {
                             instance.borrow().class.borrow().methods.get(property)
                         {
                             let bounded = BoundMethod {
-                                receiver: instance.as_gc(),
+                                receiver: gc::manage(RefCell::new(instance_popped)).as_gc(),
                                 method: *method,
                             };
                             let constant = Value::BoundMethod(gc::manage(bounded).as_gc());
@@ -421,6 +475,9 @@ impl<'a> VM<'a> {
                 } else {
                     return Err(RuntimeError::ExpectedCallee);
                 }
+            }
+            Instruction::SuperInvoke(method_sym, arity) => {
+                self.super_invoke(method_sym, arity)?;
             }
             Instruction::Invoke(sym, arity) => {
                 self.invoke(sym, arity)?;
@@ -696,6 +753,24 @@ impl<'a> VM<'a> {
         }
     }
 
+    fn super_invoke(&mut self, name: Sym, arity: usize) -> Result<(), RuntimeError> {
+        let receiver = *self.peek_n(arity)?;
+        match receiver {
+            Value::Class(class) => {
+                if let Some(closure) = class.borrow().methods.get(&name) {
+                    if closure.function.arity != arity {
+                        return Err(RuntimeError::IncorrectArity);
+                    }
+                    self.begin_frame(*closure);
+                } else {
+                    return Err(RuntimeError::UndefinedProperty);
+                }
+            }
+            _ => return Err(RuntimeError::ExpectedClass),
+        };
+        Ok(())
+    }
+
     fn invoke(&mut self, name: Sym, arity: usize) -> Result<(), RuntimeError> {
         let receiver = *self.peek_n(arity)?;
         match receiver {
@@ -710,6 +785,8 @@ impl<'a> VM<'a> {
                     }
                     self.begin_frame(*closure);
                 } else {
+                    println!("for: {:?}", receiver);
+                    println!("property: {:?}", self.module.strings.resolve(name));
                     return Err(RuntimeError::UndefinedProperty);
                 }
             }
@@ -760,7 +837,7 @@ impl<'a> VM<'a> {
                 }
 
                 let len = self.stack.len();
-                self.stack[len - arity - 1] = Value::Instance(callee.receiver);
+                self.stack[len - arity - 1] = *callee.receiver.borrow();
                 self.begin_frame((*callee).method);
             }
             _ => return Err(RuntimeError::ExpectedCallee),

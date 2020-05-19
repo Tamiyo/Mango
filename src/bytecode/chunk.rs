@@ -37,6 +37,7 @@ pub enum Instruction {
     GetGlobal(ConstantIndex),
     GetLocal(StackIndex),
     GetUpvalue(usize),
+    GetSuper(usize),
 
     SetGlobal(ConstantIndex),
     SetLocal(StackIndex),
@@ -48,9 +49,11 @@ pub enum Instruction {
     Closure(ConstantIndex),
 
     Class(ConstantIndex),
+    Inherit,
     GetProperty(ConstantIndex),
     SetProperty(ConstantIndex),
     Method,
+    SuperInvoke(Sym, usize),
     Invoke(Sym, usize),
 
     Pop,

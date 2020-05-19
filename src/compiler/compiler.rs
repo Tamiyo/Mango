@@ -40,6 +40,7 @@ pub enum ContextType {
 pub struct CompilerContext {
     pub context_type: ContextType,
     pub enclosing: usize,
+    pub no_enclosing: bool,
     pub chunk_index: usize,
     pub locals: Locals,
     pub upvalues: Vec<Upvalue>,
@@ -49,6 +50,7 @@ impl CompilerContext {
     pub fn new(
         context_type: ContextType,
         enclosing: usize,
+        no_enclosing: bool,
         chunk_index: usize,
         strings: &mut StringInterner<Sym>,
     ) -> Self {
@@ -69,6 +71,7 @@ impl CompilerContext {
         CompilerContext {
             context_type,
             enclosing,
+            no_enclosing,
             chunk_index,
             locals,
             upvalues: vec![],
@@ -102,6 +105,7 @@ impl CompilerContext {
 #[derive(Debug)]
 pub struct ClassContext {
     pub enclosing: usize,
+    pub superclass: bool,
     pub name: Sym,
 }
 
@@ -121,6 +125,7 @@ impl Compiler {
         contexts.push(CompilerContext::new(
             ContextType::Script,
             0,
+            true,
             chunk_index,
             &mut strings,
         ));
@@ -178,21 +183,16 @@ impl Compiler {
         sym: Sym,
     ) -> Result<Option<usize>, CompileError> {
         let context = &self.contexts[context_index];
-        if context.context_type == ContextType::Script {
-            return Ok(None);
-        } else {
-            let enclosing = context.enclosing;
-
-            if self.contexts[enclosing].context_type != ContextType::Script {
-                if let Some(slot) = self.contexts[enclosing].resolve_local(sym)? {
-                    let enclosing_mut = &mut self.contexts[enclosing];
-                    enclosing_mut.locals.mark_captured(slot);
-                    let index = self.contexts[context_index].add_upvalue(slot, true);
-                    return Ok(Some(index));
-                } else if let Some(slot) = self.resolve_upvalue(enclosing, sym)? {
-                    let index = self.contexts[context_index].add_upvalue(slot, false);
-                    return Ok(Some(index));
-                }
+        let enclosing = context.enclosing;
+        if !context.no_enclosing {
+            if let Some(slot) = self.contexts[enclosing].resolve_local(sym)? {
+                let enclosing_mut = &mut self.contexts[enclosing];
+                enclosing_mut.locals.mark_captured(slot);
+                let index = self.contexts[context_index].add_upvalue(slot, true);
+                return Ok(Some(index));
+            } else if let Some(slot) = self.resolve_upvalue(enclosing, sym)? {
+                let index = self.contexts[context_index].add_upvalue(slot, false);
+                return Ok(Some(index));
             }
         }
         Ok(None)
@@ -245,7 +245,9 @@ impl Compiler {
             Stmt::Function(ref sym, ref params, ref body) => {
                 self.compile_function(*sym, params, body)
             }
-            Stmt::Class(ref sym, ref methods) => self.compile_class(*sym, methods),
+            Stmt::Class(ref class_name, ref super_name, ref methods) => {
+                self.compile_class(*class_name, super_name, methods)
+            }
         }?;
 
         Ok(())
@@ -285,7 +287,11 @@ impl Compiler {
             Expr::Get(ref left, ref sym) => self.compile_get(left, *sym),
             Expr::Set(ref left, ref sym, ref right) => self.compile_set(left, *sym, right),
             Expr::My(ref sym) => self.compile_my(*sym),
+            Expr::Super(ref sym, ref name) => self.compile_super(*sym, *name),
             Expr::Invoke(ref left, ref sym, ref args) => self.compile_invoke(left, *sym, args),
+            Expr::SuperInvoke(ref sym, ref name, ref args) => {
+                self.compile_super_invoke(*sym, *name, args)
+            }
         }?;
 
         Ok(())
@@ -320,9 +326,7 @@ impl Compiler {
     fn compile_variable(&mut self, sym: Sym) -> Result<(), CompileError> {
         if let Some(local) = self.resolve_local(sym)? {
             self.add_instruction(Instruction::GetLocal(local));
-        } else if let Some(upvalue) =
-            self.resolve_upvalue(self.current_context().chunk_index, sym)?
-        {
+        } else if let Some(upvalue) = self.resolve_upvalue(self.contexts.len() - 1, sym)? {
             self.add_instruction(Instruction::GetUpvalue(upvalue));
         } else {
             let constant = self.add_constant(Constant::String(sym));
@@ -548,7 +552,29 @@ impl Compiler {
             Some(_) => (),
         };
 
-        self.compile_variable(sym)
+        self.compile_variable(sym)?;
+        Ok(())
+    }
+
+    fn compile_super(&mut self, sym: Sym, name: Sym) -> Result<(), CompileError> {
+        match self.current_class() {
+            None => return Err(CompileError::SuperUsedOutsideClass),
+            Some(class_context) => {
+                if !class_context.superclass {
+                    return Err(CompileError::SuperUsedWithoutSuperclass);
+                }
+            }
+        };
+
+        let my_sym = self.module.strings.get_or_intern("my");
+
+        self.compile_variable(my_sym)?;
+        self.compile_variable(sym)?;
+
+        let constant = self.add_constant(Constant::String(name));
+        self.add_instruction(Instruction::GetSuper(constant));
+
+        Ok(())
     }
 
     fn compile_invoke(&mut self, left: &Expr, sym: Sym, args: &[Expr]) -> Result<(), CompileError> {
@@ -557,6 +583,24 @@ impl Compiler {
             self.compile_expression(arg)?;
         }
         self.add_instruction(Instruction::Invoke(sym, args.len()));
+        Ok(())
+    }
+
+    fn compile_super_invoke(
+        &mut self,
+        super_sym: Sym,
+        method_sym: Sym,
+        args: &[Expr],
+    ) -> Result<(), CompileError> {
+
+        let my_sym = self.module.strings.get_or_intern("my");
+        self.compile_variable(my_sym)?;
+        self.compile_variable(super_sym)?;
+
+        for arg in args {
+            self.compile_expression(arg)?;
+        }
+        self.add_instruction(Instruction::SuperInvoke(method_sym, args.len()));
         Ok(())
     }
 
@@ -606,9 +650,7 @@ impl Compiler {
 
         if let Some(local) = self.resolve_local(sym)? {
             self.add_instruction(Instruction::SetLocal(local));
-        } else if let Some(upvalue) =
-            self.resolve_upvalue(self.current_context().chunk_index, sym)?
-        {
+        } else if let Some(upvalue) = self.resolve_upvalue(self.contexts.len() - 1, sym)? {
             self.add_instruction(Instruction::SetUpvalue(upvalue));
         }
         Ok(())
@@ -675,10 +717,11 @@ impl Compiler {
         }
 
         let chunk_index = self.module.add_chunk();
-        let enclosing = self.current_context().chunk_index;
+        let enclosing = self.contexts.len() - 1;
         self.contexts.push(CompilerContext::new(
             ContextType::Function,
             enclosing,
+            false,
             chunk_index,
             &mut self.module.strings,
         ));
@@ -746,7 +789,7 @@ impl Compiler {
         }
 
         let chunk_index = self.module.add_chunk();
-        let enclosing = self.current_context().chunk_index;
+        let enclosing = self.contexts.len() - 1;
 
         let method_type = if self.module.strings.get_or_intern("init") == sym {
             ContextType::Initializer
@@ -757,6 +800,7 @@ impl Compiler {
         self.contexts.push(CompilerContext::new(
             method_type,
             enclosing,
+            false,
             chunk_index,
             &mut self.module.strings,
         ));
@@ -805,29 +849,63 @@ impl Compiler {
         Ok(())
     }
 
-    fn compile_class(&mut self, sym: Sym, methods: &[Stmt]) -> Result<(), CompileError> {
+    fn compile_class(
+        &mut self,
+        class_name: Sym,
+        super_option: &Option<Sym>,
+        methods: &[Stmt],
+    ) -> Result<(), CompileError> {
         self.classes.push(ClassContext {
             enclosing: self.classes.len(),
-            name: sym,
+            superclass: super_option.is_some(),
+            name: class_name,
         });
 
-        self.declare_variable(sym);
-        let constant = self.add_constant(Constant::Class(Class { name: sym }));
+        self.declare_variable(class_name);
+        let constant = self.add_constant(Constant::Class(Class { name: class_name }));
         self.add_instruction(Instruction::Class(constant));
-        self.define_variable(sym);
+        self.define_variable(class_name);
 
-        self.compile_variable(sym)?;
+        if let Some(super_name) = super_option {
+            if class_name == *super_name {
+                return Err(CompileError::ClassCannotSuperItself);
+            } else {
+                let super_sym = self.module.strings.get_or_intern("super");
+                self.current_context_mut().locals.insert(super_sym);
+                self.current_context_mut().locals.mark_initialized();
+                self.compile_variable(*super_name)?;
+
+                self.begin_scope();
+
+                self.compile_variable(*super_name)?;
+                self.compile_variable(class_name)?;
+
+                self.add_instruction(Instruction::Inherit);
+
+                println!("upvalues for class: {:?}", self.current_context().upvalues);
+            }
+        }
+
+        self.compile_variable(class_name)?;
 
         self.begin_scope();
         for method in methods {
             if let Stmt::Function(ref sym, ref params, ref body) = method {
                 self.compile_method(*sym, params, body)?;
+                self.add_instruction(Instruction::Method);
             }
-            self.add_instruction(Instruction::Method);
         }
+
         self.end_scope();
 
-        self.classes.pop();
+        if let Some(class) = self.current_class() {
+            if class.superclass {
+                self.end_scope();
+            }
+        }
+
+        self.classes.pop().expect("Expect class to pop");
+
         Ok(())
     }
 }

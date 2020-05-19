@@ -202,13 +202,6 @@ impl<'a> Scanner<'a> {
             tokens.push(Token::new(result, self.line, self.column));
         }
         tokens.push(Token::new(Symbol::Eof, self.line, self.column));
-        println!(
-            "tokens: {:?}\n",
-            tokens
-                .iter()
-                .map(|t| t.symbol.clone())
-                .collect::<Vec<Symbol>>()
-        );
         tokens
     }
 }

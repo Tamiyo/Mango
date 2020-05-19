@@ -39,7 +39,7 @@ impl Trace for Instance {
 
 #[derive(Debug)]
 pub struct BoundMethod {
-    pub receiver: Gc<RefCell<Instance>>,
+    pub receiver: Gc<RefCell<Value>>,
     pub method: Gc<Closure>,
 }
 

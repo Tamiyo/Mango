@@ -16,25 +16,25 @@ mod vm;
 
 fn main() {
     let buf = "
-       @Oops {
-           #init() {
-                #f() {
-                    #g() {
-                        #j() {
-                            my.r = 4;
-                        }
-                        j();
-                    }
-                    print('Not a method');
-                    g();
-                }
-                my.field = f;
-            }
-       }
+    @A {
+        #method(x) {
+            print('Hello World with', x, 'from A!');
+        }
+    }
 
-       oops = Oops();
-       oops.field();
-       print(oops.r);
+    @B: A {
+        #method() {
+            #g() {
+                super.method(2);
+            }
+            print('Hello from B!');
+            g();
+            
+        }
+    }
+
+    t = B();
+    t.method();
     ";
 
     let mut parser = Parser::new(buf);
@@ -49,6 +49,10 @@ fn main() {
         Ok(module) => module.clone(),
         Err(e) => panic!(format!("{:?}", e)),
     };
+
+    // for (x, y) in module.strings.iter() {
+    //     println!("{:?}: {:?}", x, y);
+    // }
 
     let mut vm = VM::new(&mut module);
 

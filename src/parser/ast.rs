@@ -27,7 +27,9 @@ pub enum Expr {
     Get(Box<Expr>, Sym),
     Set(Box<Expr>, Sym, Box<Expr>),
     My(Sym),
+    Super(Sym, Sym),
     Invoke(Box<Expr>, Sym, Vec<Expr>),
+    SuperInvoke(Sym, Sym, Vec<Expr>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -40,5 +42,5 @@ pub enum Stmt {
     If(Box<Expr>, Box<Stmt>, Option<Box<Stmt>>),
     While(Box<Expr>, Box<Stmt>),
     Function(Sym, Vec<Sym>, Vec<Stmt>),
-    Class(Sym, Vec<Stmt>),
+    Class(Sym, Option<Sym>, Vec<Stmt>),
 }

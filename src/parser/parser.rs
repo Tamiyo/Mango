@@ -129,6 +129,17 @@ impl Parser {
             _ => return Err(ParseError::ExpectedIdentifier(next.clone())),
         }?;
 
+        let mut super_name: Option<Sym> = None;
+
+        if self.peek()?.symbol == Symbol::Colon {
+            self.consume(Symbol::Colon)?;
+            let next = self.next()?;
+            super_name = match next.symbol {
+                Symbol::Identifier(name) => Ok(Some(self.strings.get_or_intern(name))),
+                _ => return Err(ParseError::ExpectedIdentifier(next.clone())),
+            }?;
+        }
+
         self.consume(Symbol::LeftBrace)?;
         let mut methods: Vec<Stmt> = Vec::new();
         while self.peek()?.symbol != Symbol::RightBrace && self.peek()?.symbol != Symbol::Eof {
@@ -136,7 +147,7 @@ impl Parser {
             methods.push(method);
         }
         self.consume(Symbol::RightBrace)?;
-        Ok(Stmt::Class(name, methods))
+        Ok(Stmt::Class(name, super_name, methods))
     }
 
     fn parse_identifier_list(&mut self) -> Result<Vec<Sym>, ParseError> {
@@ -411,6 +422,7 @@ impl Parser {
                 Symbol::Number(_)
                 | Symbol::None
                 | Symbol::My
+                | Symbol::Super
                 | Symbol::String(_)
                 | Symbol::True
                 | Symbol::False
@@ -610,6 +622,23 @@ impl Parser {
             Symbol::False => Ok(Expr::Boolean(false)),
             Symbol::Identifier(s) => Ok(Expr::Variable(self.strings.get_or_intern(s))),
             Symbol::My => Ok(Expr::My(self.strings.get_or_intern("my"))),
+            Symbol::Super => {
+                let super_sym = self.strings.get_or_intern("super");
+                self.consume(Symbol::Dot)?;
+                let next = self.next()?;
+                let name = match next.symbol {
+                    Symbol::Identifier(name) => self.strings.get_or_intern(name),
+                    _ => return Err(ParseError::ExpectedIdentifier(next.clone())),
+                };
+                if self.peek()?.symbol == Symbol::LeftParen {
+                    self.consume(Symbol::LeftParen)?;
+                    let args = self.parse_expression_list()?;
+                    self.consume(Symbol::RightParen)?;
+                    Ok(Expr::SuperInvoke(super_sym, name, args))
+                } else {
+                    Ok(Expr::Super(super_sym, name))
+                }
+            }
             Symbol::LeftSquare => self.parse_multi_select_list(),
             _ => Err(ParseError::ExpectedLiteral(token.clone())),
         }
