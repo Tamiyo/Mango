@@ -10,7 +10,7 @@ Mango is the first programming language that I have ever made, (and I am also ne
 
 Mango derives heavily from the Lox language in [Crafting Interpreters](https://www.craftinginterpreters.com/) by Bob Nystrom. I have been following this book very closely during my implementation, with a few minor tweaks here and there to add more functionality to areas that I thought needed improvement.
 
-Currently Mango has completed up until [Chapter 29](https://www.craftinginterpreters.com/superclasses.html) of [Crafting Interpreters](https://www.craftinginterpreters.com/) with a few little additions along the way.
+Currently Mango has completed up until [Chapter 30](https://www.craftinginterpreters.com/optimization.html) of [Crafting Interpreters](https://www.craftinginterpreters.com/) with a few little additions along the way.
 
 ## The Future of Mango
 
