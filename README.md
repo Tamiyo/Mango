@@ -4,8 +4,7 @@
 
 Mango is a fun scripting language that I am developing in Rust.
 
-Mango is the first programming language that I have ever made, (and I am also newish to Rust), so there will most likely be imperfections within the code. Nonetheless, Mango has been a very fun project to work on! To see technical details, see the README.md under src/.
-
+Mango is the first programming language that I have ever made, (and I am also newish to Rust), so there will most likely be imperfections within the code. Nonetheless, Mango has been a very fun project to work on! To see technical details, see the [technical readme](https://github.com/Tamiyo/Mango/tree/master/src).
 ## A Lox Clone!
 
 Mango derives heavily from the Lox language in [Crafting Interpreters](https://www.craftinginterpreters.com/) by Bob Nystrom. I have been following this book very closely during my implementation, with a few minor tweaks here and there to add more functionality to areas that I thought needed improvement.
