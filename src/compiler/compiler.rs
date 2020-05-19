@@ -1,13 +1,3 @@
-/// Main Compiler Code
-///
-/// The Compiler will take an AST (A vector of AST elements) and
-/// compiles both Statements and Expressions into Mango bytecode.
-///
-/// Current the compiler spits out a Module with the compiled chunks of bytecode inside
-/// and directly sends it off to the VM for execution. This works OK for now... but it
-/// might be better in the future to compile the bytecode into a file, kinda like how
-/// Java compiles files into a myfile.c containing Java bytecode before execution to add
-/// some more developer flexibility.
 use crate::bytecode::chunk::Chunk;
 use crate::bytecode::chunk::ConstantIndex;
 use crate::bytecode::chunk::Instruction;
@@ -114,10 +104,11 @@ pub struct Compiler {
     module: Module,
     contexts: Vec<CompilerContext>,
     classes: Vec<ClassContext>,
+    debug: bool,
 }
 
 impl Compiler {
-    pub fn new(strings: StringInterner<Sym>) -> Self {
+    pub fn new(strings: StringInterner<Sym>, debug: bool) -> Self {
         let mut strings = strings;
         let chunk_index = 0;
 
@@ -137,6 +128,7 @@ impl Compiler {
             module,
             contexts,
             classes: vec![],
+            debug,
         }
     }
 
@@ -204,6 +196,11 @@ impl Compiler {
 
     fn end_scope(&mut self) {
         let locals = self.current_context_mut().locals.leave_scope();
+        for (k, v) in self.module.strings.iter() {
+            println!("{:?}: {:?}", k ,v);
+        }
+        println!("Locals: {:?}", locals);
+        println!("cur instr: {:?}",  self.current_chunk().instructions);
         for local in locals.iter().rev() {
             if local.is_captured {
                 self.add_instruction(Instruction::CloseUpvalue);
@@ -216,9 +213,11 @@ impl Compiler {
     pub fn compile(&mut self, statements: &[Stmt]) -> Result<&Module, CompileError> {
         self.compile_program(statements)?;
 
-        for chunk in &self.module.chunks {
-            chunk.disassemble(&self.module.constants);
-            println!();
+        if self.debug {
+            for chunk in &self.module.chunks {
+                chunk.disassemble(&self.module.constants);
+                println!();
+            }
         }
 
         Ok(&self.module)
@@ -592,7 +591,6 @@ impl Compiler {
         method_sym: Sym,
         args: &[Expr],
     ) -> Result<(), CompileError> {
-
         let my_sym = self.module.strings.get_or_intern("my");
         self.compile_variable(my_sym)?;
         self.compile_variable(super_sym)?;
@@ -734,7 +732,6 @@ impl Compiler {
         }
 
         self.compile_block(body)?;
-        self.end_scope();
 
         match body.last() {
             Some(Stmt::Return(_)) => (),
@@ -748,16 +745,13 @@ impl Compiler {
             }
         };
 
+
         let context = self
             .contexts
             .pop()
             .expect("Expect a context during function compilation");
 
-        println!(
-            "upvalues for {:?}: {:?}",
-            self.module.strings.resolve(sym).expect(""),
-            context.upvalues
-        );
+        // self.current_context_mut().locals.depth -= 1 ;
 
         let function = Function {
             name: sym,
@@ -774,6 +768,7 @@ impl Compiler {
         self.add_instruction(Instruction::Closure(constant));
 
         self.define_variable(sym);
+        // self.current_context_mut().locals.depth -= 1 ;
         Ok(())
     }
 
@@ -783,6 +778,9 @@ impl Compiler {
         params: &[Sym],
         body: &[Stmt],
     ) -> Result<(), CompileError> {
+
+        self.begin_scope();
+
         self.declare_variable(sym);
         if self.current_context().locals.depth > 0 {
             self.current_context_mut().locals.mark_initialized();
@@ -805,15 +803,12 @@ impl Compiler {
             &mut self.module.strings,
         ));
 
-        self.begin_scope();
-
         for param in params {
             self.declare_variable(*param);
             self.define_variable(*param);
         }
 
         self.compile_block(body)?;
-        self.end_scope();
 
         match body.last() {
             Some(Stmt::Return(_)) => (),
@@ -831,6 +826,9 @@ impl Compiler {
             .contexts
             .pop()
             .expect("Expect a context during function compilation");
+
+        self.current_context_mut().locals.depth -= 1 ;
+
         let function = Function {
             name: sym,
             chunk_index,
@@ -845,7 +843,7 @@ impl Compiler {
         let constant = self.add_constant(Constant::Closure(closure));
         self.add_instruction(Instruction::Closure(constant));
 
-        self.define_variable(sym);
+        // self.define_variable(sym);
         Ok(())
     }
 
@@ -881,14 +879,12 @@ impl Compiler {
                 self.compile_variable(class_name)?;
 
                 self.add_instruction(Instruction::Inherit);
-
-                println!("upvalues for class: {:?}", self.current_context().upvalues);
             }
         }
 
         self.compile_variable(class_name)?;
 
-        self.begin_scope();
+        // self.begin_scope();
         for method in methods {
             if let Stmt::Function(ref sym, ref params, ref body) = method {
                 self.compile_method(*sym, params, body)?;
@@ -896,13 +892,18 @@ impl Compiler {
             }
         }
 
-        self.end_scope();
+        // self.end_scope();
+
+        // self.add_instruction(Instruction::Pop);
 
         if let Some(class) = self.current_class() {
             if class.superclass {
                 self.end_scope();
             }
         }
+
+        self.add_instruction(Instruction::Pop);
+
 
         self.classes.pop().expect("Expect class to pop");
 

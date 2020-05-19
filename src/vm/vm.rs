@@ -1,11 +1,11 @@
+use crate::bytecode::chunk::Instruction;
+use crate::bytecode::constant::Constant;
+use crate::bytecode::module::Module;
 /// The VM, the beating heart of the language.
 ///
 /// The VM takes in a set of bytecode and executes the bytecode.
 /// Bytecode execution "rules" are defined here as well, though it
 /// may be better to move them out to a seperate stage at some point.
-use crate::bytecode::chunk::Instruction;
-use crate::bytecode::constant::Constant;
-use crate::bytecode::module::Module;
 use crate::vm::class::BoundMethod;
 use crate::vm::class::Class;
 use crate::vm::class::Instance;
@@ -44,11 +44,12 @@ pub struct VM<'a> {
     stack: UniqueRoot<Vec<Value>>,
     globals: UniqueRoot<HashMap<Sym, Value>>,
     upvalues: Vec<Root<RefCell<Upvalue>>>,
+    debug: bool,
     init_string: Sym,
 }
 
 impl<'a> VM<'a> {
-    pub fn new(module: &'a mut Module) -> Self {
+    pub fn new(module: &'a mut Module, debug: bool) -> Self {
         // TODO :- Move to another init file
         let init_string = module.strings.get_or_intern("init");
         VM {
@@ -57,11 +58,11 @@ impl<'a> VM<'a> {
             stack: gc::unique(vec![]),
             globals: gc::unique(HashMap::new()),
             upvalues: vec![],
+            debug,
             init_string,
         }
     }
 
-    #[allow(dead_code)]
     pub fn set_native_fn(
         &mut self,
         identifier: &str,
@@ -106,7 +107,7 @@ impl<'a> VM<'a> {
             self.module.get_chunk(frame.chunk_index).instructions[frame.ip - 1]
         };
 
-        if false {
+        if self.debug {
             println!("instruction: {:?}", instruction);
             println!("stack:");
             for e in &*self.stack {
