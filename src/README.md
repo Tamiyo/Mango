@@ -1,5 +1,15 @@
 # Mango Technical Specs
 
+## Running Mango
+Mango has been compiled into a CLI. You can set your path environment variable to point to `mango.exe` or you can call run `mango.exe` directly.
+
+<pre><code>mango test.mg</code></pre>
+or 
+<pre><code>./mango.exe test.mg</code></pre>
+
+Currently the CLI accepts a debug parameter "-d", but this currently just outprints debug text for the langauge creators.
+
+
 ## Variable Assignment
 
 Mango currently supports the following assignable values (though more are to come):
