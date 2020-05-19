@@ -1,5 +1,3 @@
-// #![windows_subsystem = "windows"]
-
 use crate::cli::parse_cli;
 
 mod bytecode;

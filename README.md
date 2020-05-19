@@ -4,7 +4,7 @@
 
 Mango is a fun scripting language that I am developing in Rust.
 
-Mango is the first programming language that I have ever made, (and I am also newish to Rust), so there will most likely be imperfections within the code. Nonetheless, Mango has been a very fun project to work on!
+Mango is the first programming language that I have ever made, (and I am also newish to Rust), so there will most likely be imperfections within the code. Nonetheless, Mango has been a very fun project to work on! To see technical details, see the README.md under src/.
 
 ## A Lox Clone!
 

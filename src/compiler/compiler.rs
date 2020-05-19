@@ -751,8 +751,6 @@ impl Compiler {
             .pop()
             .expect("Expect a context during function compilation");
 
-        // self.current_context_mut().locals.depth -= 1 ;
-
         let function = Function {
             name: sym,
             chunk_index,
@@ -768,7 +766,6 @@ impl Compiler {
         self.add_instruction(Instruction::Closure(constant));
 
         self.define_variable(sym);
-        // self.current_context_mut().locals.depth -= 1 ;
         Ok(())
     }
 
@@ -843,7 +840,6 @@ impl Compiler {
         let constant = self.add_constant(Constant::Closure(closure));
         self.add_instruction(Instruction::Closure(constant));
 
-        // self.define_variable(sym);
         Ok(())
     }
 

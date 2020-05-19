@@ -1,29 +1,10 @@
-@Array {
-    #init(arr) {
-        my.arr = arr;
-    }
+start = clock();
 
-    #append(e) {
-        print(e);
+@MyClass {
+    #init() {
+        my.name = "myclass";
     }
 }
-
-A = Array([1,2,3]);
-A.append(5);
-print(A.arr);
-
-#f() {
-    x = 4;
-    #g() {
-        #k() {
-            print(x);
-        }
-        k();
-    }
-    g();
-}
-
-f();
 
 #fibo(n) {
     if (n == 0) {
@@ -31,10 +12,20 @@ f();
     } elif (n == 1) {
         return 1;
     } else {
-        return (fibo(n - 1) + fibo(n - 2));
+        return fibo(n - 1) + fibo(n - 2);
     }
 }
 
-x = fibo(7);
+A = [2, 4, 6];
+for x in A {
+    print('A', x);
+}
 
-print(x);
+for x in 1:28 {
+    print(fibo(x));
+}
+
+C = MyClass();
+print(C.name);
+
+print("elapsed time (sec):", (clock() - start) / 1000);
