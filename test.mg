@@ -1,31 +1,22 @@
 start = clock();
 
-@MyClass {
-    #init() {
-        my.name = "myclass";
+#fibo(nth) {
+    p_previous = 0;
+    previous = 0;
+    cur = 1;
+
+    for i in 1:nth {
+        p_previous = previous;
+        previous = cur;
+        cur = p_previous + previous;
     }
+
+    return cur;
 }
 
-#fibo(n) {
-    if (n == 0) {
-        return 0;
-    } elif (n == 1) {
-        return 1;
-    } else {
-        return fibo(n - 1) + fibo(n - 2);
-    }
-}
 
-A = [2, 4, 6];
-for x in A {
-    print('A', x);
+for i in 1:60 {
+    print(fibo(i));
 }
-
-for x in 1:28 {
-    print(fibo(x));
-}
-
-C = MyClass();
-print(C.name);
 
 print("elapsed time (sec):", (clock() - start) / 1000);
