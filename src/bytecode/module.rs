@@ -1,8 +1,7 @@
 /// Defines a 'Module', which is a set of chunks, a shared constant pool, a string interner.
-/// 
+///
 /// Module is used during compliation to store the chunks for each scoped element
 /// instead of storing the elements in a linked list like fashion.
-
 use crate::bytecode::chunk::Chunk;
 use crate::bytecode::chunk::ChunkIndex;
 use crate::bytecode::chunk::ConstantIndex;

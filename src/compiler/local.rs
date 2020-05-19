@@ -62,10 +62,10 @@ impl Locals {
         }
     }
 
-    pub fn insert(&mut self, sym: &Sym) {
+    pub fn insert(&mut self, sym: Sym) {
         if self.get_at_depth(sym, self.depth) == None {
             self.stack.push(Local {
-                sym: *sym,
+                sym,
                 depth: self.depth,
                 slot: self.stack.len(),
                 is_initialized: false,
@@ -77,10 +77,10 @@ impl Locals {
     pub fn get(&self, sym: Sym) -> Option<&Local> {
         self.stack.iter().rev().find(|local| local.sym == sym)
     }
-    fn get_at_depth(&self, sym: &Sym, depth: usize) -> Option<&Local> {
+    fn get_at_depth(&self, sym: Sym, depth: usize) -> Option<&Local> {
         self.stack
             .iter()
             .rev()
-            .find(|local| local.sym == *sym && local.depth == depth)
+            .find(|local| local.sym == sym && local.depth == depth)
     }
 }

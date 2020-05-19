@@ -1,10 +1,3 @@
-/// The VM, the beating heart of the language.
-///
-/// The VM takes in a set of bytecode and executes the bytecode.
-/// Bytecode execution "rules" are defined here as well, though it
-/// may be better to move them out to a seperate stage at some point.
-
-use crate::vm::gc::managed::UniqueRoot;
 use crate::bytecode::chunk::Instruction;
 use crate::bytecode::constant::Constant;
 use crate::bytecode::module::Module;
@@ -18,6 +11,12 @@ use crate::vm::function::NativeFunction;
 use crate::vm::gc::gc;
 use crate::vm::gc::managed::Gc;
 use crate::vm::gc::managed::Root;
+/// The VM, the beating heart of the language.
+///
+/// The VM takes in a set of bytecode and executes the bytecode.
+/// Bytecode execution "rules" are defined here as well, though it
+/// may be better to move them out to a seperate stage at some point.
+use crate::vm::gc::managed::UniqueRoot;
 use crate::vm::memory::Upvalue;
 use crate::vm::memory::Value;
 use std::cell::RefCell;
@@ -70,11 +69,7 @@ impl<'a> VM<'a> {
         code: fn(&[Value]) -> Result<Value, RuntimeError>,
     ) {
         let name = self.module.strings.get_or_intern(identifier.to_string());
-        let native = gc::manage(NativeFunction {
-            name: name,
-            arity: arity,
-            code: code,
-        });
+        let native = gc::manage(NativeFunction { name, arity, code });
 
         self.globals
             .insert(name, Value::NativeFunction(native.as_gc()));
@@ -93,7 +88,7 @@ impl<'a> VM<'a> {
         });
 
         self.frames.push(CallFrame {
-            closure: closure,
+            closure,
             ip: 0,
             base_counter: 0,
             chunk_index: 0,
@@ -354,7 +349,7 @@ impl<'a> VM<'a> {
 
                     let closure = gc::manage(Closure {
                         function: function.as_gc(),
-                        upvalues: upvalues,
+                        upvalues,
                     });
 
                     self.push(Value::Closure(closure.as_gc()));
@@ -551,12 +546,10 @@ impl<'a> VM<'a> {
                                 let len = elements.len();
                                 self.push(elements[len - (-index as usize)].clone());
                             }
+                        } else if (index as usize) >= elements.len() {
+                            return Err(RuntimeError::IndexOutOfBounds);
                         } else {
-                            if (index as usize) >= elements.len() {
-                                return Err(RuntimeError::IndexOutOfBounds);
-                            } else {
-                                self.push(elements[index as usize].clone());
-                            }
+                            self.push(elements[index as usize].clone());
                         }
                     }
                     _ => return Err(RuntimeError::ExpectedNumber),
@@ -569,7 +562,7 @@ impl<'a> VM<'a> {
                     self.print_value(&e)?;
                     print!(" ");
                 }
-                println!("");
+                println!();
             }
             Instruction::Return => {
                 let res = self.pop()?;
@@ -650,11 +643,11 @@ impl<'a> VM<'a> {
                 if nested {
                     Ok(format!("\'{}\'", string))
                 } else {
-                    Ok(format!("{}", string))
+                    Ok(string.to_string())
                 }
             }
             Value::Boolean(b) => Ok(format!("{}", b)),
-            Value::None => Ok(format!("none")),
+            Value::None => Ok("none".to_string()),
             Value::Array(elements) => {
                 let mut res: String = "[".to_string();
                 for (i, e) in elements.iter().enumerate() {
@@ -745,7 +738,7 @@ impl<'a> VM<'a> {
             }
             Value::Class(class) => {
                 let instance = gc::manage(RefCell::new(Instance {
-                    class: class,
+                    class,
                     fields: HashMap::new(),
                 }));
 

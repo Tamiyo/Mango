@@ -1,10 +1,9 @@
 /// Defines the Scanner
-/// 
+///
 /// The Scanner takes a user's source code as a &str and converts it into
-/// a vector of Tokens. 
-/// 
+/// a vector of Tokens.
+///
 /// The vector of tokens then gets sent to the parser to parse.
-
 use crate::bytecode::distance::Distance;
 use crate::parser::tokens::Symbol;
 use crate::parser::tokens::Token;
@@ -149,12 +148,9 @@ impl<'a> Scanner<'a> {
         let mut tokens: Vec<Token> = Vec::new();
 
         loop {
-            match self.whitespace() {
-                Some(symbol) => {
-                    tokens.push(Token::new(symbol, self.line, self.column));
-                    self.whitespace();
-                }
-                None => (),
+            if let Some(symbol) = self.whitespace() {
+                tokens.push(Token::new(symbol, self.line, self.column));
+                self.whitespace();
             };
 
             let ch = match self.it.next() {

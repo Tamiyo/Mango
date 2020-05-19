@@ -1,5 +1,5 @@
 /// Defines the 'Constants' to be used within the Compiler.
-/// 
+///
 /// These are constants that the Compiler comes by during it's compilation phase,
 /// and they get stored in the Constant Pool for later use.
 use crate::bytecode::distance::Distance;

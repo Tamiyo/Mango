@@ -1,6 +1,5 @@
 /// Defines the instruction set that the virtual machine will use,
 /// and the Chunk that stores a set of instructions.
-
 use string_interner::Sym;
 
 pub type ChunkIndex = usize;

@@ -1,2 +1,2 @@
-pub mod managed;
 pub mod gc;
+pub mod managed;

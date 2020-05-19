@@ -1,8 +1,7 @@
-/// Defines an AST model for the compiler to use. 
-/// 
+/// Defines an AST model for the compiler to use.
+///
 /// This way we can provide further optimizations during compilation process
 /// rather than doing single-pass compilation.
-
 use crate::bytecode::distance::Distance;
 use crate::parser::tokens::Token;
 use string_interner::Sym;
