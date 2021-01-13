@@ -15,9 +15,7 @@ Currently Mango has completed up until [Chapter 30](https://www.craftinginterpre
 
 Mango's journey has been a long one. This project started over a year ago from writing this README in 2019 when I began to look into language creation. I took some classes at my school, fell in love with the idea of making a programming language, and dove into a few theorical textbooks on the subject. 
 
-As much as I like working on the language, I don't know if I want to spend an exuberant amount of time optimizing it for consumer use at this time. I have a lot to learn about language creation before I can mold Mango into something "useful" to code in. I also have couple of other side projects I'm interested in such as creating a ray tracing renderer. 
-
-As of writing this I'm graduating college with my bachelors and about to start a fulltime job in software development, and I also plan on going back to school while working in order to get a masters in computer science, so I'm about to get a lot busier :3. 
+As much as I like working on the language, I don't know if I want to spend an exuberant amount of time optimizing it for consumer use at this time. I have a lot to learn about language creation before I can mold Mango into something "useful" to code in.
 
 I don't know what will happen with Mango, I do find working on programming languages to be an __extremely__ fun pastime, so who knows? Maybe one day I'll make Mango into a full fledged programming language that I can feel comfortable using on a day-to-day basis.
 
